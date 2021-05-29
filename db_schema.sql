@@ -1,5 +1,5 @@
-CREATE TABLE public.incident (
-    id serial PRIMARY  KEY,
+CREATE TABLE public.incidents (
+    id serial PRIMARY KEY,
 	incident_time timestamp(0) NOT NULL,
     created_on TIMESTAMP NOT NULL,
 	title varchar(1024) NOT NULL,
@@ -8,11 +8,11 @@ CREATE TABLE public.incident (
 	url varchar(1024) NULL,
 	incident_source varchar(64) NOT NULL
 );
-CREATE INDEX incident_time_idx ON public.incident (incident_time);
-CREATE INDEX incident_location_idx ON public.incident (incident_location, incident_time);
+CREATE INDEX incident_time_idx ON public.incidents (incident_time);
+CREATE INDEX incident_location_idx ON public.incidents (incident_location, incident_time);
 
 -- Column comments
 
-COMMENT ON COLUMN public.incident.incident_location IS '2 char State code';
-COMMENT ON COLUMN public.incident.url IS 'Link to the original website';
-COMMENT ON COLUMN public.incident.incident_source IS 'A short name of the source type, such as NEWS|CNN|FBI|NYPD_TWITTER|NYPD_DB, etc. Will use to help assess reliability of the data. Each crawler will pick a unique source for data it cralws from.';
+COMMENT ON COLUMN public.incidents.incident_location IS '2 char State code';
+COMMENT ON COLUMN public.incidents.url IS 'Link to the original website';
+COMMENT ON COLUMN public.incidents.incident_source IS 'A short name of the source type, such as NEWS|CNN|FBI|NYPD_TWITTER|NYPD_DB, etc. Will use to help assess reliability of the data. Each crawler will pick a unique source for data it cralws from.';
