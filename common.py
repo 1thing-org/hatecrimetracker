@@ -10,8 +10,14 @@ class Incident(object):
         self.url = url
         self.incident_source = incident_source
 
-    @staticmethod
-    def fromDict(dict):
-        if dict is not None:
-            return User(name=dict.get('name'), email=dict.get('email'))
-        return None
+    def to_dict(self):
+        return {
+            "id" : self.id,
+            "incident_time" : self.incident_time,
+            "created_on" : self.created_on,
+            "title" : self.title,
+            "abstract" : self.abstract,
+            "incident_location" : self.incident_location,
+            "url" : self.url,
+            "incident_source" : self.incident_source
+        }

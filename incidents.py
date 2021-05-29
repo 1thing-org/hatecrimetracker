@@ -128,5 +128,5 @@ def getIncidents():
                     url = row['url'],
                     incident_source = row['incident_source'],
                     title = row['title']
-            ))
+            ).to_dict())
     return incidents

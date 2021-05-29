@@ -15,7 +15,7 @@
 from incidents import getIncidents
 from logging import error
 from common import Incident
-import datetime
+import json
 
 from flask import Flask, render_template, request
 
@@ -30,6 +30,11 @@ def root():
     return render_template(
         'index.html',
         incidents=incidents)
+
+@app.route('/incidents')
+def get_incidents():
+    incidents = getIncidents()
+    return {"incidents":incidents};
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
