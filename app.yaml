@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-service: hatecrimetracker
 runtime: python39
 
 handlers:
@@ -28,7 +27,8 @@ handlers:
   script: auto
 
 env_variables:
-  DB_HOST: localhost:5432
+#  DB_SOCKET_DIR: cloudsql
+  CLOUD_SQL_CONNECTION_NAME: hatecrimetracker-2021:us-central1:crimetracker
   DB_USER: postgres
   DB_PASS: postgres
   DB_NAME: hatecrimetracker
