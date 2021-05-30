@@ -55,8 +55,9 @@ class GoogleNewsExtractor:
         
         # TODO: Perform NLP to understand if this is an incident and extract its time and location
         tmp_location = self.nan
+        tmp_ts = self.nan
             
-        self.__handle([tmp_id, tmp_publish_ts, tmp_title, tmp_abstract, tmp_location, tmp_url, tmp_source])
+        self.__handle([tmp_id, tmp_ts, tmp_publish_ts, tmp_title, tmp_abstract, tmp_location, tmp_url, tmp_source])
         
     def search_and_extract(self, query, time_end, time_delta):
         end = time_end.strftime(self.TIME_FORMAT)

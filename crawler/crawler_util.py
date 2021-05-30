@@ -18,6 +18,7 @@ class NewsCrawler:
     
     def __write_csv_header(self, csv_file):
         csv_file.writerow(['id', 
+                           'incident_time',
                            'created_on', 
                            'title', 
                            'abstract', 
