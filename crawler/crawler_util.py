@@ -1,6 +1,6 @@
 import csv
 import datetime
-from pygooglenews_util import GoogleNewsExtractor
+from crawler.pygooglenews_util import GoogleNewsExtractor
 
 class NewsCrawler:
     

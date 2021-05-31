@@ -1,4 +1,6 @@
-from crawler_util import NewsCrawler
+
+from crawler.crawler_util import NewsCrawler
+
 
 PROJECT_NAME = 'asian_hate_crime'
 QUERY = '"asian hate crime" AND ("report" OR "incident")'
