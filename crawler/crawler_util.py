@@ -53,7 +53,7 @@ class NewsCrawler:
                 # skip header
                 row = next(f)
                 if row[0] != 'id':
-                    self.__id_set.add(row[0]) 
+                    self.__id_set.add(row[0])
                 
                 for row in f:
                     self.__id_set.add(row[0])    

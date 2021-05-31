@@ -13,8 +13,10 @@
 # limitations under the License.
 
 from incidents import getIncidents
+from stats import getStats
 from logging import error
 from common import Incident
+import datetime
 import json
 
 from flask import Flask, render_template, request
@@ -35,6 +37,13 @@ def root():
 def get_incidents():
     incidents = getIncidents()
     return {"incidents":incidents};
+
+DEFAULT_START_DATETIME = datetime.datetime.fromtimestamp(0)
+@app.route('/stats')
+def get_stats():
+    start = request.args.get("start", DEFAULT_START_DATETIME)
+    end = request.args.get("end", datetime.datetime.now())
+    return {"stats": getStats(start, end)}
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
