@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-from crawler.crawler_util import NewsCrawler
-=======
+__author__ == "houcheng"
 
 from crawler.crawler_util import NewsCrawler
-
->>>>>>> 9753a4a15dc00123bbed4f55b297c15d51471a41
 
 PROJECT_NAME = 'asian_hate_crime'
 QUERY = '"asian hate crime" AND ("report" OR "incident")'

@@ -1,3 +1,5 @@
+__author__ == "houcheng"
+
 import csv
 import datetime
 from crawler.pygooglenews_util import GoogleNewsExtractor
