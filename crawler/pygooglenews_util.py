@@ -9,12 +9,13 @@ from newspaper import Article
 
 class GoogleNewsExtractor:
     
-    def __init__(self, handle, lang = 'en', country = 'US'):
+    def __init__(self, handle, id_filter, lang = 'en', country = 'US'):
         self.TIME_FORMAT = '%Y-%m-%d'
         self.nan = ''
         
         self.__goog_news = GoogleNews(lang, country)
         self.__handle = handle
+        self.__id_filter = id_filter
         
     def __extract_entry(self, entry):
         """https://pythonhosted.org/feedparser/reference.html"""
@@ -22,6 +23,8 @@ class GoogleNewsExtractor:
         
         try:
             tmp_id = entry['id']
+            if not self.__id_filter(tmp_id):
+                return
         except Exception:
             tmp_id = self.nan
             

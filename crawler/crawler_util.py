@@ -1,6 +1,6 @@
 import csv
 import datetime
-from pygooglenews_util import GoogleNewsExtractor
+from crawler.pygooglenews_util import GoogleNewsExtractor
 
 class NewsCrawler:
     
@@ -12,6 +12,18 @@ class NewsCrawler:
         self.name = name
         self.query = query
         self.path = path
+        
+        self.__id_set = set()
+        
+    def __filte_by_id(self, id_str):
+        """
+        Return False iff |id_str| is duplicate. Otherwise return True and add it into the set.
+        """
+        if id_str in self.__id_set:
+            return False
+        else:
+            self.__id_set.add(id_str)
+            return True
         
     def __get_filename(self, date):
         return self.OUTFILE_FORMAT.format(path=self.path, name=self.name, date=date.strftime(self.time_format))
@@ -31,8 +43,20 @@ class NewsCrawler:
             f = csv.writer(outfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             self.__write_csv_header(f)
             
-            gne = GoogleNewsExtractor(f.writerow)
+            gne = GoogleNewsExtractor(f.writerow, self.__filte_by_id)
             gne.search_and_extract(self.query, time_end, self.TIME_DELTA)
+        
+    def update_id_set_from_files(self, infile_names):
+        for infile_name in infile_names:
+            with open(infile_name, 'r') as infile:
+                f = csv.reader(infile, delimiter=',', quotechar='"')
+                # skip header
+                row = next(f)
+                if row[0] != 'id':
+                    self.__id_set.add(row[0]) 
+                
+                for row in f:
+                    self.__id_set.add(row[0])    
         
     def make_csv_for_yesterday(self):
         outfile_name = self.__get_filename(datetime.datetime.now() - self.TIME_DELTA)
