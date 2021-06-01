@@ -1,3 +1,4 @@
+from sqlalchemy.sql.expression import insert
 from common import Incident
 import os
 import sqlalchemy
@@ -33,7 +34,6 @@ def init_connection_engine():
         # [END cloud_sql_postgres_sqlalchemy_lifetime]
     }
 
-    print("OS env:", os.environ)
     if os.environ.get("DB_HOST"):
         return init_tcp_connection_engine(db_config)
     else:
@@ -142,3 +142,22 @@ def getIncidents(start, end, state=""):
             ).to_dict())
 
     return incidents
+
+# incidents should be [
+#   {
+#       "incident_time" : incident_time
+#       "created_on"    : created_on
+#       "incident_location": incident_location
+#       "abstract"  : abstract
+#       "url"           : url
+#       "incident_source": incident_source
+#       "title"         : title
+#   }
+# ]
+def insertIncidents(incidents):
+    with db.connect() as conn:
+        conn.execute(
+            insert("incidents"),
+            incidents
+        )
+        conn.commit()

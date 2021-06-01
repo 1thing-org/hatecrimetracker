@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from time import time
+from crawler.news_crawler import NewsCrawler
 from incidents import getIncidents
 from stats import getStats
 from logging import error
@@ -70,6 +72,11 @@ def get_stats():
 
     return {"stats": stats, "total": total}
 
+@app.route('/loadnews')
+def loan_news():
+    crawler = NewsCrawler()
+    crawler.load_news(time_end = datetime.datetime.now())
+    
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
     # Engine, a webserver process such as Gunicorn will serve the app. This

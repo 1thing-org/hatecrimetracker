@@ -1,4 +1,3 @@
-__author__ == "houcheng"
 
 import datetime
 import time
@@ -44,11 +43,12 @@ class GoogleNewsExtractor:
             tmp_source = 'NEWS: ' + entry['source']['title']
         except Exception:
             tmp_source = 'NEWS'
-            
+        meta_tags = {}
         try:
             article = Article(tmp_url)
             article.download()
             article.parse()
+            meta_tags=article.tags
             if article.meta_description:
                 tmp_abstract = article.meta_description
             elif article.text:
@@ -62,7 +62,7 @@ class GoogleNewsExtractor:
         tmp_location = self.nan
         tmp_ts = self.nan
             
-        self.__handle([tmp_id, tmp_ts, tmp_publish_ts, tmp_title, tmp_abstract, tmp_location, tmp_url, tmp_source])
+        self.__handle([tmp_id, tmp_ts, tmp_publish_ts, tmp_title, tmp_abstract, tmp_location, tmp_url, tmp_source, meta_tags])
         
     def search_and_extract(self, query, time_end, time_delta):
         end = time_end.strftime(self.TIME_FORMAT)

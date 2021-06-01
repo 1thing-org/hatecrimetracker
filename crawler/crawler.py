@@ -1,4 +1,3 @@
-__author__ == "houcheng"
 
 from crawler.crawler_util import NewsCrawler
 
