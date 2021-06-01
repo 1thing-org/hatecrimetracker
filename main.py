@@ -26,6 +26,12 @@ from flask import Flask, render_template, request
 app = Flask(__name__)
 
 
+def _getCommonArgs():
+    start = request.args.get("start", DEFAULT_START_DATETIME)
+    end = request.args.get("end", datetime.datetime.now())
+    state = request.args.get("state", "")
+    return start, end, state
+
 @app.route('/')
 def root():
     incidents = getIncidents()
@@ -35,15 +41,33 @@ def root():
 
 @app.route('/incidents')
 def get_incidents():
-    incidents = getIncidents()
+    start, end, state = _getCommonArgs()
+    incidents = getIncidents(start, end, state)
     return {"incidents":incidents};
 
 DEFAULT_START_DATETIME = datetime.datetime.fromtimestamp(0)
+
 @app.route('/stats')
 def get_stats():
-    start = request.args.get("start", DEFAULT_START_DATETIME)
-    end = request.args.get("end", datetime.datetime.now())
-    return {"stats": getStats(start, end)}
+    start, end, state = _getCommonArgs()
+    stats = getStats(start, end, state)
+    total = {}
+    if state:
+        total[state] = 0
+        for stat in stats:
+            total[state] += stat["value"]
+    else:
+        # national data is by state and by date, merge all state per date, and calculate state total
+        aggregated = {}
+        for stat in stats:
+            date = stat["key"]
+            value = stat["value"]
+            location = stat["incident_location"]
+            aggregated[date] = aggregated.get(date, 0) + value
+            total[location] = total.get(location, 0) + value
+        stats = [{"key": k, "value": v} for k, v in aggregated.items()]
+
+    return {"stats": stats, "total": total}
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App

@@ -107,17 +107,28 @@ def init_unix_connection_engine(db_config):
 
 db = init_connection_engine()
 
-def getIncidents():
+
+QUERY_ALL_STATES=sqlalchemy.text("SELECT * from incidents "
+        "WHERE incident_time >= :start AND incident_time <= :end ORDER BY incident_time DESC limit 100")
+
+QUERY_ONE_STATE=sqlalchemy.text("SELECT * from incidents "
+                "WHERE incident_time >= :start AND incident_time <= :end AND incident_location = :state ORDER BY incident_time DESC limit 100")
+
+def getIncidents(start, end, state=""):
     incidents = []
 
     with db.connect() as conn:
         # Execute the query and fetch all results
-        recent_votes = conn.execute(
-            "SELECT * FROM public.incidents "
-            "ORDER BY incident_time DESC"
-        ).fetchall()
-        # Convert the results into a list of dicts representing votes
-        for row in recent_votes:
+        query = QUERY_ALL_STATES
+        parameters = {"start": start, "end": end}
+
+        if state:
+            query = QUERY_ONE_STATE
+            parameters["state"] = state
+
+        incidentsRows = conn.execute(query, parameters)
+
+        for row in incidentsRows:
             incidents.append(
                 Incident(
                     id = row['id'],
@@ -129,4 +140,5 @@ def getIncidents():
                     incident_source = row['incident_source'],
                     title = row['title']
             ).to_dict())
+
     return incidents
