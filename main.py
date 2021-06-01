@@ -34,7 +34,8 @@ def _getCommonArgs():
 
 @app.route('/')
 def root():
-    incidents = getIncidents()
+    start, end, state = _getCommonArgs()
+    incidents = getIncidents(start, end, state)
     return render_template(
         'index.html',
         incidents=incidents)
