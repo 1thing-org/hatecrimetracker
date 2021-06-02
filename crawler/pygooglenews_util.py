@@ -68,6 +68,6 @@ class GoogleNewsExtractor:
         end = time_end.strftime(self.TIME_FORMAT)
         start = (time_end - time_delta).strftime(self.TIME_FORMAT)
 
-        response = self.__goog_news.search(query, from_=start, to_=end)
+        response = self.__goog_news.search(query, when="1d") #from_=start, to_=end)
         for entry in response['entries']:
             self.__extract_entry(entry)

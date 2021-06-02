@@ -2,6 +2,23 @@ from sqlalchemy.sql.expression import insert
 from common import Incident
 import os
 import sqlalchemy
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column
+from sqlalchemy import Integer
+from sqlalchemy import DateTime
+from sqlalchemy import String
+
+Base = declarative_base()
+class IncidentTable(Base):
+    __tablename__ = "incidents"
+    id = Column(Integer, primary_key=True)
+    incident_time = Column(DateTime)
+    created_on = Column(DateTime)
+    incident_location =  Column(String)
+    abstract = Column(String)
+    url = Column(String)
+    incident_source = Column(String)
+    title = Column(String)
 
 def init_connection_engine():
     db_config = {
@@ -157,7 +174,6 @@ def getIncidents(start, end, state=""):
 def insertIncidents(incidents):
     with db.connect() as conn:
         conn.execute(
-            insert("incidents"),
+            IncidentTable.__table__.insert(),
             incidents
         )
-        conn.commit()
