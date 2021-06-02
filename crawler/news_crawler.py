@@ -90,13 +90,13 @@ class NewsCrawler:
             insertIncidents(self.incidentBuffer)
             self.incidentBuffer.clear()
 
-    def load_news(self, time_end, num_days=datetime.timedelta(1)):
+    def load_news(self, when="1d"):
         gne = GoogleNewsExtractor(self.__handler, self.__filter_by_id)
         for city in CITIES:
             self.city = city
             self.state = CITIES[city]
             gne.search_and_extract(
-                QUERY + " " + self.city, time_end, self.TIME_DELTA)
+                QUERY + " " + self.city, when)
         if len(self.incidentBuffer) > 0:
             insertIncidents(self.incidentBuffer)
             self.incidentBuffer.clear()

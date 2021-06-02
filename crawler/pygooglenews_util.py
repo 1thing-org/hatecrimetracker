@@ -64,10 +64,7 @@ class GoogleNewsExtractor:
             
         self.__handle([tmp_id, tmp_ts, tmp_publish_ts, tmp_title, tmp_abstract, tmp_location, tmp_url, tmp_source, meta_tags])
         
-    def search_and_extract(self, query, time_end, time_delta):
-        end = time_end.strftime(self.TIME_FORMAT)
-        start = (time_end - time_delta).strftime(self.TIME_FORMAT)
-
-        response = self.__goog_news.search(query, when="1d") #from_=start, to_=end)
+    def search_and_extract(self, query, when):
+        response = self.__goog_news.search(query, when=when) #from_=start, to_=end)
         for entry in response['entries']:
             self.__extract_entry(entry)
