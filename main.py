@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from load_data import loadData
 from time import time
 from crawler.news_crawler import NewsCrawler
 from incidents import getIncidents
@@ -73,9 +74,15 @@ def get_stats():
     return {"stats": stats, "total": total}
 
 @app.route('/loadnews')
-def loan_news():
+def load_news():
     crawler = NewsCrawler()
-    crawler.load_news(time_end = datetime.datetime.now())
+    when = request.args.get("when", default="1d")
+    crawler.load_news(when)
+    return "success"
+@app.route('/loaddata')
+def load_data():  
+    loadData("data.json")
+    return "success"
     
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App

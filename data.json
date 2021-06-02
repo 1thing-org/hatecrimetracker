@@ -1,0 +1,1982 @@
+[
+        {
+            "geometry": {
+                "x": -8236959.82,
+                "y": 4970887.14,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "2/5/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "A woman wearing a face mask was punched and kicked by a man who called her \"diseased\".",
+                "News_Source": "https://www.nbcnews.com/news/us-news/coronavirus-hate-attack-woman-face-mask-allegedly-assaulted-man-who-n1130671?cid=sm_npd_nn_tw_ma",
+                "Latitude": 40.718353,
+                "Longitude": -73.993869,
+                "__OBJECTID": 0
+            }
+        },
+        {
+            "geometry": {
+                "x": -8365672.09,
+                "y": 4857957.98,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "2/6/2020",
+                "Place_of_Incident": "Philadelphia, PA",
+                "Summary": "A reporter for the Philadelphia Inquirer was verbally harassed several times.",
+                "News_Source": "https://www.inquirer.com/health/coronavirus/coronavirus-panic-racism-chinese-americans-20200206.html",
+                "Latitude": 39.945034,
+                "Longitude": -75.150111,
+                "__OBJECTID": 1
+            }
+        },
+        {
+            "geometry": {
+                "x": -7910630.74,
+                "y": 5213562.43,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "2/7/2020",
+                "Place_of_Incident": "Boston, MA",
+                "Summary": "Restaurants in Chinatown in Boston have lost customers due to fears of coronavirus.",
+                "News_Source": "https://www.boston.com/food/restaurants/2020/02/10/coronavirus-impacting-boston-chinatown-restaurants",
+                "Latitude": 42.350064,
+                "Longitude": -71.062405,
+                "__OBJECTID": 2
+            }
+        },
+        {
+            "geometry": {
+                "x": -13161924.11,
+                "y": 4036339.79,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "2/11/2020",
+                "Place_of_Incident": "Los Angeles, CA",
+                "Summary": "A Thai-American woman on the Los Angeles subway captured footage of a man screaming racist comments and expletives about coronavirus.",
+                "News_Source": "https://www.nbcnews.com/news/asian-america/asians-worldwide-share-examples-coronavirus-related-xenophobia-social-media-n1132036",
+                "Latitude": 34.056118,
+                "Longitude": -118.235576,
+                "__OBJECTID": 3
+            }
+        },
+        {
+            "geometry": {
+                "x": -13167057.83,
+                "y": 4006222.29,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "2/13/2020",
+                "Place_of_Incident": "Los Angeles, CA",
+                "Summary": "A flyer in Los Angeles Carson area, with a fake seal of the World Health Organization, told residents to avoid Asian-American businesses because of coronavirus.",
+                "News_Source": "https://www.bbc.com/news/world-us-canada-51506732",
+                "Latitude": 33.831674,
+                "Longitude": -118.281693,
+                "__OBJECTID": 4
+            }
+        },
+        {
+            "geometry": {
+                "x": -13165386.37,
+                "y": 4034760.45,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "2/14/2020",
+                "Place_of_Incident": "Los Angeles, CA",
+                "Summary": "A Los Angeles middle schooler was beaten and hospitalized after students say he is as an Asian-American with coronavirus.",
+                "News_Source": "https://news.trust.org/item/20200214225344-4d4x6",
+                "Latitude": 34.044363,
+                "Longitude": -118.266678,
+                "__OBJECTID": 5
+            }
+        },
+        {
+            "geometry": {
+                "x": -13184644.42,
+                "y": 4053344.22,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "2/14/2020",
+                "Place_of_Incident": "San Fernando Valley, CA",
+                "Summary": "A 16-year-old boy in San Fernando Valley was physically attacked by bullies in his high school who accused him of having the coronavirus because he is Asian-American.",
+                "News_Source": "https://www.cbsnews.com/news/coronavirus-bullies-attack-asian-teen-los-angeles-accusing-him-of-having-coronavirus/",
+                "Latitude": 34.182578,
+                "Longitude": -118.439676,
+                "__OBJECTID": 6
+            }
+        },
+        {
+            "geometry": {
+                "x": -9606313.45,
+                "y": 5061907.65,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "2/15/2020",
+                "Place_of_Incident": "Plymouth, IN",
+                "Summary": "Two Hmong men were rejected from two hotels in Indiana due to being perceived to have the coronavirus by the hotel staff.",
+                "News_Source": "https://edition.cnn.com/2020/02/14/us/hmong-men-hotel-refusals/index.html",
+                "Latitude": 41.335184,
+                "Longitude": -86.294982,
+                "__OBJECTID": 7
+            }
+        },
+        {
+            "geometry": {
+                "x": -13125409.87,
+                "y": 4046757.94,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "2/20/2020",
+                "Place_of_Incident": "Azusa, CA",
+                "Summary": "Elementary Classroom assistant was made to feel uncomfortable by anti-Chinese sentiments at work before school shut down.",
+                "Latitude": 34.133619,
+                "Longitude": -117.907563,
+                "__OBJECTID": 8,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -13626785.74,
+                "y": 4545926.61,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "2/24/2020",
+                "Place_of_Incident": "San Francisco, CA",
+                "Summary": "Elderly Chinese Man Collecting Cans in SF Assaulted by Group in Heartbreaking Viral Video.",
+                "News_Source": "https://nextshark.com/elderly-chinese-man-collecting-cans-in-sf-assaulted-by-group-in-heartbreaking-viral-video/",
+                "Latitude": 37.762482,
+                "Longitude": -122.411499,
+                "__OBJECTID": 9
+            }
+        },
+        {
+            "geometry": {
+                "x": -13178437.92,
+                "y": 4032819.99,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "2/29/2020",
+                "Place_of_Incident": "Los Angeles, CA",
+                "Summary": "Two women, one of them Asian American, have an uncomfortable Lyft ride when driver purposefully wears a mask in her presence and gives her rude responses compared to her non-Asian companion.",
+                "Latitude": 34.029918,
+                "Longitude": -118.383922,
+                "__OBJECTID": 10,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -13061110.18,
+                "y": 3919960.86,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/1/2020",
+                "Place_of_Incident": "Oceanside, CA",
+                "Summary": "While shopping, Asian American customer is verbally accused by customer in line who says they (Asians) are the reason he has to buy water bottles.",
+                "Latitude": 33.185567,
+                "Longitude": -117.329949,
+                "__OBJECTID": 11,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -8230716.02,
+                "y": 4987078.27,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/2/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "Man accoustd by group, has water thrown on him for \"Having Coronavirus.\"",
+                "News_Source": "https://nextshark.com/man-fights-back-after-getting-water-thrown-at-him-because-he-has-coronavirus-in-nyc/",
+                "Latitude": 40.8285,
+                "Longitude": -73.93778,
+                "__OBJECTID": 12
+            }
+        },
+        {
+            "geometry": {
+                "x": -8362650.77,
+                "y": 4864686.38,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/4/2020",
+                "Place_of_Incident": "Philadelphia, PA",
+                "Summary": "In a Philadelphia SEPTA subway station, an Asian couple was surrounded by a group and attacked.",
+                "News_Source": "https://www.phillyvoice.com/philly-subway-assault-asian-couple-video-septa-police-coronavirus-fear-harassment/",
+                "Latitude": 39.991357,
+                "Longitude": -75.12297,
+                "__OBJECTID": 13
+            }
+        },
+        {
+            "geometry": {
+                "x": -8238681.49,
+                "y": 4961252.11,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/5/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "A person was seen spraying an Asian man with an unknown substance in the New York City Subway.",
+                "News_Source": "https://nypost.com/2020/03/05/straphanger-sprays-asian-man-with-febreze-in-possible-hate-crime/",
+                "Latitude": 40.65272,
+                "Longitude": -74.009335,
+                "__OBJECTID": 14
+            }
+        },
+        {
+            "geometry": {
+                "x": -8236497.51,
+                "y": 4962575.4,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/5/2020",
+                "Place_of_Incident": "Brooklyn, NY",
+                "Summary": "In Brooklyn, New York, a social media post was sent from the office of New York State Assemblymember Mathylde Frontus urging citizens to avoid Chinese businesses.",
+                "News_Source": "https://brooklyneagle.com/articles/2020/03/05/staffer-ousted-after-urging-boycott-of-asian-businesses-over-coronavirus-fears/",
+                "Latitude": 40.661738,
+                "Longitude": -73.989716,
+                "__OBJECTID": 15
+            }
+        },
+        {
+            "geometry": {
+                "x": -8236920.86,
+                "y": 4975619.83,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/6/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "While two Asian Americans are walking down the street, a man approaches them and verbally harasses and intimidates them before other bystanders take notice and approach.",
+                "Latitude": 40.750568,
+                "Longitude": -73.993519,
+                "__OBJECTID": 16,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -8238963.46,
+                "y": 4968874,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/7/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "An Asian American was walking down the street in the Wall St. area while wearing a mask. A man approached him, demanding money. Then when rejected continued to threaten the other's life with a suggestion of a concealed weapon. He eventually walked away. Racist words were not used but victim felt singled out amongst many other passerby.",
+                "Latitude": 40.704645,
+                "Longitude": -74.011868,
+                "__OBJECTID": 17,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -13174442.77,
+                "y": 4054899.77,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/8/2020",
+                "Place_of_Incident": "Burbank, CA",
+                "Summary": "Several men sitting at the outdoor Marriott bar verbally bullied an Asian American about the corona virus and said they hope a cure is found that doesn't work on Asians.",
+                "Latitude": 34.194137,
+                "Longitude": -118.348033,
+                "__OBJECTID": 18,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -8234441.77,
+                "y": 4980395.53,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/10/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "A Korean woman in Midtown Manhattan, New York City, was confronted on the street by somebody yelling \"Where is your corona mask, you Asian bitch?\" before punching the woman, dislocating her jaw.",
+                "News_Source": "https://abc7ny.com/6003396/",
+                "Latitude": 40.78306,
+                "Longitude": -73.971249,
+                "__OBJECTID": 19
+            }
+        },
+        {
+            "geometry": {
+                "x": -13625792.1,
+                "y": 4548722.94,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/10/2020",
+                "Place_of_Incident": "San Francisco, CA",
+                "Summary": "In San Francisco, a Chinese woman crossing a street was spat upon by a man yelling, \"Fuck China\", and \"run them all over\" as a bus crossed in her direction.",
+                "News_Source": "https://www.nbcbayarea.com/news/coronavirus/website-launches-to-document-anti-asian-hate-crimes-in-wake-of-covid-19/2258297/",
+                "Latitude": 37.782338,
+                "Longitude": -122.402573,
+                "__OBJECTID": 20
+            }
+        },
+        {
+            "geometry": {
+                "x": -13131746.4,
+                "y": 3996771.47,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/10/2020",
+                "Place_of_Incident": "Garden Grove, CA",
+                "Summary": "40,000 people signed a petition to expel two students from Bolsa Grande High School after they were seen in videos bullying Vietnamese-American students. Garden Grove Unified School District's public information officer responded by saying the students will face \"disciplinary action in accordance with the California Education Code.\"",
+                "News_Source": "https://www.foxnews.com/us/petition-expulsion-california-high-school-students-coronavirus-vietnamese-students",
+                "Latitude": 33.761122,
+                "Longitude": -117.964485,
+                "__OBJECTID": 21
+            }
+        },
+        {
+            "geometry": {
+                "x": -13334641.76,
+                "y": 4402621.96,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/10/2020",
+                "Place_of_Incident": "Fresno, CA",
+                "Summary": "California Family's Car Defaced with Racist grafitti.",
+                "News_Source": "https://nextshark.com/racist-graffiti-california-family-car/",
+                "Latitude": 36.737798,
+                "Longitude": -119.787125,
+                "__OBJECTID": 22
+            }
+        },
+        {
+            "geometry": {
+                "x": -8232106.62,
+                "y": 4981831.11,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/11/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "A 59-year-old Asian man told police a teen kicked him to the ground on the Upper East Side on Tuesday night, while yelling \"F-king Chinese coronavirus\" and then spat in his face.",
+                "News_Source": "https://nypost.com/2020/03/11/asian-man-is-victim-in-latest-coronavirus-fueled-hate-crime/",
+                "Latitude": 40.792824,
+                "Longitude": -73.950272,
+                "__OBJECTID": 23
+            }
+        },
+        {
+            "geometry": {
+                "x": -11870709.19,
+                "y": 4172967.87,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/12/2020",
+                "Place_of_Incident": "Albuquerque, NM",
+                "Summary": "A student at UNM filed a police report after someone covered his door at Lobo Village in plastic and posted a sign that said, \"Caution, Keep Out, Quarantine.\"",
+                "News_Source": "https://www.kob.com/albuquerque-news/chinese-student-at-unm-subject-of-racist-prank/5673113/",
+                "Latitude": 35.066838,
+                "Longitude": -106.636395,
+                "__OBJECTID": 24
+            }
+        },
+        {
+            "geometry": {
+                "x": -13160789.77,
+                "y": 4014605.71,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/12/2020",
+                "Place_of_Incident": "Campton, CA",
+                "Summary": "While waiting for an elevator in a large group of people at the courthouse, a woman told an Asian American \"ain't riding the elevator with you\" and waited for another elevator.  ",
+                "Latitude": 33.894209,
+                "Longitude": -118.225386,
+                "__OBJECTID": 25,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -8220370.77,
+                "y": 4970850.86,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/14/2020",
+                "Place_of_Incident": "Queens, NY",
+                "Summary": "An Asian man walking with his 10 year old son was harassed by a person yelling, \"Where the fuck is your mask? You fucking Chinese\" before being hit over the head.",
+                "News_Source": "https://nypost.com/2020/03/14/cops-bust-suspect-in-coronavirus-related-hate-crime-on-asian-man/",
+                "Latitude": 40.718106,
+                "Longitude": -73.844847,
+                "__OBJECTID": 26
+            }
+        },
+        {
+            "geometry": {
+                "x": -11363261.52,
+                "y": 3762962.25,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/14/2020",
+                "Place_of_Incident": "Midland, TX",
+                "Summary": "A Burmese man, Bawi Cung Nung, living in Midland, Texas, and his wife and two children went shopping in Sam's Club supermarket. 19-year-old man, Jose Gomez, attacked them with a knife. All four suffered injuries. The head and face of Bawi Cung Nung and one son Robert, were severely wounded. The supermarket staff and off-duty police officers subdued the attacker, stopping further injuries.",
+                "News_Source": "https://www.hk01.com/%E7%86%B1%E7%88%86%E8%A9%B1%E9%A1%8C/451227/%E6%96%B0%E5%86%A0%E8%82%BA%E7%82%8E%E4%B8%A8%E7%96%91%E7%96%AB%E6%83%85%E5%BC%95%E8%B5%B7%E7%A8%AE%E6%97%8F%E6%AD%A7%E8%A6%96-%E7%BE%8E%E5%9C%8B%E7%B7%AC%E7%94%B8%E8%A3%944%E4%BA%BA%E5%AE%B6%E5%BA%AD%E8%B6%85%E5%B8%82%E9%81%87%E8%A5%B2%E6%AF%80%E5%AE%B9",
+                "Latitude": 31.997346,
+                "Longitude": -102.077915,
+                "__OBJECTID": 27
+            }
+        },
+        {
+            "geometry": {
+                "x": -8236032.97,
+                "y": 4976708.31,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/15/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "A manverbally accosted an Asian couple who were wearing medical face masks at Times Square 42nd Street subway station in New York City.",
+                "News_Source": "https://www.albawaba.com/editors-choice/man-harasses-asian-couple-wearing-masks-new-york-1344756",
+                "Latitude": 40.757975,
+                "Longitude": -73.985543,
+                "__OBJECTID": 28
+            }
+        },
+        {
+            "geometry": {
+                "x": -13591182.2,
+                "y": 6052818.01,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/15/2020",
+                "Place_of_Incident": "Kirkland, WA",
+                "Summary": "Inside kirkland WA Costco store: A man and a woman verbally exchange racial fear mongering about an Asian American standing in earshot.",
+                "Latitude": 47.674167,
+                "Longitude": -122.091667,
+                "__OBJECTID": 29,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -13591182.2,
+                "y": 6052818.01,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/15/2020",
+                "Place_of_Incident": "Kirkland, WA",
+                "Summary": "In the parking lots of Kirkland WA Costco, an older men approximately 60yo made unfriendly eye contact and intentionally coughed on Asian American customer. ",
+                "Latitude": 47.674167,
+                "Longitude": -122.091667,
+                "__OBJECTID": 30,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -13591182.2,
+                "y": 6052818.01,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/15/2020",
+                "Place_of_Incident": "Redmond, WA",
+                "Summary": "In Redmond WA Costco, an older men approximately 60yo made unfriendly eye contact and intentionally coughed on Asian American customer.",
+                "Latitude": 47.674167,
+                "Longitude": -122.091667,
+                "__OBJECTID": 31,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -13126489.45,
+                "y": 4006380.69,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/15/2020",
+                "Place_of_Incident": "Anaheim, CA",
+                "Summary": "A group of kids bullied and threaten the life of their fellow Asian schoolmate. Bullying continued until school closed for COVID-19.",
+                "Latitude": 33.832856,
+                "Longitude": -117.917261,
+                "__OBJECTID": 32,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -8235809.55,
+                "y": 4977410.81,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/16/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "A woman in Midtown Manhattan was spat upon, and had her hair pulled out by a woman who blamed her for coronavirus.",
+                "News_Source": "https://nypost.com/2020/03/17/asian-woman-assaulted-in-manhattan-blamed-for-coronavirus-cops/",
+                "Latitude": 40.762755,
+                "Longitude": -73.983536,
+                "__OBJECTID": 33
+            }
+        },
+        {
+            "geometry": {
+                "x": -8920035.81,
+                "y": 2973175.56,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/16/2020",
+                "Place_of_Incident": "Miami Beach, FL",
+                "Summary": "Asian elderly woman harassed and chased with hand sanitizer.",
+                "News_Source": "https://nextshark.com/purell-man-chases-elderly-asian/",
+                "Latitude": 25.790654,
+                "Longitude": -80.130045,
+                "__OBJECTID": 34
+            }
+        },
+        {
+            "geometry": {
+                "x": -8739468.02,
+                "y": 4584166.81,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/16/2020",
+                "Place_of_Incident": "Charlottesville, VA",
+                "Summary": "International students at UVA are pelted with eggs.",
+                "News_Source": "https://nextshark.com/university-of-virginia-international-students-eggs/",
+                "Latitude": 38.033553,
+                "Longitude": -78.507977,
+                "__OBJECTID": 35
+            }
+        },
+        {
+            "geometry": {
+                "x": -7914535.49,
+                "y": 5213387.55,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/16/2020",
+                "Place_of_Incident": "Boston, MA",
+                "Summary": "A Lyft driver slows down and sees their customer is Asian American. The driver then pulls away and cancels pickup without any explanation or words exchanged.",
+                "Latitude": 42.348903,
+                "Longitude": -71.097482,
+                "__OBJECTID": 36,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -8234535.61,
+                "y": 4956005,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/17/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "An Asian women was riding the subway home in New York when a male passenger started making offensive remarks and another stepped in to defend her.",
+                "News_Source": "https://www.nbcnews.com/news/asian-america/video-shows-passenger-defending-asian-woman-facing-racism-new-york-n1162296",
+                "Latitude": 40.61695,
+                "Longitude": -73.972092,
+                "__OBJECTID": 37
+            }
+        },
+        {
+            "geometry": {
+                "x": -8236943.34,
+                "y": 4970983.34,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/17/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "Asian American journalist harassed for speaking Chinese outside of her apartment.",
+                "News_Source": "https://nextshark.com/jiayang-fan-the-new-yorker/",
+                "Latitude": 40.719008,
+                "Longitude": -73.993721,
+                "__OBJECTID": 38
+            }
+        },
+        {
+            "geometry": {
+                "x": -11872270.67,
+                "y": 4175354.79,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/17/2020",
+                "Place_of_Incident": "Albuquerque, NM",
+                "Summary": "Mimy Singviley, owner of Asian Noodle Bar, was target of racist vandalism - graffiti said \"Trucha with the coronavirus\"",
+                "News_Source": "https://www.kob.com/coronavirus/vandals-tag-downtown-asian-restaurant-with-racist-message/5677160/",
+                "Latitude": 35.084386,
+                "Longitude": -106.650422,
+                "__OBJECTID": 39
+            }
+        },
+        {
+            "geometry": {
+                "x": -8236199.95,
+                "y": 4974384.54,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/17/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "An Asian woman was walking to the subway station as she made her way home when a stranger jumped her. \"You're the reason why the coronavirus is here!\" the assailant screamed as she bumped the woman, then spat on her and pulled her hair.",
+                "News_Source": "https://www.nydailynews.com/coronavirus/ny-coronavirus-asian-woman-assaulted-midtown-coronavirus-hate-crime-20200317-vvk734btqjgh7blbdt5chwvlqy-story.html",
+                "Latitude": 40.742161,
+                "Longitude": -73.987043,
+                "__OBJECTID": 40
+            }
+        },
+        {
+            "geometry": {
+                "x": -8235236.26,
+                "y": 4976550.62,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/17/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "A man dressed head to toe in camouflage stormed up to a 47-year-old Asian man with his 10-year-old son and demanded to know why he wasnít wearing a mask. The suspect cursed at the victim then pushed his head before walking away.",
+                "News_Source": "https://www.nydailynews.com/coronavirus/ny-coronavirus-asian-woman-assaulted-midtown-coronavirus-hate-crime-20200317-vvk734btqjgh7blbdt5chwvlqy-story.html",
+                "Latitude": 40.756902,
+                "Longitude": -73.978386,
+                "__OBJECTID": 41
+            }
+        },
+        {
+            "geometry": {
+                "x": -8234945.05,
+                "y": 4960820.88,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/19/2020",
+                "Place_of_Incident": "Brooklyn, NY",
+                "Summary": "An Asian woman was robbed of her cellphone by a man who swung a punch at her and told her, \"Go back to China\", \"You are dirty, get your temperature checked\". The victim was physically unharmed.",
+                "News_Source": "https://www.nydailynews.com/coronavirus/ny-coronavirus-cellphone-robbery-hate-crime-brooklyn-subway-20200322-ufznc24nybcencdtja2ycbsx2i-story.html",
+                "Latitude": 40.649781,
+                "Longitude": -73.97577,
+                "__OBJECTID": 42
+            }
+        },
+        {
+            "geometry": {
+                "x": -13333023.4,
+                "y": 4403878.33,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/19/2020",
+                "Place_of_Incident": "Fresno, CA",
+                "Summary": "Asian woman trying to buy diapers earlier this week at a Fresno store when a woman told her to \"move out of my way\" and then used a racial slur.",
+                "News_Source": "https://www.fresnobee.com/news/coronavirus/article241340761.html",
+                "Latitude": 36.746842,
+                "Longitude": -119.772587,
+                "__OBJECTID": 43
+            }
+        },
+        {
+            "geometry": {
+                "x": -8515781.19,
+                "y": 5224352.54,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/19/2020",
+                "Place_of_Incident": "Ithaca, NY",
+                "Summary": "City confirms investigations of two reported incidents of verbal abuse towards Asian Americans regarding COVID-19.",
+                "News_Source": "https://www.ithacajournal.com/story/news/local/2020/03/19/coronavirus-ny-ithaca-asian-discrimination-cornell-chinese-virus-wuhan-trump-rhetoric/2864234001/",
+                "Latitude": 42.421658,
+                "Longitude": -76.498564,
+                "__OBJECTID": 44
+            }
+        },
+        {
+            "geometry": {
+                "x": -13633321.19,
+                "y": 4535433.26,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/21/2020",
+                "Place_of_Incident": "Daly City, CA",
+                "Summary": "Man is harrassed at a Target for coughing while Asian.",
+                "News_Source": "https://www.mercurynews.com/2020/03/21/coronavirus-attacks-against-asian-americans-reported-in-bay-area-and-beyond/",
+                "Latitude": 37.687924,
+                "Longitude": -122.470208,
+                "__OBJECTID": 45
+            }
+        },
+        {
+            "geometry": {
+                "x": -13626785.74,
+                "y": 4544499.86,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/23/2020",
+                "Place_of_Incident": "San Francisco, CA",
+                "Summary": "A woman walking to her gym class was verbal abused and spit on.",
+                "News_Source": "https://www.nytimes.com/2020/03/23/us/chinese-coronavirus-racist-attacks.html",
+                "Latitude": 37.752349,
+                "Longitude": -122.411499,
+                "__OBJECTID": 46
+            }
+        },
+        {
+            "geometry": {
+                "x": -8230267.85,
+                "y": 4976716.24,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/23/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "Dr. Edward Chew was verbally harrassed by 3 20-somethings who followed him out into a Home Depot parking lot while buying supplies for his healthcare workers.",
+                "News_Source": "https://www.nytimes.com/2020/03/23/us/chinese-coronavirus-racist-attacks.html",
+                "Latitude": 40.758029,
+                "Longitude": -73.933754,
+                "__OBJECTID": 47
+            }
+        },
+        {
+            "geometry": {
+                "x": -13435168.49,
+                "y": 4199067.21,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/23/2020",
+                "Place_of_Incident": "Kirkland, WA",
+                "Summary": "A Chinese American couple were standing in line when approached by an older white male. The man shoved the Chinese American man and intentionally coughed on them. He then threw them digusted expressions in the parking lot afterwards.",
+                "Latitude": 35.258509,
+                "Longitude": -120.690172,
+                "__OBJECTID": 48,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -9543485.74,
+                "y": 4611487.14,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/23/2020",
+                "Place_of_Incident": "Louisville, KY",
+                "Summary": "An Asian American shopping alone encounters 3 white men. One man takes out a handkerchief and places it over his face, indicating to his friends. This teasing seemed targeted as they did not tease or laugh at other customers in the store.",
+                "Latitude": 38.226605,
+                "Longitude": -85.730591,
+                "__OBJECTID": 49,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -13042450.14,
+                "y": 3858955.27,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/24/2020",
+                "Place_of_Incident": "San Diego, CA",
+                "Summary": "Uber Driver endures vicious Coronavirus Jokes from riders.",
+                "News_Source": "https://nextshark.com/uber-driver-coronavirus-jokes-san-diego/",
+                "Latitude": 32.725728,
+                "Longitude": -117.162323,
+                "__OBJECTID": 50
+            }
+        },
+        {
+            "geometry": {
+                "x": -8234055.49,
+                "y": 4975850.83,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/24/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "Asian family and their baby daughter encountered a racist woman at 47th Street and 1st Avenue. The older white woman lunged at family, shouting racist slurs and threatened to kill them. ",
+                "News_Source": "https://nextshark.com/asian-american-mother-racist-woman-new-york/",
+                "Latitude": 40.75214,
+                "Longitude": -73.967779,
+                "__OBJECTID": 51
+            }
+        },
+        {
+            "geometry": {
+                "x": -8235248.95,
+                "y": 4963266.47,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/25/2020",
+                "Place_of_Incident": "Brooklyn, NY",
+                "Summary": "Asian American Influencer and her elderly dog elegedly assualted in COVD-19 inspired attack. The assailant rushed the victim, shoved her and kicked her dog.",
+                "News_Source": "https://nextshark.com/influencer-feral-creature-and-elderly-dog-allegedly-assaulted-during-walk-in-brooklyn/",
+                "Latitude": 40.666447,
+                "Longitude": -73.9785,
+                "__OBJECTID": 52
+            }
+        },
+        {
+            "geometry": {
+                "x": -13603410.54,
+                "y": 6042241.02,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/25/2020",
+                "Place_of_Incident": "Seattle, WA",
+                "Summary": "A restaurant owner received a call saying that he was to blame for Corona Virus, and was given death threat.",
+                "News_Source": "https://q13fox.com/2020/03/25/it-bothers-me-to-my-core-bellevue-pd-say-covid-19-is-fueling-racist-threats/",
+                "Latitude": 47.61015,
+                "Longitude": -122.201516,
+                "__OBJECTID": 53
+            }
+        },
+        {
+            "geometry": {
+                "x": -9953352.52,
+                "y": 5323637.21,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/25/2020",
+                "Place_of_Incident": "Madison, WI",
+                "Summary": "Racist chalk messages appear on University of Wisconsin Campus.",
+                "News_Source": "https://www.jsonline.com/story/news/education/2020/03/25/uw-madison-condemns-racist-chalk-messages-blaming-coronavirus-china/2913828001/",
+                "Latitude": 43.076592,
+                "Longitude": -89.412487,
+                "__OBJECTID": 54
+            }
+        },
+        {
+            "geometry": {
+                "x": -8227389.46,
+                "y": 4964711.72,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/25/2020",
+                "Place_of_Incident": "Brooklyn, NY",
+                "Summary": "Man spat on Asian man in a Brooklyn subway station. When the victim asked why he spat on him, he yelled, \"You f-king Chinese spreading the coronavirus!\"",
+                "News_Source": "https://nypost.com/2020/03/25/asian-man-spat-on-in-latest-coronavirus-hate-crime-in-brooklyn-station/",
+                "Latitude": 40.676294,
+                "Longitude": -73.907897,
+                "__OBJECTID": 55
+            }
+        },
+        {
+            "geometry": {
+                "x": -10789186.68,
+                "y": 3856593.14,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/25/2020",
+                "Place_of_Incident": "Dallas, TX",
+                "Summary": "An Iraq war veteran standing in line to vote was called a racial slur and told that \"all you Asian people are spreading that Coronavirus.\"",
+                "News_Source": "https://www.kut.org/post/spike-prejudice-asian-americans-dfw-face-racism-coronavirus-spreads",
+                "Latitude": 32.707875,
+                "Longitude": -96.920913,
+                "__OBJECTID": 56
+            }
+        },
+        {
+            "geometry": {
+                "x": -8223980.86,
+                "y": 4973888.82,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/25/2020",
+                "Place_of_Incident": "Queens, NY",
+                "Summary": "While I was crossing the street, two Asian American siblings are approached by a man in his late-20s. He coughed on them then when confronted, said \"You people are the reason why we are all going to die\" and \"I hope you catch coronavirus and die\". He proceeded to instigate a fight which the siblings ignored and walked away.\n",
+                "Latitude": 40.738787,
+                "Longitude": -73.877277,
+                "__OBJECTID": 57,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -8836991.13,
+                "y": 5410244.82,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/25/2020",
+                "Place_of_Incident": "Toronto, Ont.",
+                "Summary": "While walking down the street an Asian American hears a woman yell at them, saying \"HEY YOU! YOUR MASK SCARED MY DOG\". The dog appeared fine and the incident suspicious of racial targeting.",
+                "Latitude": 43.642246,
+                "Longitude": -79.384042,
+                "__OBJECTID": 58,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -7906108.94,
+                "y": 5194245.6,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/25/2020",
+                "Place_of_Incident": "Boston, MA",
+                "Summary": "While shopping in a store, an Asian customer was persistently being followed and stared at by another non-Asian customer, throughout each aisle.",
+                "Latitude": 42.22169,
+                "Longitude": -71.021785,
+                "__OBJECTID": 59,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -13626378.08,
+                "y": 4542053.88,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/26/2020",
+                "Place_of_Incident": "San Francisco, CA",
+                "Summary": "A Filipino American school nurse was called a \"g**k\" by an elderly man while he was out doing deliveries during the COVID-19 outbreak.",
+                "News_Source": "https://nextshark.com/samaritan-gk-delivering-groceries-families/",
+                "Latitude": 37.734974,
+                "Longitude": -122.407837,
+                "__OBJECTID": 60
+            }
+        },
+        {
+            "geometry": {
+                "x": -13117712.02,
+                "y": 4006571.12,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/26/2020",
+                "Place_of_Incident": "Orange, CA",
+                "Summary": "An Asian American women exited a UPS store,and saw that a man sitting in his car was filming her and followed her until she got into her car. ",
+                "Latitude": 33.834277,
+                "Longitude": -117.838412,
+                "__OBJECTID": 61,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -8238303.67,
+                "y": 4970069.23,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/28/2020",
+                "Place_of_Incident": "New York",
+                "Summary": "Two African American men were seen making racial remarks torward an elderly asian man in their own video. The two men filming claimed that the elderly man had tried to kill their dog.",
+                "Latitude": 40.712784,
+                "Longitude": -74.005941,
+                "__OBJECTID": 62,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -10355782.84,
+                "y": 5602018.16,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/28/2020",
+                "Place_of_Incident": "South St. Paul, MI",
+                "Summary": "An Asian woman encoutered racism incident in a grocery store by another woman. The verbal assailant accused her of having Coronavirus and didn't want to be in her presence. The assailant was escorted out of the store.",
+                "News_Source": "https://m.facebook.com/story.php?story_fbid=2760702140682683&id=100002287731048?sfnsn=mo&d=n&vh=i",
+                "Latitude": 44.87598,
+                "Longitude": -93.02758,
+                "__OBJECTID": 63
+            }
+        },
+        {
+            "geometry": {
+                "x": -8222594.93,
+                "y": 4989473.93,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/30/2020",
+                "Place_of_Incident": "Bronx, New York",
+                "Summary": "In addition to another incident harassing a woman with hand sanitizer, @funnybuzzinhbtl has been reported to harass Chinese restaurants ever since COVID.",
+                "Latitude": 40.844782,
+                "Longitude": -73.864827,
+                "__OBJECTID": 64,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -10636053.7,
+                "y": 3465683.73,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "N/A",
+                "Place_of_Incident": "Houston, TX",
+                "Summary": "Chinatown in Houston faced a drop in customers after people falsely and maliciously spread rumors online of an outbreak of the coronavirus.",
+                "News_Source": "https://www.houstonchronicle.com/business/economy/article/Coronavirus-fears-weighing-on-Houston-economy-as-15033721.php",
+                "Latitude": 29.704979,
+                "Longitude": -95.545296,
+                "__OBJECTID": 65
+            }
+        },
+        {
+            "geometry": {
+                "x": -13129263.2,
+                "y": 4009992.49,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "N/A",
+                "Place_of_Incident": "Fullerton, CA",
+                "Summary": "An Asian American went to a bank to deposit money and the lady at the front told her to back off at least 3 feet. No other customers, who were white, were told to back off. ",
+                "Latitude": 33.859803,
+                "Longitude": -117.942178,
+                "__OBJECTID": 66,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -8237633.64,
+                "y": 4976377.94,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/27/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "Asian American approached by white couple who called her \"the virus\" and threatened to kick her dogs. ",
+                "News_Source": "https://m.facebook.com/story.php?story_fbid=10163219736760223&id=688885222",
+                "Latitude": 40.755727,
+                "Longitude": -73.999922,
+                "__OBJECTID": 67
+            }
+        },
+        {
+            "geometry": {
+                "x": -10679380.02,
+                "y": 5050254.77,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/30/2020",
+                "Place_of_Incident": "Omaha, Nebraska",
+                "Summary": "An electrical contracting company based in Omaha, Nebraska has reportedly blamed Asians and Asian Americans for its closure as a result of the COVID-19 outbreak.",
+                "News_Source": "https://nextshark.com/omaha-electrical-contracting-company-slanty-eyed/",
+                "Latitude": 41.256537,
+                "Longitude": -95.934503,
+                "__OBJECTID": 68
+            }
+        },
+        {
+            "geometry": {
+                "x": -13616994.63,
+                "y": 6040325.34,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/31/2020",
+                "Place_of_Incident": "Seattle, WA",
+                "Summary": "Jade Garden Restaurant is vandalized, windows broken.",
+                "News_Source": "https://iexaminer.org/western-washington-not-immune-to-racist-attacks-against-asian-americans-as-the-threat-of-coronavirus-spreads/",
+                "Latitude": 47.598547,
+                "Longitude": -122.323544,
+                "__OBJECTID": 69
+            }
+        },
+        {
+            "geometry": {
+                "x": -13603183.44,
+                "y": 6053421.79,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/31/2020",
+                "Place_of_Incident": "Seattle, WA",
+                "Summary": "Jay San was jumped outside of QFC and suffered bruises and cuts. He was called racial slurs.",
+                "News_Source": "https://iexaminer.org/western-washington-not-immune-to-racist-attacks-against-asian-americans-as-the-threat-of-coronavirus-spreads/",
+                "Latitude": 47.677819,
+                "Longitude": -122.199476,
+                "__OBJECTID": 70
+            }
+        },
+        {
+            "geometry": {
+                "x": -11702820.03,
+                "y": 4863994.35,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/19/2020",
+                "Place_of_Incident": "Louisville, CO",
+                "Summary": "Liquor store post sign with white supremacy symbol \"1488\" and the line \"Thanks China\"",
+                "News_Source": "https://www.coloradohometownweekly.com/2020/03/19/louisville-liquor-store-under-fire-for-thanks-china-sign-during-coronavirus-outbreak/",
+                "Latitude": 39.986594,
+                "Longitude": -105.128221,
+                "__OBJECTID": 71
+            }
+        },
+        {
+            "geometry": {
+                "x": -11656153.12,
+                "y": 4808647.51,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/31/2020",
+                "Place_of_Incident": "Denver, CO",
+                "Summary": "Man was verbally harassed when walking his dog.",
+                "News_Source": "https://www.cpr.org/2020/03/31/fear-avoidance-being-told-to-go-back-to-their-country-what-its-like-to-be-asian-in-colorado-with-coronavirus/",
+                "Latitude": 39.604589,
+                "Longitude": -104.709005,
+                "__OBJECTID": 72
+            }
+        },
+        {
+            "geometry": {
+                "x": -13415160.82,
+                "y": 5878401.69,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/31/2020",
+                "Place_of_Incident": "Yakima, WA",
+                "Summary": "Mindado Buffet Restaurant vandalised; smashed windows and spray painted with racist slur.",
+                "News_Source": "https://www.yakimaherald.com/special_projects/coronavirus/yakima-restaurant-vandalized-spray-painted-with-racist-slur/article_95184bec-4ca5-5d92-a672-4a117b517a9c.html",
+                "Latitude": 46.608487,
+                "Longitude": -120.51044,
+                "__OBJECTID": 73
+            }
+        },
+        {
+            "geometry": {
+                "x": -13617806.04,
+                "y": 6034743.18,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "January, 2020",
+                "Place_of_Incident": "Seattle, WA",
+                "Summary": "8-year old refused service while wearing mask at Seattle-based Costco",
+                "News_Source": "https://www.yakimaherald.com/special_projects/coronavirus/yakima-restaurant-vandalized-spray-painted-with-racist-slur/article_95184bec-4ca5-5d92-a672-4a117b517a9c.html",
+                "Latitude": 47.564722,
+                "Longitude": -122.330833,
+                "__OBJECTID": 74
+            }
+        },
+        {
+            "geometry": {
+                "x": -8228261.43,
+                "y": 4975427.92,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/4/2020",
+                "Place_of_Incident": "Queens, NY",
+                "Summary": "Bi-racial Asian woman is called a racial slur while on the subway.",
+                "News_Source": "https://www.gq.com/story/asian-coronavirus-new-anxiety",
+                "Latitude": 40.749262,
+                "Longitude": -73.91573,
+                "__OBJECTID": 75
+            }
+        },
+        {
+            "geometry": {
+                "x": -8238492.02,
+                "y": 4969687.4,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "March, 2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "Woman walking down Fulton St. is verbally harassed, called \"Chinese Virus\" by passerby.",
+                "News_Source": "https://www.gq.com/story/asian-coronavirus-new-anxiety",
+                "Latitude": 40.710184,
+                "Longitude": -74.007633,
+                "__OBJECTID": 76
+            }
+        },
+        {
+            "geometry": {
+                "x": -8227375.99,
+                "y": 4974025.01,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/13/2020",
+                "Place_of_Incident": "Queens, NY",
+                "Summary": "8 year old child is bullied in school for having Asian mother and teased she has coronavirus.",
+                "News_Source": "https://www.gq.com/story/asian-coronavirus-new-anxiety",
+                "Latitude": 40.739714,
+                "Longitude": -73.907776,
+                "__OBJECTID": 77
+            }
+        },
+        {
+            "geometry": {
+                "x": -8236673.84,
+                "y": 4975499.18,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/21/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "Korean woman is followed, verbally harrassed and punched by another woman in the Penn Station area. When the victim returned home, she realized that the Incident Report Slip was incomplete and the officers' names and a complaint report number were missing.",
+                "News_Source": "https://www.gq.com/story/asian-coronavirus-new-anxiety",
+                "Latitude": 40.749747,
+                "Longitude": -73.9913,
+                "__OBJECTID": 78
+            }
+        },
+        {
+            "geometry": {
+                "x": -8236175.8,
+                "y": 4977181.98,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/13/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "Korean American writer was verbally harassed and a drink thrown at her by a male passerby in midtown Manhattan.",
+                "News_Source": "https://www.gq.com/story/asian-coronavirus-new-anxiety",
+                "Latitude": 40.761198,
+                "Longitude": -73.986826,
+                "__OBJECTID": 79
+            }
+        },
+        {
+            "geometry": {
+                "x": -8237030.95,
+                "y": 4970921.65,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/1/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "Instagram page @antiasiansclubnyc threatened to shoot all Asians on sight in New York City’s Chinatown.",
+                "News_Source": "https://nextshark.com/nypd-nyc-anti-asian-club/",
+                "Latitude": 40.718588,
+                "Longitude": -73.994508,
+                "__OBJECTID": 80
+            }
+        },
+        {
+            "geometry": {
+                "x": -13169867.43,
+                "y": 4053153.81,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/31/2020",
+                "Place_of_Incident": "Burbank, CA",
+                "Summary": "Founder of 88Rising verbally abused and nearly hit by angry motorist.",
+                "News_Source": "https://nextshark.com/jaeson-ma-asian-hate-crime/",
+                "Latitude": 34.181163,
+                "Longitude": -118.306932,
+                "__OBJECTID": 81
+            }
+        },
+        {
+            "geometry": {
+                "x": -9621157.46,
+                "y": 4783140.43,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/29/2020",
+                "Place_of_Incident": "Martinsville, IN",
+                "Summary": "Doctor Allegedly Stopped From Entering Gas Station in Indiana for Being Asian",
+                "News_Source": "https://nextshark.com/indiana-coronavirus-doctor-gas-station/",
+                "Latitude": 39.427825,
+                "Longitude": -86.428328,
+                "__OBJECTID": 82
+            }
+        },
+        {
+            "geometry": {
+                "x": -10348190.85,
+                "y": 5609541.97,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/31/2020",
+                "Place_of_Incident": "Woodbury, MN",
+                "Summary": "An Asian American couple living in Woodbury, MN expressed their sadness and anger after someone left a racist note on their front door.",
+                "News_Source": "https://nextshark.com/racis-note-minnesota-asian-american-couple/",
+                "Latitude": 44.923855,
+                "Longitude": -92.95938,
+                "__OBJECTID": 83
+            }
+        },
+        {
+            "geometry": {
+                "x": -8229611.95,
+                "y": 4988127.27,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/29/2020",
+                "Place_of_Incident": "Bronx, NY",
+                "Summary": "A trio of teens verbally harassed a 51-year-old Asian woman for coronavirus on a city bus in the Bronx. One then struck her on the head with an umbrella. She was hospitalized and received stitches for her wound. Police have charged the teens.",
+                "News_Source": "https://nypost.com/2020/03/29/hate-spewing-teens-yell-you-caused-coronavirus-b-h-at-asian-woman/?fbclid=IwAR2ZDHQn9ToH1b1c713eFfky8KGXONNcSIfKmLS9AQd90kS3PA_0SgIOpes",
+                "Latitude": 40.83563,
+                "Longitude": -73.927862,
+                "__OBJECTID": 84
+            }
+        },
+        {
+            "geometry": {
+                "x": -11180599.82,
+                "y": 3693126.37,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/27/2020",
+                "Place_of_Incident": "SAN ANGELO, TX",
+                "Summary": "International student, Jihan Kim, came back to his dorm to find racist 'Coronavirus' posters plastered to his door. His confrontation to the suspected person lead to a brawl. Both men involved were arrested and charged by local police. Prosecution pending.",
+                "News_Source": "https://sanangelolive.com/news/crime/2020-04-01/racist-coronavirus-posters-plastered-dorm-room-door-led-angelo-state-brawl?fbclid=IwAR2ZDHQn9ToH1b1c713eFfky8KGXONNcSIfKmLS9AQd90kS3PA_0SgIOpes",
+                "Latitude": 31.463772,
+                "Longitude": -100.437037,
+                "__OBJECTID": 85
+            }
+        },
+        {
+            "geometry": {
+                "x": -9785321.99,
+                "y": 5319911.76,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/22/2020",
+                "Place_of_Incident": "Milwaukee, WI",
+                "Summary": "Milwaukee's Lucky Liu's closes after employees receive reoccurring racially-motivated verbal attacks from customers.",
+                "News_Source": "https://www.tmj4.com/news/coronavirus/milwaukees-lucky-lius-closes-after-employees-receive-verbal-racist-attacks-from-customers",
+                "Latitude": 43.052142,
+                "Longitude": -87.903043,
+                "__OBJECTID": 86
+            }
+        },
+        {
+            "geometry": {
+                "x": -13162826.8,
+                "y": 4035817.93,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/3/2020",
+                "Place_of_Incident": "Los Angeles, CA",
+                "Summary": "Producer Valerie Chow Violently Attacked in LA While Walking Her Dog",
+                "News_Source": "https://nextshark.com/go-back-to-china-producer-valerie-chow-violently-attacked-in-la-while-walking-her-dog/",
+                "Latitude": 34.052234,
+                "Longitude": -118.243685,
+                "__OBJECTID": 87
+            }
+        },
+        {
+            "geometry": {
+                "x": -8926909.23,
+                "y": 2969593.81,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/5/2020",
+                "Place_of_Incident": "Miami, FL",
+                "Summary": "Latina Singer Malu Targets Chinese People With Racist Comments on Instagram Live",
+                "News_Source": "https://nextshark.com/malu-trevejo-racist-instagram-live/",
+                "Latitude": 25.76168,
+                "Longitude": -80.19179,
+                "__OBJECTID": 88
+            }
+        },
+        {
+            "geometry": {
+                "x": -10508398.18,
+                "y": 4216451.14,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/6/2020",
+                "Place_of_Incident": "Fort Smith, AR",
+                "Summary": "Man uses hammer to destroy sacred statues at Lao Temple in Fort Smith, AR.",
+                "News_Source": "https://nextshark.com/luna-county-official-snapchat-covid-19/?fbclid=IwAR3btngHGvJPIEBtoCnRPC5lo8svHYah08b5WLmg_PEoaOfmDeEwCkORknE",
+                "Latitude": 35.385924,
+                "Longitude": -94.398547,
+                "__OBJECTID": 89
+            }
+        },
+        {
+            "geometry": {
+                "x": -12006740.72,
+                "y": 3806168.08,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/6/2020",
+                "Place_of_Incident": "Luna County, NM",
+                "Summary": "New Mexico Official Blames ‘Asians’ for COVID-19 in Snapchat Post",
+                "News_Source": "https://nextshark.com/luna-county-official-snapchat-covid-19/?fbclid=IwAR3btngHGvJPIEBtoCnRPC5lo8svHYah08b5WLmg_PEoaOfmDeEwCkORknE",
+                "Latitude": 32.325912,
+                "Longitude": -107.858387,
+                "__OBJECTID": 90
+            }
+        },
+        {
+            "geometry": {
+                "x": -10840329.31,
+                "y": 3858889.91,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/6/2020",
+                "Place_of_Incident": "Dallas, TX",
+                "Summary": "2 employees were subject to racist-verbal abuse by customers at Dallas-TX Eatery. Eatery announces bans on all customers who confront their employees with racist remarks.",
+                "News_Source": "https://www.star-telegram.com/entertainment/restaurants/eats-beat/article241782696.html",
+                "Latitude": 32.725234,
+                "Longitude": -97.380335,
+                "__OBJECTID": 91
+            }
+        },
+        {
+            "geometry": {
+                "x": -9255293.82,
+                "y": 5225452.68,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/7/2020",
+                "Place_of_Incident": "Detroit, Michigan",
+                "Summary": "A Detroit woman was ‘Zoombombed’ after hackers broke into the video conferencing app while she taught a virtual stretching class and began hurling racial slurs, mimicking fake Asian accents, and accusing her of giving them coronavirus.",
+                "News_Source": "https://www.albawaba.com/editors-choice/hackers-zoombomb-virtual-dance-class-and-hurled-racial-slurs-korean-teacher-1349302",
+                "Latitude": 42.428953,
+                "Longitude": -83.141719,
+                "__OBJECTID": 92
+            }
+        },
+        {
+            "geometry": {
+                "x": -11858927.03,
+                "y": 4173148.22,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "N/A",
+                "Place_of_Incident": "ALBUQUERQUE, N.M.",
+                "Summary": "Vietnamese community member recently attacked at Costco",
+                "News_Source": "https://www.krqe.com/health/coronavirus-new-mexico/asian-american-community-speaking-out-against-racism-during-coronavirus-pandemic/",
+                "Latitude": 35.068164,
+                "Longitude": -106.530554,
+                "__OBJECTID": 93
+            }
+        },
+        {
+            "geometry": {
+                "x": -8236763.23,
+                "y": 4958657.1,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/6/2020",
+                "Place_of_Incident": "Brooklyn, NY",
+                "Summary": "Brooklyn woman burned outside home in possible hate crime acid attack. Investigation ongoing.",
+                "News_Source": "https://nypost.com/2020/04/06/brooklyn-woman-burned-outside-home-in-possible-acid-attack/?fbclid=IwAR2-UCOAoiDOZcNa8EEXH06viSIaW6eymB5-SPkklrRbKAgPRppwzXbDQrc",
+                "Latitude": 40.635032,
+                "Longitude": -73.992103,
+                "__OBJECTID": 94
+            }
+        },
+        {
+            "geometry": {
+                "x": -8133152.72,
+                "y": 5070984.31,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/3/2020",
+                "Place_of_Incident": "Seymour, CT",
+                "Summary": "Connecticut Chinese Restaurant Gets Racist Death Threats Blaming Them for Viral Spread",
+                "News_Source": "https://nextshark.com/chinese-restaurant-racist-death-threats/",
+                "Latitude": 41.396378,
+                "Longitude": -73.061354,
+                "__OBJECTID": 95
+            }
+        },
+        {
+            "geometry": {
+                "x": -8905264.16,
+                "y": 4930227.34,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "N/A",
+                "Place_of_Incident": "Pittsburgh, PA",
+                "Summary": "Woman told to \"shop with her own kind\" at grocery store.",
+                "News_Source": "https://www.wtae.com/article/covid-19-creates-another-level-of-fear-for-pittsburghs-asian-americans-ethnic-intimidation/32086048",
+                "Latitude": 40.440943,
+                "Longitude": -79.997349,
+                "__OBJECTID": 96
+            }
+        },
+        {
+            "geometry": {
+                "x": -8072873.22,
+                "y": 5217051.28,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/8/2020",
+                "Place_of_Incident": "Amherst, MA",
+                "Summary": "Two instances of verbal abuse directed at Amherst College students.",
+                "News_Source": "https://www.masslive.com/coronavirus/2020/04/coronavirus-related-verbal-assaults-directed-at-amherst-college-students.html",
+                "Latitude": 42.373222,
+                "Longitude": -72.519854,
+                "__OBJECTID": 97
+            }
+        },
+        {
+            "geometry": {
+                "x": -13167144.44,
+                "y": 4027237.69,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "N/A",
+                "Place_of_Incident": "Los Angeles, CA",
+                "Summary": "Man verbally harassed and coughed on in grocery store.",
+                "News_Source": "https://www.pbs.org/newshour/nation/asian-americans-describe-gut-punch-of-racist-attacks-during-coronavirus-pandemic",
+                "Latitude": 33.988349,
+                "Longitude": -118.282471,
+                "__OBJECTID": 98
+            }
+        },
+        {
+            "geometry": {
+                "x": -8234306.3,
+                "y": 4965661.44,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/10/2020",
+                "Place_of_Incident": "New York, NY",
+                "Summary": "Woman verbally harassed while entering subway. Told, \"You people brought this. Go back to China.\"",
+                "News_Source": "https://www.pbs.org/newshour/nation/asian-americans-describe-gut-punch-of-racist-attacks-during-coronavirus-pandemic",
+                "Latitude": 40.682764,
+                "Longitude": -73.970032,
+                "__OBJECTID": 99
+            }
+        },
+        {
+            "geometry": {
+                "x": -10623117.48,
+                "y": 3468481.93,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/8/2020",
+                "Place_of_Incident": "Houston, TX",
+                "Summary": "An Asian American business owner was left shocked when a woman in a Kroger parking lot unleashed a racist rant.",
+                "News_Source": "https://abc13.com/racist-rant-houston-texas-on-video-shopper-racism/6088094/?fbclid=IwAR2TLHSv2MdGHv1cVu9TuvXpQVGjpmhiVISpv5iSp88kTfVn4FKrlX0wpVo",
+                "Latitude": 29.72681,
+                "Longitude": -95.429088,
+                "__OBJECTID": 100
+            }
+        },
+        {
+            "geometry": {
+                "x": -13603410.54,
+                "y": 6042241.02,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/18/2020",
+                "Place_of_Incident": "Bellevue, Washington",
+                "Summary": "Someone went to a local Asian restaurant, posing as a utility worker. The person told the owner they were going to be shut down due to violations, saying, “Your people brought coronavirus, you’re a dead man.”",
+                "News_Source": "https://www.bellevuereporter.com/opinion/deserving-respect-for-being-human-windows-and-mirrors/",
+                "Latitude": 47.61015,
+                "Longitude": -122.201516,
+                "__OBJECTID": 101
+            }
+        },
+        {
+            "geometry": {
+                "x": -8238673.58,
+                "y": 4961698.47,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "2/29/2020",
+                "Place_of_Incident": "Brooklyn, NY",
+                "Summary": "An Asian American family was pulling into a parking spot at a Brooklyn Costco when a woman and her daughter stepped in front of the car, blocking it. They then verbally harassed the family with coronavirus accusations until a Costco employee intervened.",
+                "Latitude": 40.655762,
+                "Longitude": -74.009264,
+                "__OBJECTID": 102,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -7924001.43,
+                "y": 5216480.22,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/20/2020",
+                "Place_of_Incident": "Watertown, Massachusetts",
+                "Summary": "An Asian American healthcare worker returned home to find her male roommate packing her belongings without her consent. He then evicted her unlawfully from the apartment, accusing her ethnicity and her profession as virus-inducing.",
+                "Latitude": 42.369432,
+                "Longitude": -71.182516,
+                "__OBJECTID": 103,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -8214012.2,
+                "y": 5031725.35,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/26/2020",
+                "Place_of_Incident": "Westchester, NY",
+                "Summary": "An Asian American family abruptly lost their home health aide. The aide claimed her reasons were ethnicity related, that it's a \"Chinese Virus\" and accused the family with racial slurs and lack of hygiene. The health aide continues to work with other families otherwise.",
+                "Latitude": 41.131284,
+                "Longitude": -73.787727,
+                "__OBJECTID": 104,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -13334872.97,
+                "y": 4791200.23,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/2/2020",
+                "Place_of_Incident": "Reno, NV",
+                "Summary": "Racist and hateful message posted on the door of business calling the virus the CCP filth virus and made racial remarks to an Asian family because of COVID-19.",
+                "Latitude": 39.483728,
+                "Longitude": -119.789202,
+                "__OBJECTID": 105,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -13613962.96,
+                "y": 4562612.64,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/2/2020",
+                "Place_of_Incident": "Berkeley, CA",
+                "Summary": "Dollar Tree Store, Berkeley, CA an elderly Asian American couple waited in line at the cashier. The line was marked with social distancing markers. Two people behind the couple were not adhering. The husband asked the two people to step back and obey the markers. The two people refused and dove into racial accusations and slurs about coronavirus. When reported to the employee at the counter, the employee sided with the two people, and threatened to call the police on the Asian couple if they continued to complain about social distancing rules being violated.",
+                "Latitude": 37.880886,
+                "Longitude": -122.29631,
+                "__OBJECTID": 106,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -13337611.54,
+                "y": 4797823.42,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/2/2020",
+                "Place_of_Incident": "Reno, NV",
+                "Summary": "A property management business in Reno posted a xenophobic sign. https://www.yelp.com/biz/real-estate-depot-reno",
+                "Latitude": 39.529633,
+                "Longitude": -119.813803,
+                "__OBJECTID": 107,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -13634407.45,
+                "y": 5719398.26,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "4/1/2020",
+                "Place_of_Incident": "Vancouver, WA",
+                "Summary": "An Asian American teen in a parking lot outside of a Walmart was stopped by an older couple. The couple harassed her with racial slurs and sexual taunting. Two witnesses, both Asian American, escorted her to her car so she could drive away safely.",
+                "Latitude": 45.618345,
+                "Longitude": -122.479966,
+                "__OBJECTID": 108,
+                "News_Source": null
+            }
+        },
+        {
+            "geometry": {
+                "x": -9278473.44,
+                "y": 5194486.26,
+                "spatialReference": {
+                    "wkid": 102100
+                }
+            },
+            "attributes": {
+                "Date_of_incident": "3/15/2020",
+                "Place_of_Incident": "Detroit, MI",
+                "Summary": "On Delta flight DL679, coming back from Cancún, Mexico an Asian American passenger was asked if she had been to China, Europe, or Iran. The passenger said they had been to China back in 2017 (many years pre-pandemic) and was allowed to board the plane. When the plane landed, the passenger's full name was announced on the speaker. They were then asked to depart the plane before everyone else, without any other instructions or explanation, opening the passenger up to humiliation.",
+                "Latitude": 42.223291,
+                "Longitude": -83.349945,
+                "__OBJECTID": 109,
+                "News_Source": null
+            }
+        }
+    ]
