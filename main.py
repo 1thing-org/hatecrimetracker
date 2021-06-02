@@ -14,7 +14,6 @@
 
 from load_data import loadData
 from time import time
-from crawler.news_crawler import NewsCrawler
 from incidents import getIncidents
 from stats import getStats
 from logging import error
@@ -73,12 +72,6 @@ def get_stats():
 
     return {"stats": stats, "total": total}
 
-@app.route('/loadnews')
-def load_news():
-    crawler = NewsCrawler()
-    when = request.args.get("when", default="1d")
-    crawler.load_news(when)
-    return "success"
 @app.route('/loaddata')
 def load_data():  
     loadData("data.json")
