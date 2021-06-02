@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from load_data import loadData, traverse_file
+from load_data import traverse_file
 from time import time
 from incidents import getIncidents
 from stats import getStats
