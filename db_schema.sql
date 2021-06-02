@@ -1,6 +1,6 @@
 CREATE TABLE public.incidents (
     id serial PRIMARY KEY,
-	incident_time timestamp(0) NOT NULL,
+	incident_time TIMESTAMP NOT NULL,
     created_on TIMESTAMP NOT NULL,
 	title varchar(1024) NOT NULL,
 	abstract varchar(1024) NOT NULL,
