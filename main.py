@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from load_data import loadData
+from load_data import loadData, traverse_file
 from time import time
 from incidents import getIncidents
 from stats import getStats
@@ -74,7 +74,8 @@ def get_stats():
 
 @app.route('/loaddata')
 def load_data():  
-    loadData("data.json")
+    #loadData("data.json")
+    traverse_file("data.json")
     return "success"
     
 if __name__ == '__main__':

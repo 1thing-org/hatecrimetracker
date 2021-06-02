@@ -2,3 +2,4 @@ Flask==2.0.1
 pg8000==1.19.5
 SQLAlchemy==1.4.11
 requests==2.25.1
+ geopy==2.1.0
