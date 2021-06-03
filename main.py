@@ -20,13 +20,14 @@ from logging import error
 from common import Incident
 import datetime
 import json
+from flask_cors import CORS
 
 from flask import Flask, render_template, request
 
 # [END gae_python3_datastore_store_and_fetch_user_times]
 # [END gae_python38_datastore_store_and_fetch_user_times]
 app = Flask(__name__)
-
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 def _getCommonArgs():
     start = request.args.get("start", DEFAULT_START_DATETIME)
