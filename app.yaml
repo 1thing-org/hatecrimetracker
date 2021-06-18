@@ -28,7 +28,10 @@ handlers:
 
 env_variables:
 #  DB_SOCKET_DIR: cloudsql
-  CLOUD_SQL_CONNECTION_NAME: hatecrimetracker-2021:us-central1:crimetracker
+#  CLOUD_SQL_CONNECTION_NAME: hatecrimetracker-2021:us-central1:crimetracker
+  DB_HOST: 35.222.211.20:5432
+# Internal ip: 10.128.0.5:5432
+# External ip: 35.222.211.20
   DB_USER: postgres
   DB_PASS: postgres
   DB_NAME: hatecrimetracker
