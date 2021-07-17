@@ -1,4 +1,5 @@
 from fireo import models as mdl
+from cachetools import cached, TTLCache
 
 class Incident(mdl.Model):
     incident_time = mdl.DateTime(required=True)
@@ -16,6 +17,7 @@ def queryIncidents(start, end, state=""):
 
     return query.order('-incident_time').fetch()
 
+@cached(cache=TTLCache(maxsize=1024, ttl=600))
 def getIncidents(start, end, state=""):
     result = queryIncidents(start, end, state)
     return [incident.to_dict() for incident in result]
@@ -40,6 +42,8 @@ def insertIncident(incident):
 
 # Query incidents within the given dates and state
 # Return [ { key: date, value : count, incident_location: state } ]
+my_cache = TTLCache(maxsize=1024, ttl=600)
+@cached(cache=my_cache)
 def getStats(start, end, state = ""):
     stats = {} # (date, state) : count
     for incident in queryIncidents(start, end, state):

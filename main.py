@@ -28,8 +28,8 @@ app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 def _getCommonArgs():
-    start = request.args.get("start", DEFAULT_START_DATETIME)
-    end = request.args.get("end", datetime.datetime.now())
+    start = request.args.get("start", DEFAULT_START_DATETIME).strftime("%Y-%m-%d")
+    end = request.args.get("end", datetime.datetime.now()).strftime("%Y-%m-%d")
     state = request.args.get("state", "")
     return start, end, state
 
