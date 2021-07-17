@@ -28,8 +28,8 @@ app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 def _getCommonArgs():
-    start = request.args.get("start", DEFAULT_START_DATETIME).strftime("%Y-%m-%d")
-    end = request.args.get("end", datetime.datetime.now()).strftime("%Y-%m-%d")
+    start = request.args.get("start", DEFAULT_START_DATETIME)
+    end = request.args.get("end", datetime.datetime.now().strftime("%Y-%m-%d"))
     state = request.args.get("state", "")
     return start, end, state
 
@@ -47,7 +47,7 @@ def get_incidents():
     incidents = getIncidents(start, end, state)
     return {"incidents":incidents};
 
-DEFAULT_START_DATETIME = datetime.datetime.fromtimestamp(0)
+DEFAULT_START_DATETIME = datetime.datetime.fromtimestamp(0).strftime("%Y-%m-%d")
 
 @app.route('/stats')
 def get_stats():
