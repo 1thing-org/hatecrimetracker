@@ -12,17 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+from logging import error
 from load_data import traverse_file
 from time import time
-from incidents import getIncidents
-from stats import getStats
-from logging import error
-from common import Incident
-import datetime
-import json
-from flask_cors import CORS
 
 from flask import Flask, render_template, request
+from flask_cors import CORS
+
+from firestore.incidents import getIncidents, getStats
 
 # [END gae_python3_datastore_store_and_fetch_user_times]
 # [END gae_python38_datastore_store_and_fetch_user_times]
@@ -53,6 +51,9 @@ DEFAULT_START_DATETIME = datetime.datetime.fromtimestamp(0)
 
 @app.route('/stats')
 def get_stats():
+    # return 
+    # stats: [{"key": date, "value": count}] this is daily count
+    # total: { "location": count } : total per state
     start, end, state = _getCommonArgs()
     stats = getStats(start, end, state)
     total = {}

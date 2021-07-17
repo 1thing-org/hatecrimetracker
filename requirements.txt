@@ -1,6 +1,5 @@
 Flask==2.0.1
-pg8000==1.19.5
-SQLAlchemy==1.4.11
+fireo == 1.4.1
+google-cloud-firestore
 requests==2.25.1
-geopy==2.1.0
 flask-cors==3.0.10
