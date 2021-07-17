@@ -1,3 +1,3 @@
-gcloud config set project hatecrimetracker-2021
+gcloud config set project hate-crime-tracker
 gcloud app deploy
 
