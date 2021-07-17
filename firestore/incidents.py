@@ -13,7 +13,7 @@ class Incident(mdl.Model):
 def queryIncidents(start, end, state=""):
     query = Incident.collection.filter('incident_time', '>=', start).filter('incident_time', '<=', end)
     if state != "":
-        query = query.filter('incident_location', '=', state)
+        query = query.filter('incident_location', '==', state)
 
     return query.order('-incident_time').fetch()
 
