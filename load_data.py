@@ -1,5 +1,5 @@
 import traceback
-from firestore.incidents import insertIncident
+from firestore.incidents import Incident, insertIncident
 import json
 import datetime
 import re
@@ -218,7 +218,22 @@ def traverse_file(fileName):
         buffer = IncidentBuffer()
         traverse(json.load(f), buffer)
         print("Count:{}".format(len(buffer.get_incidents())))
-        for incident in buffer.get_incidents():
-            insertIncident(incident=incident)
+        # for incident in buffer.get_incidents():
+        #     insertIncident(incident=incident)
         write_to_csv(buffer.get_incidents())
         return len(buffer.get_incidents())
+
+def load_from_csv(fileName):
+    HEADER = ["id", "incident_time", "created_on", "incident_location",  "abstract", "url", "incident_source", "title"]
+    with open(fileName, newline='') as csvfile:
+        for row in list(csv.reader(csvfile)):
+            incident=dict(zip(HEADER, row))
+            if incident["incident_time"] == "incident_time":
+                continue # skip header
+
+            del incident["id"]
+            incident["created_on"] = datetime.datetime.now()
+            print(incident)
+            incident["incident_time"] = datetime.datetime.strptime(incident["incident_time"], "%Y-%m-%d %H:%M:%S")
+            print(incident)
+            insertIncident(incident)

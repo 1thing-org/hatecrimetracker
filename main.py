@@ -14,7 +14,7 @@
 
 import datetime
 from logging import error
-from load_data import traverse_file
+from load_data import load_from_csv, traverse_file
 from time import time
 
 from flask import Flask, render_template, request
@@ -72,12 +72,19 @@ def get_stats():
 
     return {"stats": stats, "total": total}
 
-@app.route('/loaddata')
-def load_data():  
-    #loadData("data.json")
-    traverse_file("data.json")
-    return "success"
-    
+# @app.route('/loaddata')
+# def load_data():  
+#     #loadData("data.json")
+#     traverse_file("data.json")
+#     return "success"
+
+# @app.route('/loadcsv')
+# def load_csv():  
+#     #Load incidents from loaddata_result.csv
+#     #loadData("data.json")
+#     load_from_csv("loadtata_result.csv")
+#     return "success"
+
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
     # Engine, a webserver process such as Gunicorn will serve the app. This
