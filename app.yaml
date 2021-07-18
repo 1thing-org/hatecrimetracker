@@ -14,6 +14,9 @@
 service: default
 runtime: python38
 
+env_variables:
+  GAE_USE_SOCKETS_HTTPLIB : 'true'
+
 handlers:
   # This configures Google App Engine to serve the files in the app's static
   # directory.

@@ -29,12 +29,12 @@ window.addEventListener('load', function () {
   // [START gae_python3_auth_UIconfig_variable]
   // FirebaseUI config.
   var uiConfig = {
-    signInSuccessUrl: '/',
+    signInSuccessUrl: '/admin',
     signInOptions: [
       // Remove any lines corresponding to providers you did not check in
       // the Firebase console.
       firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-      firebase.auth.EmailAuthProvider.PROVIDER_ID,
+      // firebase.auth.EmailAuthProvider.PROVIDER_ID,
     ],
     // Terms of service url.
     tosUrl: '<your-tos-url>'

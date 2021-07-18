@@ -14,24 +14,43 @@
 
 import datetime
 from logging import error
-from load_data import load_from_csv, traverse_file
 from time import time
 
 from flask import Flask, render_template, request
 from flask_cors import CORS
 
+from common import User
 from firestore.incidents import getIncidents, getStats
+from load_data import load_from_csv, traverse_file
+from google.auth.transport import Response, requests
+import google.oauth2.id_token
 
 # [END gae_python3_datastore_store_and_fetch_user_times]
 # [END gae_python38_datastore_store_and_fetch_user_times]
 app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
+firebase_request_adapter = requests.Request()
+
+
+def _get_user(request) -> User:
+    id_token = request.cookies.get("token")
+    if id_token:
+        try:
+            claims = google.oauth2.id_token.verify_firebase_token(
+                id_token, firebase_request_adapter)
+            return User.from_dict(claims)
+        except ValueError as exc:
+            pass
+    return None
+
 
 def _getCommonArgs():
-    start = request.args.get("start", (datetime.datetime.now() - datetime.timedelta(days=90)).strftime("%Y-%m-%d"))
+    start = request.args.get("start", (datetime.datetime.now(
+    ) - datetime.timedelta(days=90)).strftime("%Y-%m-%d"))
     end = request.args.get("end", datetime.datetime.now().strftime("%Y-%m-%d"))
     state = request.args.get("state", "")
     return start, end, state
+
 
 @app.route('/')
 def root():
@@ -39,17 +58,23 @@ def root():
     incidents = getIncidents(start, end, state)
     return render_template(
         'index.html',
-        incidents=incidents)
+        incidents=incidents,
+        current_user=_get_user(request))
+
+
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
 
 @app.route('/incidents')
 def get_incidents():
     start, end, state = _getCommonArgs()
     incidents = getIncidents(start, end, state)
-    return {"incidents":incidents};
+    return {"incidents": incidents}
 
 @app.route('/stats')
 def get_stats():
-    # return 
+    # return
     # stats: [{"key": date, "value": count}] this is daily count
     # total: { "location": count } : total per state
     start, end, state = _getCommonArgs()
@@ -73,17 +98,18 @@ def get_stats():
     return {"stats": stats, "total": total}
 
 # @app.route('/loaddata')
-# def load_data():  
+# def load_data():
 #     #loadData("data.json")
 #     traverse_file("data.json")
 #     return "success"
 
 # @app.route('/loadcsv')
-# def load_csv():  
+# def load_csv():
 #     #Load incidents from loaddata_result.csv
 #     #loadData("data.json")
 #     load_from_csv("loadtata_result.csv")
 #     return "success"
+
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
