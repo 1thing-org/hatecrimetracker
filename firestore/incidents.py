@@ -42,11 +42,12 @@ def getIncidents(start, end, state=""):
 
 
 def insertIncident(incident):
+    # return incident id
     print("INSERTING:", incident)
     new_incident = Incident(incident_time=incident["incident_time"], incident_location=incident["incident_location"],
                             created_on=incident["created_on"], abstract=incident["abstract"], url=incident["url"],
                             incident_source=incident["incident_source"], title=incident["title"])
-    new_incident.upsert()
+    return new_incident.upsert().id
 
 # Query incidents within the given dates and state
 # Return [ { key: date, value : count, incident_location: state } ]

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import datetime
+from firestore.admins import is_admin
 from logging import error
 from time import time
 
@@ -32,6 +33,10 @@ app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 firebase_request_adapter = requests.Request()
 
+def _check_is_admin(request) -> bool:
+    user = _get_user(request)
+    if not user or not is_admin(user.email):
+        raise PermissionError("Lack of permission") 
 
 def _get_user(request) -> User:
     id_token = request.cookies.get("token")
@@ -72,6 +77,21 @@ def get_incidents():
     start, end, state = _getCommonArgs()
     incidents = getIncidents(start, end, state)
     return {"incidents": incidents}
+
+@app.route('/incidents/<incident_id>', methods=["DELETE"])
+def delete_incident(incident_id):
+    _check_is_admin(request)
+    firestore.cachemanager.delete_incident(incident_id)
+    return {"status": "success"}
+
+@app.route('/incidents', methods=["POST"])
+def create_incident(incident_id):
+    _check_is_admin(request)
+    req = request.get_json().get("incident")
+    if req is None:
+        raise ValueError("Missing incident")
+    id = firestore.incidents.create_incident(req)
+    return {"incident_id": id}    
 
 @app.route('/stats')
 def get_stats():
