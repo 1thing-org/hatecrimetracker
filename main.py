@@ -24,6 +24,7 @@ from firestore.incidents import getIncidents, getStats
 from load_data import load_from_csv, traverse_file
 from google.auth.transport import Response, requests
 import google.oauth2.id_token
+import firestore.cachemanager
 
 # [END gae_python3_datastore_store_and_fetch_user_times]
 # [END gae_python38_datastore_store_and_fetch_user_times]

@@ -1,9 +1,11 @@
+from firestore.cachemanager import ADMIN_CACHE
+import cachetools
 from fireo import models as mdl
 
 class Admin(mdl.Model):
     email = mdl.TextField()
 
-# TODO cache
+@cachetools(cache=ADMIN_CACHE)
 def get_admins() : 
     return Admin.collection.fetch()
 
