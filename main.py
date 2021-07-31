@@ -30,7 +30,8 @@ import firestore.cachemanager
 # [END gae_python3_datastore_store_and_fetch_user_times]
 # [END gae_python38_datastore_store_and_fetch_user_times]
 app = Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
+# cors = CORS(app, resources={r"/*": {"origins": "*"}})
+cors = CORS(app)
 firebase_request_adapter = requests.Request()
 
 
@@ -43,6 +44,10 @@ def _check_is_admin(request) -> bool:
 
 def _get_user(request) -> User:
     id_token = request.cookies.get("token")
+    if not id_token:
+        [bearer, id_token] = request.headers.get("Authorization").split(" ")
+        if bearer != "Bearer":
+            raise ValueError("Bearer token expected")
     if id_token:
         try:
             claims = google.oauth2.id_token.verify_firebase_token(
