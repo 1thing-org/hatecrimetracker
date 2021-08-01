@@ -1,7 +1,11 @@
+from datetime import datetime
+
+import dateparser
 from cachetools import cached
 from fireo import models as mdl
 
-from firestore.cachemanager import INCIDENT_CACHE, INCIDENT_STATS_CACHE
+from firestore.cachemanager import (INCIDENT_CACHE, INCIDENT_STATS_CACHE,
+                                    flush_cache)
 
 
 class Incident(mdl.Model):
@@ -24,6 +28,10 @@ def queryIncidents(start, end, state=""):
     return query.order('-incident_time').fetch()
 
 
+def deleteIncident(incident_id):
+    return Incident.collection.delete("incident/"+incident_id)
+
+
 def getIncidents(start, end, state=""):
     result = queryIncidents(start, end, state)
     return [incident.to_dict() for incident in result]
@@ -44,8 +52,9 @@ def getIncidents(start, end, state=""):
 def insertIncident(incident):
     # return incident id
     print("INSERTING:", incident)
-    new_incident = Incident(incident_time=incident["incident_time"], incident_location=incident["incident_location"],
-                            created_on=incident["created_on"], abstract=incident["abstract"], url=incident["url"],
+    new_incident = Incident(incident_time=dateparser.parse(incident["incident_time"]),
+                            incident_location=incident["incident_location"],
+                            abstract=incident["abstract"], url=incident["url"],
                             incident_source=incident["incident_source"], title=incident["title"])
     return new_incident.upsert().id
 

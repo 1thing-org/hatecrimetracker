@@ -13,19 +13,19 @@
 # limitations under the License.
 
 import datetime
-
 from logging import error
 from time import time
-import firestore.admins
+
+import google.oauth2.id_token
 from flask import Flask, render_template, request
 from flask_cors import CORS
-
-from common import User
-from firestore.incidents import getIncidents, getStats
-from load_data import load_from_csv, traverse_file
 from google.auth.transport import Response, requests
-import google.oauth2.id_token
-import firestore.cachemanager
+
+import firestore.admins
+from common import User
+from firestore.incidents import (deleteIncident, getIncidents, getStats,
+                                 insertIncident)
+from load_data import load_from_csv, traverse_file
 
 # [END gae_python3_datastore_store_and_fetch_user_times]
 # [END gae_python38_datastore_store_and_fetch_user_times]
@@ -54,6 +54,7 @@ def _get_user(request) -> User:
                 id_token, firebase_request_adapter)
             return User.from_dict(claims)
         except ValueError as exc:
+            print(exc)
             pass
     return None
 
@@ -96,17 +97,18 @@ def get_incidents():
 @app.route('/incidents/<incident_id>', methods=["DELETE"])
 def delete_incident(incident_id):
     _check_is_admin(request)
-    firestore.cachemanager.delete_incident(incident_id)
+    print("deleting:", incident_id)
+    deleteIncident(incident_id)
     return {"status": "success"}
 
 
 @app.route('/incidents', methods=["POST"])
-def create_incident(incident_id):
+def create_incident():
     _check_is_admin(request)
     req = request.get_json().get("incident")
     if req is None:
         raise ValueError("Missing incident")
-    id = firestore.incidents.create_incident(req)
+    id = insertIncident(req)
     return {"incident_id": id}
 
 
