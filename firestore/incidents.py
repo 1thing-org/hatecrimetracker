@@ -29,7 +29,10 @@ def queryIncidents(start, end, state=""):
 
 
 def deleteIncident(incident_id):
-    return Incident.collection.delete("incident/"+incident_id)
+    if Incident.collection.delete("incident/"+incident_id):
+        flush_cache()
+        return True
+    return False
 
 
 def getIncidents(start, end, state=""):
@@ -56,7 +59,11 @@ def insertIncident(incident):
                             incident_location=incident["incident_location"],
                             abstract=incident["abstract"], url=incident["url"],
                             incident_source=incident["incident_source"], title=incident["title"])
-    return new_incident.upsert().id
+    id = new_incident.upsert().id
+    if id:
+        flush_cache()
+        return id
+    return None
 
 # Query incidents within the given dates and state
 # Return [ { key: date, value : count, incident_location: state } ]
