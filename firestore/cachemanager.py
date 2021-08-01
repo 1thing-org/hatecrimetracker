@@ -25,4 +25,4 @@ cache_update_db_ref = db.reference('/cache_update', app=filebase_app)
 cache_update_db_ref.listen(__listener)
 
 def flush_cache():
-    cache_update_db_ref.set(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
+    cache_update_db_ref.set(datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
