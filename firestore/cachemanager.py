@@ -7,10 +7,12 @@ ADMIN_CACHE = TTLCache(maxsize=128, ttl=3600*24)
 INCIDENT_CACHE = TTLCache(maxsize=1024, ttl=3600*24)
 INCIDENT_STATS_CACHE = TTLCache(maxsize=1024, ttl=3600*24)
 
-def __listener(event):
+def __clear_cache():
     ADMIN_CACHE.clear()
     INCIDENT_CACHE.clear()
     INCIDENT_STATS_CACHE.clear()
+def __listener(event):
+    __clear_cache()
     print("cache_update event type:", event.event_type)  # can be 'put' or 'patch'
     print("cache_update event path:", event.path)  # relative to the reference, it seems
     print("cache_update event data:", event.data)  # new data at /reference/event.path. None if deleted
@@ -25,4 +27,5 @@ cache_update_db_ref = db.reference('/cache_update', app=filebase_app)
 cache_update_db_ref.listen(__listener)
 
 def flush_cache():
+    __clear_cache
     cache_update_db_ref.set(datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
