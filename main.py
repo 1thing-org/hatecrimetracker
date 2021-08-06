@@ -44,7 +44,7 @@ def _check_is_admin(request) -> bool:
 
 def _get_user(request) -> User:
     id_token = request.cookies.get("token")
-    if not id_token:
+    if not id_token and request.headers.get("Authorization"):
         [bearer, id_token] = request.headers.get("Authorization").split(" ")
         if bearer != "Bearer":
             raise ValueError("Bearer token expected")
