@@ -25,7 +25,8 @@ def queryIncidents(start, end, state=""):
     if state != "":
         query = query.filter('incident_location', '==', state)
 
-    return query.order('-incident_time').fetch()
+    result = query.order('-incident_time').fetch()
+    return [incident.to_dict() for incident in result]
 
 
 def deleteIncident(incident_id):
@@ -36,8 +37,7 @@ def deleteIncident(incident_id):
 
 
 def getIncidents(start, end, state=""):
-    result = queryIncidents(start, end, state)
-    return [incident.to_dict() for incident in result]
+    return queryIncidents(start, end, state)
 
 # incidents should be [
 #   {
@@ -73,8 +73,8 @@ def insertIncident(incident):
 def getStats(start, end, state=""):
     stats = {}  # (date, state) : count
     for incident in queryIncidents(start, end, state):
-        incident_date = incident.incident_time.strftime("%Y-%m-%d")
-        key = (incident_date, incident.incident_location)
+        incident_date = incident["incident_time"].strftime("%Y-%m-%d")
+        key = (incident_date, incident["incident_location"])
         if key not in stats:
             stats[key] = 0
         stats[key] += 1
