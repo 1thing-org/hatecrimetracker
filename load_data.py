@@ -226,14 +226,14 @@ def traverse_file(fileName):
 def load_from_csv(fileName):
     HEADER = ["id", "incident_time", "created_on", "incident_location",  "abstract", "url", "incident_source", "title"]
     with open(fileName, newline='') as csvfile:
-        for row in list(csv.reader(csvfile)):
+        for row in list(csv.reader(csvfile, delimiter='\t')):
             incident=dict(zip(HEADER, row))
             if incident["incident_time"] == "incident_time":
                 continue # skip header
 
             del incident["id"]
-            incident["created_on"] = datetime.datetime.now()
+            incident["created_on"] = datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S")
             print(incident)
-            incident["incident_time"] = datetime.datetime.strptime(incident["incident_time"], "%Y-%m-%d %H:%M:%S")
+            incident["incident_time"] =incident["incident_time"]
             print(incident)
             insertIncident(incident)
