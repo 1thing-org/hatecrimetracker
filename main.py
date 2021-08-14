@@ -115,25 +115,25 @@ def create_incident():
 @app.route('/stats')
 def get_stats():
     # return
-    # stats: [{"key": date, "value": count}] this is daily count
-    # total: { "location": count } : total per state
+    # stats: [{"key": date, "value": count}] this is daily count filtered by state if needed
+    # total: { "location": count } : total per state, not filtered by state
     start, end, state = _getCommonArgs()
-    stats = getStats(start, end, state)
+    stats = getStats(start, end) # [{key(date), incident_location, value}]
     total = {}
-    if state:
-        total[state] = 0
-        for stat in stats:
-            total[state] += stat["value"]
-    else:
-        # national data is by state and by date, merge all state per date, and calculate state total
-        aggregated = {}
-        for stat in stats:
-            date = stat["key"]
-            value = stat["value"]
-            location = stat["incident_location"]
+    # national data is by state and by date, merge all state per date, and calculate state total
+    aggregated = {}
+    for stat in stats:
+        date = stat["key"]
+        value = stat["value"]
+        location = stat["incident_location"]
+        # national total count will always include all states
+        total[location] = total.get(location, 0) + value
+        if not state or state == location:
+            # if state is specified, only aggregate state daily data
+            # otherwise aggregate all data
             aggregated[date] = aggregated.get(date, 0) + value
-            total[location] = total.get(location, 0) + value
-        stats = [{"key": k, "value": v} for k, v in aggregated.items()]
+        
+    stats = [{"key": k, "value": v} for k, v in aggregated.items()]
 
     return {"stats": stats, "total": total}
 
