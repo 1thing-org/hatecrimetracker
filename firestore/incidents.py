@@ -15,6 +15,7 @@ class Incident(mdl.Model):
     abstract = mdl.TextField(required=True)
     url = mdl.TextField(required=False)
     incident_source = mdl.TextField(required=True)
+    created_by = mdl.TextField(required=False)
     title = mdl.TextField(required=True)
 
 
@@ -47,6 +48,7 @@ def getIncidents(start, end, state=""):
 #       "abstract"  : abstract
 #       "url"           : url
 #       "incident_source": incident_source
+#       "created_by" : created_by
 #       "title"         : title
 #   }
 # ]
@@ -58,7 +60,9 @@ def insertIncident(incident):
     new_incident = Incident(incident_time=dateparser.parse(incident["incident_time"]),
                             incident_location=incident["incident_location"],
                             abstract=incident["abstract"], url=incident["url"],
-                            incident_source=incident["incident_source"], title=incident["title"])
+                            incident_source=incident["incident_source"], 
+                            created_by=incident["created_by"],
+                            title=incident["title"])
     id = new_incident.upsert().id
     if id:
         flush_cache()
