@@ -90,7 +90,10 @@ def get_is_admin():
 @app.route('/incidents')
 def get_incidents():
     start, end, state = _getCommonArgs()
-    incidents = getIncidents(start, end, state)
+    skip_cache = request.args.get("skip_cache", "false")
+    if skip_cache.lower() == "true":
+        _check_is_admin(request) #only asdmin can set this flag to true
+    incidents = getIncidents(start, end, state, skip_cache.lower() == "true")
     return {"incidents": incidents}
 
 

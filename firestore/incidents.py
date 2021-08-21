@@ -37,7 +37,9 @@ def deleteIncident(incident_id):
     return False
 
 
-def getIncidents(start, end, state=""):
+def getIncidents(start, end, state="", skip_cache=False):
+    if skip_cache: 
+        INCIDENT_CACHE.clear()
     return queryIncidents(start, end, state)
 
 # incidents should be [
