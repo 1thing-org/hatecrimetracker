@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
+import calendar
+from datetime import datetime, timedelta
 from logging import error
 from time import time
 
@@ -60,9 +61,9 @@ def _get_user(request) -> User:
 
 
 def _getCommonArgs():
-    start = request.args.get("start", (datetime.datetime.now(
-    ) - datetime.timedelta(days=90)).strftime("%Y-%m-%d"))
-    end = request.args.get("end", datetime.datetime.now().strftime("%Y-%m-%d"))
+    start = request.args.get("start", (datetime.now(
+    ) - timedelta(days=90)).strftime("%Y-%m-%d"))
+    end = request.args.get("end", datetime.now().strftime("%Y-%m-%d"))
     state = request.args.get("state", "")
     return start, end, state
 
@@ -92,7 +93,7 @@ def get_incidents():
     start, end, state = _getCommonArgs()
     skip_cache = request.args.get("skip_cache", "false")
     if skip_cache.lower() == "true":
-        _check_is_admin(request) #only asdmin can set this flag to true
+        _check_is_admin(request)  # only asdmin can set this flag to true
     incidents = getIncidents(start, end, state, skip_cache.lower() == "true")
     return {"incidents": incidents}
 
@@ -115,18 +116,37 @@ def create_incident():
     return {"incident_id": id}
 
 
+def _aggregate_monthly_total(fullmonth_stats):
+    monthly_total = {}
+    for daily in fullmonth_stats:
+        str_month = datetime.strptime(
+            daily["key"], "%Y-%m-%d").strftime("%Y-%m")
+        monthly_total[str_month] = monthly_total.get(
+            str_month, 0) + daily["value"]
+    return monthly_total
+
+
 @app.route('/stats')
 def get_stats():
     # return
     # stats: [{"key": date, "value": count}] this is daily count filtered by state if needed
     # total: { "location": count } : total per state, not filtered by state
-    start, end, state = _getCommonArgs()
-    stats = getStats(start, end) # [{key(date), incident_location, value}]
+    str_start, str_end, state = _getCommonArgs()
+    start_date = datetime.strptime(str_start, "%Y-%m-%d")
+    end_date = datetime.strptime(str_end, "%Y-%m-%d")
+
+    fullmonth_stats = getStats(
+        start_date.replace(day=1),
+        end_date.replace(day=calendar.monthrange(end_date.year, end_date.month)[1]))  # [{key(date), incident_location, value}]
+    monthly_stats = _aggregate_monthly_total(fullmonth_stats)
     total = {}
     # national data is by state and by date, merge all state per date, and calculate state total
     aggregated = {}
-    for stat in stats:
-        date = stat["key"]
+    for stat in fullmonth_stats:
+        str_date = stat["key"]
+        if str_date < str_start or str_date > str_end:
+            continue
+
         value = stat["value"]
         location = stat["incident_location"]
         # national total count will always include all states
@@ -134,11 +154,11 @@ def get_stats():
         if not state or state == location:
             # if state is specified, only aggregate state daily data
             # otherwise aggregate all data
-            aggregated[date] = aggregated.get(date, 0) + value
-        
+            aggregated[str_date] = aggregated.get(str_date, 0) + value
+
     stats = [{"key": k, "value": v} for k, v in aggregated.items()]
 
-    return {"stats": stats, "total": total}
+    return {"stats": stats, "total": total, "monthly_stats": monthly_stats}
 
 # @app.route('/loaddata')
 # def load_data():
