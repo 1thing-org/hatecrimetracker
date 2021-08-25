@@ -116,13 +116,15 @@ def create_incident():
     return {"incident_id": id}
 
 
-def _aggregate_monthly_total(fullmonth_stats):
+def _aggregate_monthly_total(fullmonth_stats, state):
     monthly_total = {}
     for daily in fullmonth_stats:
-        str_month = datetime.strptime(
-            daily["key"], "%Y-%m-%d").strftime("%Y-%m")
-        monthly_total[str_month] = monthly_total.get(
-            str_month, 0) + daily["value"]
+        location = daily["incident_location"]
+        if not state or state == location:
+            str_month = datetime.strptime(
+                daily["key"], "%Y-%m-%d").strftime("%Y-%m")
+            monthly_total[str_month] = monthly_total.get(
+                str_month, 0) + daily["value"]
     return monthly_total
 
 
@@ -138,7 +140,7 @@ def get_stats():
     fullmonth_stats = getStats(
         start_date.replace(day=1),
         end_date.replace(day=calendar.monthrange(end_date.year, end_date.month)[1]))  # [{key(date), incident_location, value}]
-    monthly_stats = _aggregate_monthly_total(fullmonth_stats)
+    monthly_stats = _aggregate_monthly_total(fullmonth_stats,  state)
     total = {}
     # national data is by state and by date, merge all state per date, and calculate state total
     aggregated = {}
