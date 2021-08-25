@@ -11,8 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+service: default
 runtime: python38
+
+env_variables:
+  GAE_USE_SOCKETS_HTTPLIB : 'true'
 
 handlers:
   # This configures Google App Engine to serve the files in the app's static
@@ -25,13 +28,3 @@ handlers:
   # the entire handlers section) when there are no static files defined.
 - url: /.*
   script: auto
-
-env_variables:
-#  DB_SOCKET_DIR: cloudsql
-#  CLOUD_SQL_CONNECTION_NAME: hatecrimetracker-2021:us-central1:crimetracker
-  DB_HOST: 35.222.211.20:5432
-# Internal ip: 10.128.0.5:5432
-# External ip: 35.222.211.20
-  DB_USER: postgres
-  DB_PASS: postgres
-  DB_NAME: hatecrimetracker

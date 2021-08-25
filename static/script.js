@@ -29,12 +29,12 @@ window.addEventListener('load', function () {
   // [START gae_python3_auth_UIconfig_variable]
   // FirebaseUI config.
   var uiConfig = {
-    signInSuccessUrl: '/',
+    signInSuccessUrl: '/admin',
     signInOptions: [
       // Remove any lines corresponding to providers you did not check in
       // the Firebase console.
       firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-      firebase.auth.EmailAuthProvider.PROVIDER_ID,
+      // firebase.auth.EmailAuthProvider.PROVIDER_ID,
     ],
     // Terms of service url.
     tosUrl: '<your-tos-url>'
@@ -49,7 +49,6 @@ window.addEventListener('load', function () {
       // User is signed in, so display the "sign out" button and login info.
       document.getElementById('sign-out').hidden = false;
       document.getElementById('login-info').hidden = false;
-      console.log(`Signed in as ${user.displayName} (${user.email})`);
       user.getIdToken().then(function (token) {
         // Add the token to the browser's cookies. The server will then be
         // able to verify the token against the API.
@@ -71,7 +70,6 @@ window.addEventListener('load', function () {
       document.cookie = "token=";
     }
   }, function (error) {
-    console.log(error);
     alert('Unable to log in: ' + error)
   });
   // [END gae_python3_auth_request]

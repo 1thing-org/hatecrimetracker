@@ -1,8 +1,7 @@
 import traceback
-from incidents import insertIncidents
+from firestore.incidents import Incident, insertIncident
 import json
 import datetime
-from geopy.geocoders import Nominatim
 import re
 import csv
 
@@ -115,7 +114,6 @@ def get_date(record):
 #                 print(record)
 #     insertIncidents(incidents)
 
-geolocator = Nominatim(user_agent="geoapiExercises")
 
 class IncidentBuffer:
     def __init__(self):
@@ -220,6 +218,22 @@ def traverse_file(fileName):
         buffer = IncidentBuffer()
         traverse(json.load(f), buffer)
         print("Count:{}".format(len(buffer.get_incidents())))
-        #insertIncidents(buffer.get_incidents())
+        # for incident in buffer.get_incidents():
+        #     insertIncident(incident=incident)
         write_to_csv(buffer.get_incidents())
         return len(buffer.get_incidents())
+
+def load_from_csv(fileName):
+    HEADER = ["id", "incident_time", "created_on", "incident_location",  "abstract", "url", "incident_source", "title"]
+    with open(fileName, newline='') as csvfile:
+        for row in list(csv.reader(csvfile, delimiter='\t')):
+            incident=dict(zip(HEADER, row))
+            if incident["incident_time"] == "incident_time":
+                continue # skip header
+
+            del incident["id"]
+            incident["created_on"] = datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S")
+            print(incident)
+            incident["incident_time"] =incident["incident_time"]
+            print(incident)
+            insertIncident(incident)
