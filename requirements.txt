@@ -7,3 +7,4 @@ cachetools
 google-auth==1.33.0
 firebase-admin==4.5.3
 dateparser
+google-cloud-translate==2.0.1
