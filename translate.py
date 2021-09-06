@@ -44,7 +44,10 @@ def save_batch(batch):
         insertIncident(incident)
 
 #translate and save batch of incidents if the given language does not exist
+# do not translate en or en_US
 def translate_incidents(incidents, target_lang):
+    if target_lang == 'en' or target_lang == 'en_US':
+        return incidents
     batch = []
     for incident in incidents:
         # check if the target language exists
@@ -60,3 +63,19 @@ def translate_incidents(incidents, target_lang):
         save_batch(batch)
     return incidents #when translate batchs, incidents in incidents should be updated too
 
+def clean_unused_translation(incidents, target_lang):
+    is_en = target_lang == 'en' or target_lang == 'en_US'
+    
+    for incident in incidents:
+        if is_en:
+            incident['title_translate'] = {}
+            incident['abstract_translate'] = {}
+            continue
+        
+        incident['title_translate'] = {
+            target_lang : incident['title_translate'].get(target_lang, "")
+        }
+        incident['abstract_translate'] = {
+            target_lang : incident['abstract_translate'].get(target_lang, "")
+        }
+    return incidents

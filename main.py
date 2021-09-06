@@ -16,7 +16,7 @@ import calendar
 from datetime import datetime, timedelta
 from logging import error
 from time import time
-from translate import translate_incidents
+from translate import translate_incidents, clean_unused_translation
 
 import google.oauth2.id_token
 from flask import Flask, render_template, request
@@ -42,6 +42,12 @@ def _check_is_admin(request) -> bool:
     if not user or not firestore.admins.is_admin(user.email):
         raise PermissionError("Lack of permission")
     return True
+
+def _get_lang(request) -> str:
+    lang = request.args.get('lang') if request.args.get('lang') else request.cookies.get("lang")
+    if lang is None:
+        lang = "en"
+    return lang
 
 
 def _get_user(request) -> User:
@@ -96,7 +102,8 @@ def get_incidents():
     if skip_cache.lower() == "true":
         _check_is_admin(request)  # only asdmin can set this flag to true
     incidents = getIncidents(start, end, state, skip_cache.lower() == "true")
-    return {"incidents": translate_incidents(incidents, request.args.get('lang', 'en'))}
+    lang = _get_lang(request)
+    return {"incidents": clean_unused_translation(translate_incidents(incidents, lang), lang)}
 
 
 @app.route('/incidents/<incident_id>', methods=["DELETE"])
