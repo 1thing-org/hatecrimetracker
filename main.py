@@ -16,6 +16,7 @@ import calendar
 from datetime import datetime, timedelta
 from logging import error
 from time import time
+from translate import translate_incidents
 
 import google.oauth2.id_token
 from flask import Flask, render_template, request
@@ -95,7 +96,7 @@ def get_incidents():
     if skip_cache.lower() == "true":
         _check_is_admin(request)  # only asdmin can set this flag to true
     incidents = getIncidents(start, end, state, skip_cache.lower() == "true")
-    return {"incidents": incidents}
+    return {"incidents": translate_incidents(incidents, request.args.get('lang', 'en'))}
 
 
 @app.route('/incidents/<incident_id>', methods=["DELETE"])

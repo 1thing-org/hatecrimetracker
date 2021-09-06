@@ -7,17 +7,17 @@ from fireo import models as mdl
 from firestore.cachemanager import (INCIDENT_CACHE, INCIDENT_STATS_CACHE,
                                     flush_cache)
 
-
 class Incident(mdl.Model):
     incident_time = mdl.DateTime(required=True)
     created_on = mdl.DateTime(auto=True)
     incident_location = mdl.TextField()
     abstract = mdl.TextField(required=True)
+    abstract_translate = mdl.MapField(required=False)
     url = mdl.TextField(required=False)
     incident_source = mdl.TextField(required=True)
     created_by = mdl.TextField(required=False)
     title = mdl.TextField(required=True)
-
+    title_translate = mdl.MapField(required=False)
 
 @cached(cache=INCIDENT_CACHE)
 def queryIncidents(start, end, state=""):
@@ -44,30 +44,38 @@ def getIncidents(start, end, state="", skip_cache=False):
 
 # incidents should be [
 #   {
+#       "id" : id, //optional
 #       "incident_time" : incident_time
 #       "created_on"    : created_on
 #       "incident_location": incident_location
 #       "abstract"  : abstract
+#       "abstract_translate": abstract_translate
 #       "url"           : url
 #       "incident_source": incident_source
 #       "created_by" : created_by
 #       "title"         : title
+#       "title_translate" : title_translate
 #   }
 # ]
 
 
-def insertIncident(incident):
+def insertIncident(incident, to_flush_cache=True):
     # return incident id
     print("INSERTING:", incident)
-    new_incident = Incident(incident_time=dateparser.parse(incident["incident_time"]),
-                            incident_location=incident["incident_location"],
-                            abstract=incident["abstract"], url=incident["url"],
-                            incident_source=incident["incident_source"], 
-                            created_by=incident["created_by"],
-                            title=incident["title"])
+    new_incident = Incident(
+        incident_time=dateparser.parse(incident["incident_time"]) if isinstance(incident["incident_time"], str) else incident["incident_time"],
+        incident_location=incident["incident_location"],
+        abstract=incident["abstract"], url=incident["url"],
+        incident_source=incident["incident_source"], 
+        created_by=incident["created_by"],
+        title=incident["title"])
+    new_incident.id = incident["id"] if "id" in incident else None
+    new_incident.abstract_translate = incident["abstract_translate"] if "abstract_translate" in incident else {}
+    new_incident.title_translate = incident["title_translate"] if "title_translate" in incident else {}
     id = new_incident.upsert().id
     if id:
-        flush_cache()
+        if to_flush_cache:
+            flush_cache()
         return id
     return None
 
