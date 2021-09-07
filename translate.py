@@ -5,7 +5,7 @@ translate_api_client = translate.TranslationServiceClient()
 LOCATION = "global"
 PROJECT_ID='hate-crime-tracker'
 PARENT = f"projects/{PROJECT_ID}/locations/{LOCATION}"
-BATCH_SIZE=10
+BATCH_SIZE=50
 
 def translate_batch(batch, target_lang):
     if len(batch) == 0:
