@@ -71,13 +71,12 @@ def clean_unused_translation(orig_incidents, target_lang):
         if is_en:
             incident['title_translate'] = {}
             incident['abstract_translate'] = {}
-            continue
-        
-        incident['title_translate'] = {
-            target_lang : incident['title_translate'].get(target_lang, "")
-        }
-        incident['abstract_translate'] = {
-            target_lang : incident['abstract_translate'].get(target_lang, "")
-        }
+        else:
+            incident['title_translate'] = {
+                target_lang : incident['title_translate'].get(target_lang, "")
+            }
+            incident['abstract_translate'] = {
+                target_lang : incident['abstract_translate'].get(target_lang, "")
+            }
         cleaned_incidents.append(incident)
     return cleaned_incidents
