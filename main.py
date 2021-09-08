@@ -109,7 +109,6 @@ def get_incidents():
 @app.route('/incidents/<incident_id>', methods=["DELETE"])
 def delete_incident(incident_id):
     _check_is_admin(request)
-    print("deleting:", incident_id)
     deleteIncident(incident_id)
     return {"status": "success"}
 

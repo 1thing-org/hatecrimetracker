@@ -72,12 +72,13 @@ def insertIncident(incident, to_flush_cache=True):
     new_incident.id = incident["id"] if "id" in incident else None
     new_incident.abstract_translate = incident["abstract_translate"] if "abstract_translate" in incident else {}
     new_incident.title_translate = incident["title_translate"] if "title_translate" in incident else {}
-    id = new_incident.upsert().id
-    if id:
+    incident_id = new_incident.upsert().id
+    if incident_id:
         if to_flush_cache:
             flush_cache()
-        return id
-    return None
+        return incident_id
+    else:
+        raise SystemError("Failed to upsert the incident with id:" + new_incident.id)
 
 # Query incidents within the given dates and state
 # Return [ { key: date, value : count, incident_location: state } ]

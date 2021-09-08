@@ -23,7 +23,7 @@ def translate_batch(batch, target_lang):
     )
     if len(response.translations) != len(translated_batch):
         raise SystemError('Translation result count {0} does not match original {1}'
-            .format(len(response.translations, len(translated_batch))))
+            .format(len(response.translations), len(translated_batch)))
 
     for i in range(len(batch)):
         if batch[i].get('abstract_translate') is None:
@@ -63,10 +63,11 @@ def translate_incidents(incidents, target_lang):
         save_batch(batch)
     return incidents #when translate batchs, incidents in incidents should be updated too
 
-def clean_unused_translation(incidents, target_lang):
+def clean_unused_translation(orig_incidents, target_lang):
     is_en = target_lang == 'en' or target_lang == 'en_US'
-    
-    for incident in incidents:
+    cleaned_incidents = []
+    for orig_incident in orig_incidents:
+        incident = orig_incident.copy()
         if is_en:
             incident['title_translate'] = {}
             incident['abstract_translate'] = {}
@@ -78,4 +79,5 @@ def clean_unused_translation(incidents, target_lang):
         incident['abstract_translate'] = {
             target_lang : incident['abstract_translate'].get(target_lang, "")
         }
-    return incidents
+        cleaned_incidents.append(incident)
+    return cleaned_incidents
