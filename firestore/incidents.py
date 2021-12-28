@@ -18,6 +18,10 @@ class Incident(mdl.Model):
     created_by = mdl.TextField(required=False)
     title = mdl.TextField(required=True)
     title_translate = mdl.MapField(required=False)
+    publish_status = mdl.MapField(required=True, default={
+        'twitter' : None,
+        'linkedin' : None
+    })
 
 @cached(cache=INCIDENT_CACHE)
 def queryIncidents(start, end, state=""):
@@ -28,7 +32,6 @@ def queryIncidents(start, end, state=""):
 
     result = query.order('-incident_time').fetch()
     return [incident.to_dict() for incident in result]
-
 
 def deleteIncident(incident_id):
     if Incident.collection.delete("incident/"+incident_id):

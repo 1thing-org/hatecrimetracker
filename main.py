@@ -27,8 +27,7 @@ import firestore.admins
 from common import User
 from firestore.incidents import (deleteIncident, getIncidents, getStats,
                                  insertIncident)
-from load_data import load_from_csv, traverse_file
-
+import incident_publisher
 # [END gae_python3_datastore_store_and_fetch_user_times]
 # [END gae_python38_datastore_store_and_fetch_user_times]
 app = Flask(__name__)
@@ -168,6 +167,11 @@ def get_stats():
     stats = [{"key": k, "value": v} for k, v in aggregated.items()]
 
     return {"stats": stats, "total": total, "monthly_stats": monthly_stats}
+
+@app.route('/publish_incidents')
+def publish_incidents():
+    incident_publisher.publish_incidents()
+    return {"success": True}
 
 # @app.route('/loaddata')
 # def load_data():
