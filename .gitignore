@@ -3,3 +3,7 @@ appengine-generated/
 env/
 *.pyc
 hate-crime-tracker-7d52738f7212.json
+firestore-debug.log
+ui-debug.log
+database-debug.log
+firebase-debug.log
