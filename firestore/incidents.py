@@ -22,6 +22,9 @@ class Incident(mdl.Model):
         'twitter' : None,
         'linkedin' : None
     })
+    donation_link = mdl.TextField() #  Donation: link to donation website
+    police_tip_line = mdl.TextField() # Police Tip Line: phone number to provide tips to police to help capture the suspect
+    help_the_victim = mdl.TextField() # Help the victim: other free style text about how people can help the victim
 
 @cached(cache=INCIDENT_CACHE)
 def queryIncidents(start, end, state=""):
@@ -58,6 +61,10 @@ def getIncidents(start, end, state="", skip_cache=False):
 #       "created_by" : created_by
 #       "title"         : title
 #       "title_translate" : title_translate
+#       "publish_status" : publish_status
+#       "donation_link" : donation_link
+#       "police_tip_line" : police_tip_line
+#       "help_the_victim" : help_the_victim
 #   }
 # ]
 
@@ -68,13 +75,21 @@ def insertIncident(incident, to_flush_cache=True):
     new_incident = Incident(
         incident_time=dateparser.parse(incident["incident_time"]) if isinstance(incident["incident_time"], str) else incident["incident_time"],
         incident_location=incident["incident_location"],
-        abstract=incident["abstract"], url=incident["url"],
+        abstract=incident["abstract"],
+        url=incident["url"],
         incident_source=incident["incident_source"], 
         created_by=incident["created_by"],
-        title=incident["title"])
+        title=incident["title"]
+    )
+        
     new_incident.id = incident["id"] if "id" in incident else None
     new_incident.abstract_translate = incident["abstract_translate"] if "abstract_translate" in incident else {}
     new_incident.title_translate = incident["title_translate"] if "title_translate" in incident else {}
+    new_incident.publish_status=incident["publish_status"] if "publish_status" in incident else {}
+    new_incident.donation_link=incident["donation_link"] if "donation_link" in incident else None
+    new_incident.police_tip_line=incident["police_tip_line"] if "police_tip_line" in incident else None
+    new_incident.help_the_victim=incident["help_the_victim"] if "help_the_victim" in incident else None
+
     incident_id = new_incident.upsert().id
     if incident_id:
         if to_flush_cache:
