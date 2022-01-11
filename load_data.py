@@ -199,7 +199,7 @@ def traverse(json, buffer):
 
 COLUMNS = ["incident_time", "created_on", "incident_location",  "abstract", "url", "incident_source", "title"]
 def write_to_csv(incidents):
-    with open('loadtata_result.csv', 'w', newline='') as csvfile:
+    with open('incident_data.csv', 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile, delimiter=',',
                                 quotechar='"', quoting=csv.QUOTE_MINIMAL)
         csvwriter.writerow(['id']+COLUMNS)
