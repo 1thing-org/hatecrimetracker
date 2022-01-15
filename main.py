@@ -14,6 +14,7 @@
 
 import calendar
 from datetime import datetime, timedelta
+import dateparser
 from logging import error
 from time import time
 from translate import translate_incidents, clean_unused_translation
@@ -71,7 +72,7 @@ def _getCommonArgs():
     ) - timedelta(days=90)).strftime("%Y-%m-%d"))
     end = request.args.get("end", datetime.now().strftime("%Y-%m-%d"))
     state = request.args.get("state", "")
-    return start, end, state
+    return dateparser.parse(start), dateparser.parse(end), state
 
 
 @app.route('/')
@@ -139,9 +140,9 @@ def get_stats():
     # return
     # stats: [{"key": date, "value": count}] this is daily count filtered by state if needed
     # total: { "location": count } : total per state, not filtered by state
-    str_start, str_end, state = _getCommonArgs()
-    start_date = datetime.strptime(str_start, "%Y-%m-%d")
-    end_date = datetime.strptime(str_end, "%Y-%m-%d")
+    start_date, end_date, state = _getCommonArgs()
+    str_start = start_date.strftime("%Y-%m-%d")
+    str_end = end_date.strftime("%Y-%m-%d")
 
     fullmonth_stats = getStats(
         start_date.replace(day=1),

@@ -27,9 +27,10 @@ class Incident(mdl.Model):
     help_the_victim = mdl.TextField() # Help the victim: other free style text about how people can help the victim
 
 @cached(cache=INCIDENT_CACHE)
-def queryIncidents(start, end, state=""):
+def queryIncidents(start: datetime, end: datetime, state=""):
+    end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
     query = Incident.collection.filter(
-        'incident_time', '>=', start).filter('incident_time', '<=', end)
+        'incident_time', '>=', start).filter('incident_time', '<=', end_time)
     if state != "":
         query = query.filter('incident_location', '==', state)
 
@@ -43,7 +44,7 @@ def deleteIncident(incident_id):
     return False
 
 
-def getIncidents(start, end, state="", skip_cache=False):
+def getIncidents(start: datetime, end: datetime, state="", skip_cache=False):
     if skip_cache: 
         INCIDENT_CACHE.clear()
     return queryIncidents(start, end, state)
@@ -103,7 +104,7 @@ def insertIncident(incident, to_flush_cache=True):
 
 
 @cached(cache=INCIDENT_STATS_CACHE)
-def getStats(start, end, state=""):
+def getStats(start: datetime, end: datetime, state=""):
     stats = {}  # (date, state) : count
     for incident in queryIncidents(start, end, state):
         incident_date = incident["incident_time"].strftime("%Y-%m-%d")
