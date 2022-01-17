@@ -174,7 +174,7 @@ def publish_incidents():
     header = request.headers.get('X-AppEngine-Cron', None)
     if not header:
         raise ValueError('attempt to access cron handler directly, '
-                        'missing custom App Engine header')    
+                        'missing custom App Engine header')
     incident_publisher.publish_incidents()
     return {"success": True}
 
