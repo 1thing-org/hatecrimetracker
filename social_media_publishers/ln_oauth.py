@@ -13,15 +13,13 @@ import random
 import requests
 import string
  
-def auth(credentials):
+def auth(creds):
     '''
     Run the Authentication.
     If the access token exists, it will use it to skip browser auth.
     If not, it will open the browser for you to authenticate.
     You will have to manually paste the redirect URI in the prompt.
     '''
-    creds = read_creds(credentials)
-    print(creds)
     client_id, client_secret = creds['client_id'], creds['client_secret']
     redirect_uri = creds['redirect_uri']
     api_url = 'https://www.linkedin.com/oauth/v2' 
@@ -155,7 +153,7 @@ if __name__ == '__main__':
     credentials = 'linkedin_credentials.json'
     access_token = auth(credentials)     
     print (access_token)
-    
+
     headers = headers(access_token) # Make the headers to attach to the API call.
     user_info = user_info(headers) # Get user info
     print(user_info)
