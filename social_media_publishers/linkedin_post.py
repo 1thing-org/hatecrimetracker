@@ -1,9 +1,18 @@
 import requests
- 
+from google.cloud import secretmanager 
 from ln_oauth import auth, headers
+import json
  
-credentials = 'linkedin_credentials.json'
-access_token = auth(credentials) # Authenticate the API
+# credentials = 'linkedin_credentials.json'
+client = secretmanager.SecretManagerServiceClient()
+secrete_version = "projects/46658644173/secrets/1thing_linkedin_credential/versions/latest"
+
+response = client.access_secret_version(request={"name": secrete_version})
+print("secrete response:", response)
+
+credential = json.loads(response.payload.data.decode("UTF-8"))
+print ("credential:", credential)
+access_token = auth(credential) # Authenticate the API
 headers = headers(access_token) # Make the headers to attach to the API call.
  
 def user_info(headers):
