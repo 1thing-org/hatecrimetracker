@@ -8,4 +8,4 @@ google-auth==1.33.0
 google-cloud-firestore
 google-cloud-translate==2.0.1
 requests==2.25.1
-python-twitter=3.5
+python-twitter==3.5
