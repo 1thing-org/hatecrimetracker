@@ -1,10 +1,6 @@
 from social_media_publishers.linkedin import LinkedIn
 from social_media_publishers.twitter import Twitter
 from firestore.incidents import Incident
-PUBLISHERS = {
-    'twitter': Twitter(),
-    'linkedin': LinkedIn()
-}
 
 # check all incidents in database, and publish those have not yet been published yet
 # update incident.publish_status when done
@@ -12,6 +8,10 @@ PUBLISHERS = {
 def publish_incidents():
     success = 0
     failed = 0
+    PUBLISHERS = {
+        'twitter': Twitter(),
+        'linkedin': LinkedIn()
+    }
     for incident in Incident.collection.order('-incident_time').fetch():
         for target, publisher in PUBLISHERS.items():
             if not incident.publish_status:
