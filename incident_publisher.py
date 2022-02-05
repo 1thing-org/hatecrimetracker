@@ -28,4 +28,5 @@ def publish_incidents():
             # Uncomment me once the publishers are working
             # incident.save()
             success += 1
+        break
     print ("success:",success, " failed:", failed)

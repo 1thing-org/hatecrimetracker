@@ -3,7 +3,7 @@ from social_media_publishers.publisher import Publisher
 from firestore.incidents import Incident
 import requests
 from google.cloud import secretmanager 
-from ln_oauth import auth, headers
+from social_media_publishers.ln_oauth import auth, headers
 import json
 
 _LINKEDIN_TEMPLATE = "On {incident_time}, {abstract} at {incident_location}. + {url}"
