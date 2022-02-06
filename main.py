@@ -171,10 +171,10 @@ def get_stats():
 
 @app.route('/publish_incidents')
 def publish_incidents():
-    header = request.headers.get('X-AppEngine-Cron', None)
+    header = request.headers.get('X-CloudScheduler', None) 
     if not header:
-        raise ValueError('attempt to access cron handler directly, '
-                        'missing custom App Engine header')
+        raise ValueError('attempt to access cloud scheduler handler directly, '
+                        'missing custom X-CloudScheduler header')
     incident_publisher.publish_incidents()
     return {"success": True}
 
