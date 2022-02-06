@@ -6,7 +6,7 @@ from google.cloud import secretmanager
 from social_media_publishers.ln_oauth import auth, headers
 import json
 
-_LINKEDIN_TEMPLATE = "On {incident_time}, {abstract} at {incident_location}. + {url}"
+_LINKEDIN_TEMPLATE = "{incident_location} - {incident_time} : {title}\n{abstract}\nSource: {url}#stopaapihate #stopasianhate"
 _API_URL = 'https://api.linkedin.com/v2/ugcPosts'
 class LinkedIn(Publisher):
     def __init__(self):
@@ -29,9 +29,13 @@ class LinkedIn(Publisher):
 
     def publish(self, incident: Incident) -> datetime:
         
-        print("Publish incident to LinkedIn: ", incident.to_dict())
-        message = _LINKEDIN_TEMPLATE.format(incident_time = incident.incident_time,
-            abstract = incident.abstract, incident_location = incident.incident_location, url = incident.url)
+        print("Publish incident to linkedin: ", incident.id, ":", incident.title)
+        message = _LINKEDIN_TEMPLATE.format(
+            incident_time = incident.incident_time.strftime("%m/%d/%Y"),
+            title = incident.title,
+            abstract = incident.abstract, incident_location = incident.incident_location, 
+            url = incident.url
+            )
 
         link = 'https://hatecrimetracker.1thing.org/'
         link_text = 'Anti-Asian Hate Crime Tracker'

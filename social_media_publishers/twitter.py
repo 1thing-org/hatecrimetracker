@@ -7,7 +7,7 @@ import json
 
 # test account at https://twitter.com/OTTest11
 
-_TWITTER_TEMPLATE = "On {incident_time}, {abstract} at {incident_location}. + {url}"
+_TWITTER_TEMPLATE = "{incident_location} {incident_time}:\n{subject}:\n{abstract}\nSource:{url}"
 
 '''
 Twitter secrete id looks like this:
@@ -42,7 +42,8 @@ class Twitter(Publisher):
     def publish(self, incident: Incident) -> datetime:
         print("Publish incident to twitter: ", incident.to_dict())
         status = self.__api.PostUpdate(_TWITTER_TEMPLATE.format(incident_time = incident.incident_time,
-        abstract = incident.abstract, incident_location = incident.incident_location, url = incident.url))
+            subject = incident.subject,
+            abstract = incident.abstract, incident_location = incident.incident_location, url = incident.url))
         if status.id is None:
             # do we have id for an incident?
             print("Publishing to twitter failed for incident: " + incident.id + ":" + incident.subject)
