@@ -15,11 +15,12 @@ class LinkedIn(Publisher):
         secrete_version = "projects/46658644173/secrets/1thing_linkedin_credential/versions/latest"
 
         response = self.__client.access_secret_version(request={"name": secrete_version})
-        print("secrete response:", response)
+        print("*** LinkedIn secrete response:", response)
 
         credential = json.loads(response.payload.data.decode("UTF-8"))
-        print ("credential:", credential)
+        print ("*** LinkedIn credential:", credential)
         access_token = auth(credential) # Authenticate the API
+        print("*** LinkedIn access_token:", access_token)
         self.__headers = headers(access_token) # Make the headers to attach to the API call.
 
         # author = f'urn:li:person:{urn}'
@@ -29,7 +30,7 @@ class LinkedIn(Publisher):
 
     def publish(self, incident: Incident) -> datetime:
         
-        print("Publish incident to linkedin: ", incident.id, ":", incident.title)
+        print("LinkedIn: Publishing incident to linkedin: ", incident.id, ":", incident.title)
         message = _LINKEDIN_TEMPLATE.format(
             incident_time = incident.incident_time.strftime("%m/%d/%Y"),
             title = incident.title,
@@ -68,5 +69,6 @@ class LinkedIn(Publisher):
                     "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"
                 }
             }
-        requests.post(_API_URL, headers=self.__headers, json=post_data)
+        response = requests.post(_API_URL, headers=self.__headers, json=post_data)
+        print("LinkedIn response:", response)
         return datetime.now()

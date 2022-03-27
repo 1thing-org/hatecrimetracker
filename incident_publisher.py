@@ -20,6 +20,7 @@ def publish_incidents():
                 incident.publish_status = {}
             if target in incident.publish_status and incident.publish_status[target]:
                 continue  # already published to the target
+            print("Publishing incident to {} using publisher {}".format(target, publisher))
             publish_time = publisher.publish(incident)
             if not publish_time:
                 print("Failed to publish to ", target)
