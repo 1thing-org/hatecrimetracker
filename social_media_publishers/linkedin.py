@@ -70,5 +70,8 @@ class LinkedIn(Publisher):
                 }
             }
         response = requests.post(_API_URL, headers=self.__headers, json=post_data)
-        print("LinkedIn response:", response)
+        print("LinkedIn response:", response.json())
+        if response.status_code != 200:
+            print("LinkedIn: Failed to publish incident")
+            return None
         return datetime.now()
