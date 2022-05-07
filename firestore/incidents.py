@@ -8,6 +8,9 @@ from firestore.cachemanager import (INCIDENT_CACHE, INCIDENT_STATS_CACHE,
                                     flush_cache)
 
 class Incident(mdl.Model):
+    class Meta:
+        collection_name = "tracker_incidents"
+        
     incident_time = mdl.DateTime(required=True)
     created_on = mdl.DateTime(auto=True)
     incident_location = mdl.TextField()
