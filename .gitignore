@@ -7,3 +7,5 @@ firestore-debug.log
 ui-debug.log
 database-debug.log
 firebase-debug.log
+.firebaserc
+firebase.json
