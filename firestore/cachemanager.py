@@ -3,12 +3,11 @@ import firebase_admin
 from cachetools import TTLCache, cached
 from firebase_admin import db
 
-ADMIN_CACHE = TTLCache(maxsize=128, ttl=3600 * 24)
-INCIDENT_CACHE = TTLCache(maxsize=1024, ttl=3600 * 24)
-INCIDENT_STATS_CACHE = TTLCache(maxsize=1024, ttl=3600 * 24)
+ADMIN_CACHE = TTLCache(maxsize=128, ttl=3600*24)
+INCIDENT_CACHE = TTLCache(maxsize=1024, ttl=3600*24)
+INCIDENT_STATS_CACHE = TTLCache(maxsize=1024, ttl=3600*24)
 
 last_cache_update_date = ""
-
 
 def __clear_cache():
     ADMIN_CACHE.clear()
@@ -32,11 +31,11 @@ def __listener(event):
 
 
 # Make sure to create a realtime db with the following URL and a json path called as /cache_update
-my_app_name = "hate-crime-tracker"
-# options = {'databaseURL': 'https://hate-crime-tracker-default-rtdb.firebaseio.com','storageBucket': 'hate-crime-tracker.appspot.com'}
-options = {"databaseURL": "https://hate-crime-tracker-dev-default-rtdb.firebaseio.com"}
+my_app_name = 'hate-crime-tracker'
+options = {'databaseURL': 'https://hate-crime-tracker-default-rtdb.firebaseio.com',
+           'storageBucket': 'hate-crime-tracker.appspot.com'}
 filebase_app = firebase_admin.initialize_app(options=options, name=my_app_name)
-cache_update_db_ref = db.reference("/cache_update", app=filebase_app)
+cache_update_db_ref = db.reference('/cache_update', app=filebase_app)
 cache_update_db_ref.listen(__listener)
 
 

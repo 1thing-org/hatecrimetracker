@@ -215,22 +215,6 @@ def save_token():
     return {"success": True}
 
 
-# create test incident
-insertIncident(
-    {
-        "incident_time": "1",
-        "incident_location": "test_location",
-        "url": "test_url",
-        "incident_source": "test_incident_source",
-        "created_by": "test_created_by",
-        "title": "test_title 2",
-        "abstract": "test_abstract",
-    }
-)
-
-# send notification by calling function
-publish_incidents()
-
 if __name__ == "__main__":
     # This is used when running locally only. When deploying to Google App
     # Engine, a webserver process such as Gunicorn will serve the app. This

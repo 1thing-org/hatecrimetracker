@@ -12,8 +12,8 @@ def publish_incidents():
     success = 0
     failed = 0
     PUBLISHERS = {
-        # 'twitter': TwitterV2(),
-        # 'linkedin': LinkedIn()
+        "twitter": TwitterV2(),
+        "linkedin": LinkedIn(),
         "notification": PushNotification(),
     }
     incidents = (
