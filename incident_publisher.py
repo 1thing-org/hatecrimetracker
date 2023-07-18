@@ -1,6 +1,7 @@
 from datetime import datetime
 from social_media_publishers.linkedin import LinkedIn
 from social_media_publishers.twitter_v2 import TwitterV2
+from social_media_publishers.notification import PushNotification
 from firestore.incidents import Incident
 
 # check all incidents in database, and publish those have not yet been published yet
@@ -10,7 +11,11 @@ from firestore.incidents import Incident
 def publish_incidents():
     success = 0
     failed = 0
-    PUBLISHERS = {"twitter": TwitterV2(), "linkedin": LinkedIn()}
+    PUBLISHERS = {
+        "twitter": TwitterV2(),
+        "linkedin": LinkedIn(),
+        "notification": PushNotification(),
+    }
     incidents = (
         Incident.collection.filter("incident_time", ">=", datetime(2022, 1, 22))
         .order("incident_time")
