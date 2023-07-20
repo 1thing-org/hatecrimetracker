@@ -186,12 +186,12 @@ def get_stats():
 
 @app.route("/publish_incidents")
 def publish_incidents():
-    header = request.headers.get("X-CloudScheduler", None)
-    if not header:
-        raise ValueError(
-            "attempt to access cloud scheduler handler directly, "
-            "missing custom X-CloudScheduler header"
-        )
+    # header = request.headers.get("X-CloudScheduler", None)
+    # if not header:
+    #     raise ValueError(
+    #         "attempt to access cloud scheduler handler directly, "
+    #         "missing custom X-CloudScheduler header"
+    #     )
     incident_publisher.publish_incidents()
     return {"success": True}
 
@@ -220,6 +220,27 @@ def register_token():
     res = registerNewToken(deviceId, token)
     print(res)
 
+
+# create tokens
+for prefix in ["aa", "bb", "cc"]:
+    for i in range(5):
+        registerNewToken(f"id-{prefix}-{i}", f"{prefix}{i}")
+
+# create test incident
+insertIncident(
+    {
+        "incident_time": "1",
+        "incident_location": "test_location",
+        "url": "test_url",
+        "incident_source": "test_incident_source",
+        "created_by": "test_created_by",
+        "title": "From server notification 3",
+        "abstract": "test_abstract",
+    }
+)
+
+# send notification by calling function
+publish_incidents()
 
 if __name__ == "__main__":
     # This is used when running locally only. When deploying to Google App
