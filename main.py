@@ -26,15 +26,20 @@ from google.auth.transport import Response, requests
 
 import firestore.admins
 from common import User
-from firestore.incidents import (deleteIncident, getIncidents, getStats,
-                                 insertIncident)
+from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident
+from firestore.tokens import registerNewToken
 import incident_publisher
+
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 # [END gae_python3_datastore_store_and_fetch_user_times]
 # [END gae_python38_datastore_store_and_fetch_user_times]
 app = Flask(__name__)
 # cors = CORS(app, resources={r"/*": {"origins": "*"}})
 cors = CORS(app)
 firebase_request_adapter = requests.Request()
+limiter = Limiter(get_remote_address, app=app, default_limits=["200/day", "50/hour"])
 
 
 def _check_is_admin(request) -> bool:
@@ -43,8 +48,13 @@ def _check_is_admin(request) -> bool:
         raise PermissionError("Lack of permission")
     return True
 
+
 def _get_lang(request) -> str:
-    lang = request.args.get('lang') if request.args.get('lang') else request.cookies.get("lang")
+    lang = (
+        request.args.get("lang")
+        if request.args.get("lang")
+        else request.cookies.get("lang")
+    )
     if lang is None:
         lang = "en"
     return lang
@@ -59,7 +69,8 @@ def _get_user(request) -> User:
     if id_token:
         try:
             claims = google.oauth2.id_token.verify_firebase_token(
-                id_token, firebase_request_adapter)
+                id_token, firebase_request_adapter
+            )
             return User.from_dict(claims)
         except ValueError as exc:
             print(exc)
@@ -68,34 +79,34 @@ def _get_user(request) -> User:
 
 
 def _getCommonArgs():
-    start = request.args.get("start", (datetime.now(
-    ) - timedelta(days=90)).strftime("%Y-%m-%d"))
+    start = request.args.get(
+        "start", (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
+    )
     end = request.args.get("end", datetime.now().strftime("%Y-%m-%d"))
     state = request.args.get("state", "")
     return dateparser.parse(start), dateparser.parse(end), state
 
 
-@app.route('/')
+@app.route("/")
 def root():
     start, end, state = _getCommonArgs()
     incidents = getIncidents(start, end, state)
     return render_template(
-        'index.html',
-        incidents=incidents,
-        current_user=_get_user(request))
+        "index.html", incidents=incidents, current_user=_get_user(request)
+    )
 
 
-@app.route('/admin')
+@app.route("/admin")
 def admin():
-    return render_template('admin.html')
+    return render_template("admin.html")
 
 
-@app.route('/isadmin')
+@app.route("/isadmin")
 def get_is_admin():
     return {"is_admin": _check_is_admin(request)}
 
 
-@app.route('/incidents')
+@app.route("/incidents")
 def get_incidents():
     start, end, state = _getCommonArgs()
     skip_cache = request.args.get("skip_cache", "false")
@@ -103,17 +114,21 @@ def get_incidents():
         _check_is_admin(request)  # only asdmin can set this flag to true
     incidents = getIncidents(start, end, state, skip_cache.lower() == "true")
     lang = _get_lang(request)
-    return {"incidents": clean_unused_translation(translate_incidents(incidents, lang), lang)}
+    return {
+        "incidents": clean_unused_translation(
+            translate_incidents(incidents, lang), lang
+        )
+    }
 
 
-@app.route('/incidents/<incident_id>', methods=["DELETE"])
+@app.route("/incidents/<incident_id>", methods=["DELETE"])
 def delete_incident(incident_id):
     _check_is_admin(request)
     deleteIncident(incident_id)
     return {"status": "success"}
 
 
-@app.route('/incidents', methods=["POST"])
+@app.route("/incidents", methods=["POST"])
 def create_incident():
     _check_is_admin(request)
     req = request.get_json().get("incident")
@@ -128,14 +143,12 @@ def _aggregate_monthly_total(fullmonth_stats, state):
     for daily in fullmonth_stats:
         location = daily["incident_location"]
         if not state or state == location:
-            str_month = datetime.strptime(
-                daily["key"], "%Y-%m-%d").strftime("%Y-%m")
-            monthly_total[str_month] = monthly_total.get(
-                str_month, 0) + daily["value"]
+            str_month = datetime.strptime(daily["key"], "%Y-%m-%d").strftime("%Y-%m")
+            monthly_total[str_month] = monthly_total.get(str_month, 0) + daily["value"]
     return monthly_total
 
 
-@app.route('/stats')
+@app.route("/stats")
 def get_stats():
     # return
     # stats: [{"key": date, "value": count}] this is daily count filtered by state if needed
@@ -146,8 +159,9 @@ def get_stats():
 
     fullmonth_stats = getStats(
         start_date.replace(day=1),
-        end_date.replace(day=calendar.monthrange(end_date.year, end_date.month)[1]))  # [{key(date), incident_location, value}]
-    monthly_stats = _aggregate_monthly_total(fullmonth_stats,  state)
+        end_date.replace(day=calendar.monthrange(end_date.year, end_date.month)[1]),
+    )  # [{key(date), incident_location, value}]
+    monthly_stats = _aggregate_monthly_total(fullmonth_stats, state)
     total = {}
     # national data is by state and by date, merge all state per date, and calculate state total
     aggregated = {}
@@ -169,14 +183,18 @@ def get_stats():
 
     return {"stats": stats, "total": total, "monthly_stats": monthly_stats}
 
-@app.route('/publish_incidents')
+
+@app.route("/publish_incidents")
 def publish_incidents():
-    header = request.headers.get('X-CloudScheduler', None) 
+    header = request.headers.get("X-CloudScheduler", None)
     if not header:
-        raise ValueError('attempt to access cloud scheduler handler directly, '
-                        'missing custom X-CloudScheduler header')
+        raise ValueError(
+            "attempt to access cloud scheduler handler directly, "
+            "missing custom X-CloudScheduler header"
+        )
     incident_publisher.publish_incidents()
     return {"success": True}
+
 
 # @app.route('/loaddata')
 # def load_data():
@@ -192,7 +210,18 @@ def publish_incidents():
 #     return "success"
 
 
-if __name__ == '__main__':
+@app.route("/token", methods=["PUT"])
+@limiter.limit("100/day;5/hour;1/minute")
+def register_token():
+    deviceId = request.get_json().get("deviceId", None)
+    token = request.get_json().get("token", None)
+    if not token:
+        raise ValueError("no token detected ")
+    res = registerNewToken(deviceId, token)
+    print(res)
+
+
+if __name__ == "__main__":
     # This is used when running locally only. When deploying to Google App
     # Engine, a webserver process such as Gunicorn will serve the app. This
     # can be configured by adding an `entrypoint` to app.yaml.
@@ -201,4 +230,4 @@ if __name__ == '__main__':
     # the "static" directory. See:
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
-    app.run(host='127.0.0.1', port=8081, debug=True)
+    app.run(host="127.0.0.1", port=8081, debug=True)
