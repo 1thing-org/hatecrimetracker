@@ -27,7 +27,7 @@ from google.auth.transport import Response, requests
 import firestore.admins
 from common import User
 from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident
-from firestore.tokens import registerNewToken
+from firestore.tokens import register_new_token
 import incident_publisher
 
 from flask_limiter import Limiter
@@ -211,22 +211,23 @@ def publish_incidents():
 
 
 @app.route("/token", methods=["PUT"])
-@limiter.limit("100/day;5/hour;1/minute")
 def register_token():
     deviceId = request.get_json().get("deviceId", None)
     token = request.get_json().get("token", None)
+    if not deviceId:
+        raise ValueError("No deviceId detected")
     if not token:
-        raise ValueError("no token detected ")
-    res = registerNewToken(deviceId, token)
+        raise ValueError("No token detected")
+    res = register_new_token(deviceId, token)
     print(res)
 
 
-# create tokens
+### TEST: create tokens
 for prefix in ["aa", "bb", "cc"]:
     for i in range(5):
-        registerNewToken(f"id-{prefix}-{i}", f"{prefix}{i}")
+        register_new_token(f"id-{prefix}-{i}", f"{prefix}{i}")
 
-# create test incident
+### TEST: create test incident
 insertIncident(
     {
         "incident_time": "1",
@@ -239,7 +240,7 @@ insertIncident(
     }
 )
 
-# send notification by calling function
+### TEST: send notification by calling function
 publish_incidents()
 
 if __name__ == "__main__":

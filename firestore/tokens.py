@@ -6,23 +6,18 @@ from datetime import datetime, timedelta
 class Token(Model):
     id = IDField(required=True)
     token = TextField(required=True)
-    expiration_time = DateTime(required=True)
 
 
-def deleteToken(token_id):
-    if Token.collection.delete("token/" + token_id):
-        return True
-    return False
+def delete_token(token_id):
+    return Token.collection.delete("token/" + token_id)
 
 
-def registerNewToken(id, token):
-    # return incident id
-    print("New Id:", id)
+def register_new_token(deviceID, token):
+    print("New Device:", deviceID)
     print("New Token:", token)
     new_token = Token(
-        id=id,
+        id=deviceID,
         token=token,
-        expiration_time=datetime.now() + timedelta(days=30),
     )
 
     token_id = new_token.upsert().id

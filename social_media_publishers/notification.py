@@ -1,8 +1,8 @@
 from datetime import datetime
 from social_media_publishers.publisher import Publisher
 from firestore.incidents import Incident
-from firestore.tokens import Token
-from datetime import datetime, timedelta
+from firestore.tokens import Token, delete_token
+from datetime import datetime
 import concurrent.futures
 
 from exponent_server_sdk import (
@@ -19,7 +19,7 @@ class PushNotification(Publisher):
 
     def publish(self, incident: Incident) -> datetime:
         # Fetch tokens in batches
-        batch_size = 10
+        batch_size = 100
         batch_no = 0
         tokens = Token.collection.fetch(batch_size)
 
@@ -59,19 +59,13 @@ class PushNotification(Publisher):
     def process_token_group(self, group_key, tokens, incident):
         try:
             for token in tokens:
-                if token.expiration_time.strftime("%Y-%m-%d") < datetime.now().strftime(
-                    "%Y-%m-%d"
-                ):
-                    Token.collection.delete("token/" + token._id)
-                    print(f'Token: "{token.token}" expired, deleted')
-                else:
-                    message = PushMessage(
-                        to=token.token,
-                        title=incident.title,
-                        body=incident.abstract,
-                        data={},  # Optional data payload
-                    )
-                    self.sendMessage(message, token)
+                message = PushMessage(
+                    to=token.token,
+                    title=incident.title,
+                    body=incident.abstract,
+                    data={},  # Optional data payload
+                )
+                self.sendMessage(message, token)
         except Exception as e:
             print(e)
 
@@ -80,10 +74,10 @@ class PushNotification(Publisher):
             response = self.push_client.publish(message)
             print("Notification sent successfully:", response)
         except DeviceNotRegisteredError:
-            Token.collection.delete("token/" + token._id)
+            delete_token(token._id)
             print("Token Not Registered. Deleted.")
         except PushServerError as error:
             print("Push failed: ", error.__dict__)
         except ValueError:
-            Token.collection.delete("token/" + token._id)
+            delete_token(token._id)
             print(f"Invalid push token. Deleted.")
