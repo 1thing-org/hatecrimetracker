@@ -27,11 +27,11 @@ from google.auth.transport import Response, requests
 import firestore.admins
 from common import User
 from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident
-from firestore.tokens import register_new_token
+from firestore.tokens_v3 import add_token
 import incident_publisher
 
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+# from flask_limiter import Limiter
+# from flask_limiter.util import get_remote_address
 
 # [END gae_python3_datastore_store_and_fetch_user_times]
 # [END gae_python38_datastore_store_and_fetch_user_times]
@@ -39,7 +39,7 @@ app = Flask(__name__)
 # cors = CORS(app, resources={r"/*": {"origins": "*"}})
 cors = CORS(app)
 firebase_request_adapter = requests.Request()
-limiter = Limiter(get_remote_address, app=app, default_limits=["200/day", "50/hour"])
+# limiter = Limiter(get_remote_address, app=app, default_limits=["200/day", "50/hour"])
 
 
 def _check_is_admin(request) -> bool:
@@ -218,30 +218,30 @@ def register_token():
         raise ValueError("No deviceId detected")
     if not token:
         raise ValueError("No token detected")
-    res = register_new_token(deviceId, token)
+    res = add_token(deviceId, token)
     print(res)
 
 
 ### TEST: create tokens
 for prefix in ["aa", "bb", "cc"]:
-    for i in range(5):
-        register_new_token(f"id-{prefix}-{i}", f"{prefix}{i}")
+    for i in range(6, 500):
+        add_token(f"id-{prefix}-{i}", f"{prefix}{i}")
 
-### TEST: create test incident
-insertIncident(
-    {
-        "incident_time": "1",
-        "incident_location": "test_location",
-        "url": "test_url",
-        "incident_source": "test_incident_source",
-        "created_by": "test_created_by",
-        "title": "From server notification 3",
-        "abstract": "test_abstract",
-    }
-)
+# ### TEST: create test incident
+# insertIncident(
+#     {
+#         "incident_time": "1",
+#         "incident_location": "test_location",
+#         "url": "test_url",
+#         "incident_source": "test_incident_source",
+#         "created_by": "test_created_by",
+#         "title": "From server notification 3",
+#         "abstract": "test_abstract",
+#     }
+# )
 
-### TEST: send notification by calling function
-publish_incidents()
+# ### TEST: send notification by calling function
+# publish_incidents()
 
 if __name__ == "__main__":
     # This is used when running locally only. When deploying to Google App

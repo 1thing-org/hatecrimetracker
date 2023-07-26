@@ -1,7 +1,7 @@
 from datetime import datetime
 from social_media_publishers.publisher import Publisher
 from firestore.incidents import Incident
-from firestore.tokens import Token, delete_token
+from firestore.tokens_v2 import Token, delete_token
 from datetime import datetime
 import concurrent.futures
 
