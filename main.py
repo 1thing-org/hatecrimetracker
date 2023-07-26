@@ -29,6 +29,9 @@ from common import User
 from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident
 from firestore.tokens_v3 import add_token
 import incident_publisher
+import fireo
+
+transaction = fireo.transaction()
 
 # from flask_limiter import Limiter
 # from flask_limiter.util import get_remote_address
@@ -218,14 +221,14 @@ def register_token():
         raise ValueError("No deviceId detected")
     if not token:
         raise ValueError("No token detected")
-    res = add_token(deviceId, token)
+    res = add_token(transaction, deviceId, token)
     print(res)
 
 
 ### TEST: create tokens
 for prefix in ["aa", "bb", "cc"]:
-    for i in range(6, 500):
-        add_token(f"id-{prefix}-{i}", f"{prefix}{i}")
+    for i in range(1, 11):
+        add_token(transaction, f"id-{prefix}-{i}", f"{prefix}{i}")
 
 # ### TEST: create test incident
 # insertIncident(
