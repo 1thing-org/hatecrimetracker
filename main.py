@@ -213,6 +213,10 @@ def publish_incidents():
 #     load_from_csv("loadtata_result.csv")
 #     return "success"
 
+import queue
+
+token_q = queue.Queue()
+
 
 @app.route("/token", methods=["PUT"])
 def register_token():
@@ -222,10 +226,27 @@ def register_token():
         raise ValueError("No deviceId detected")
     if not token:
         raise ValueError("No token detected")
+
+    token_q.put(deviceId)
+    while not token_q.empty() and token_q.queue[0] != deviceId:
+        pass
+
     res = add_token(deviceId, token)
+    token_q.get()
     print(res)
     return {"success": True}
 
+
+# def register_token():
+#     deviceId = request.get_json().get("deviceId", None)
+#     token = request.get_json().get("token", None)
+#     if not deviceId:
+#         raise ValueError("No deviceId detected")
+#     if not token:
+#         raise ValueError("No token detected")
+#     res = add_token(deviceId, token)
+#     print(res)
+#     return {"success": True}
 
 ### TEST: create tokens
 # from multiprocessing import Pool
@@ -362,5 +383,5 @@ if __name__ == "__main__":
     #     )
     #     print(results)
 
-    app.run(host="127.0.0.1", port=8081, debug=True)
+    app.run(host="127.0.0.1", port=8081, debug=True, threaded=True)
     # app.run(host="0.0.0.0", port=8081, debug=True)
