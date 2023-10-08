@@ -190,12 +190,12 @@ def get_stats():
 
 @app.route("/publish_incidents")
 def publish_incidents():
-    # header = request.headers.get("X-CloudScheduler", None)
-    # if not header:
-    #     raise ValueError(
-    #         "attempt to access cloud scheduler handler directly, "
-    #         "missing custom X-CloudScheduler header"
-    #     )
+    header = request.headers.get("X-CloudScheduler", None)
+    if not header:
+        raise ValueError(
+            "attempt to access cloud scheduler handler directly, "
+            "missing custom X-CloudScheduler header"
+        )
     incident_publisher.publish_incidents()
     return {"success": True}
 
@@ -237,115 +237,6 @@ def register_token():
     return {"success": True}
 
 
-# def register_token():
-#     deviceId = request.get_json().get("deviceId", None)
-#     token = request.get_json().get("token", None)
-#     if not deviceId:
-#         raise ValueError("No deviceId detected")
-#     if not token:
-#         raise ValueError("No token detected")
-#     res = add_token(deviceId, token)
-#     print(res)
-#     return {"success": True}
-
-### TEST: create tokens
-# from multiprocessing import Pool
-
-
-# with ProcessPoolExecutor() as executor:
-#     executor.map(
-#         add_token,
-#         (
-#             (transaction, f"id-{prefix}-{i}", f"{prefix}{i}")
-#             for i in range(1, 11)
-#             for prefix in ["aa", "bb", "cc"]
-#         ),
-#     )
-
-
-# def worker_function(x):
-#     # Return the square of the passed argument:
-#     return x**2
-
-
-# from multiprocessing import Pool
-
-
-# for prefix in ["aa", "bb", "cc"]:
-#     for i in range(1, 11):
-#         add_token(transaction, f"id-{prefix}-{i}", f"{prefix}{i}")
-
-# ### TEST: create test incident
-# insertIncident(
-#     {
-#         "incident_time": "1",
-#         "incident_location": "test_location",
-#         "url": "test_url",
-#         "incident_source": "test_incident_source",
-#         "created_by": "test_created_by",
-#         "title": "From server notification 3",
-#         "abstract": "test_abstract",
-#     }
-# )
-
-
-# ### TEST: send notification by calling function
-# publish_incidents()
-# def test(a, b):
-#     print(f"{a}, {b}")
-
-
-# from concurrent.futures import ProcessPoolExecutor
-# import fireo
-
-
-# # @fireo.transactional
-# async def worker_function(x, y):
-#     try:
-#         print(f"{x}, {y}")
-#     except:
-#         print("error")
-#     return x * y
-
-
-# for i in range(2):
-#      worker_function("a", "b")
-
-# # x_values = (1, 2, 3)
-# # y_values = (9, -2, -8)
-# # transactions = [transaction for i in range(1, 11) for prefix in ["aa", "bb", "cc"]]
-# x_values = [f"id-{prefix}-{i}" for i in range(1, 11) for prefix in ["aa", "bb", "cc"]]
-# y_values = [f"{prefix}{i}" for i in range(1, 11) for prefix in ["aa", "bb", "cc"]]
-# # import concurrent.futures
-
-
-# import asyncio
-
-
-# async def worker_function(x, y):
-#     return x * y
-
-
-# transaction = fireo.transaction()
-
-
-# async def task_1():
-#     # x_values = (1, 2, 3)
-#     # y_values = (9, -2, -8)
-
-#     tasks = []
-#     for i in range(len(x_values)):
-#         task = asyncio.create_task(
-#             add_token(fireo.transaction(), x_values[i], y_values[i])
-#         )
-#         tasks.append(task)
-
-#     results = await asyncio.gather(*tasks)
-#     print(results)
-
-
-# asyncio.run(task_1())
-
 if __name__ == "__main__":
     # This is used when running locally only. When deploying to Google App
     # Engine, a webserver process such as Gunicorn will serve the app. This
@@ -355,33 +246,6 @@ if __name__ == "__main__":
     # the "static" directory. See:
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
-    # with ProcessPoolExecutor() as executor:
-    #     # results = list(executor.map(worker_function, transactions, x_values, y_values))
-
-    #     futures = []
-    #     for id, token in [
-    #         [f"id-{prefix}-{i}", f"{prefix}{i}"]
-    #         for i in range(1, 11)
-    #         for prefix in ["aa", "bb", "cc"]
-    #     ]:
-    #         transaction = fireo.transaction()
-    #         future = executor.submit(worker_function, "transaction", id, token)
-    #         futures.append(future)
-
-    #     # Wait for all tasks to complete
-    #     concurrent.futures.wait(futures)
-
-    # add_token = test
-    # with Pool() as pool:
-    #     results = pool.starmap(
-    #         add_token,
-    #         (
-    #             (transaction, f"id-{prefix}-{i}", f"{prefix}{i}")
-    #             for i in range(1, 11)
-    #             for prefix in ["aa", "bb", "cc"]
-    #         ),
-    #     )
-    #     print(results)
 
     app.run(host="127.0.0.1", port=8081, debug=True, threaded=True)
     # app.run(host="0.0.0.0", port=8081, debug=True)
