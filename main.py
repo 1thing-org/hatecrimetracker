@@ -27,7 +27,7 @@ from google.auth.transport import Response, requests
 import firestore.admins
 from common import User
 from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident
-from firestore.tokens_v3_0 import add_token
+from firestore.tokens import add_token
 import incident_publisher
 
 # import fireo
