@@ -67,16 +67,19 @@ def clean_unused_translation(orig_incidents, target_lang):
     is_en = target_lang == 'en' or target_lang == 'en_US'
     cleaned_incidents = []
     for orig_incident in orig_incidents:
-        incident = orig_incident.copy()
-        if is_en:
-            incident['title_translate'] = {}
-            incident['abstract_translate'] = {}
-        else:
-            incident['title_translate'] = {
-                target_lang : incident['title_translate'].get(target_lang, "")
-            }
-            incident['abstract_translate'] = {
-                target_lang : incident['abstract_translate'].get(target_lang, "")
-            }
-        cleaned_incidents.append(incident)
+        cleaned_inner_incident = []
+        for inner_incident in orig_incident:
+            incident = inner_incident.copy()
+            if is_en:
+                incident['title_translate'] = {}
+                incident['abstract_translate'] = {}
+            else:
+                incident['title_translate'] = {
+                    target_lang : incident['title_translate'].get(target_lang, "")
+                }
+                incident['abstract_translate'] = {
+                    target_lang : incident['abstract_translate'].get(target_lang, "")
+                }
+            cleaned_inner_incident.append(incident)
+        cleaned_incidents.append(cleaned_inner_incident)
     return cleaned_incidents

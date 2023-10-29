@@ -31,6 +31,7 @@
     <td>Title</td>
     <td>Abstract</td>
     <td>url</td>
+    <td>id</td>
   </tr>
 	{% for incident in incidents %}
   <tr>
@@ -39,6 +40,7 @@
     <td>{{ incident['title'] }}</td>
     <td>{{ incident['abstract'] }}</td>
     <td>{{ incident['url'] }}</td>
+    <td>{{ incident['parent'] }}</td>
   </tr>
   {% endfor %} 
 </table>
