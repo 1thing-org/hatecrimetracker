@@ -12,7 +12,7 @@ def delete_token(token_id):
     return Token.collection.delete("token/" + token_id)
 
 
-def register_new_token(deviceID, token):
+def add_token(deviceID, token):
     print("New Device:", deviceID)
     print("New Token:", token)
     new_token = Token(
