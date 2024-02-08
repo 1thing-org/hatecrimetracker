@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import calendar
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import dateparser
 from logging import error
 from time import time
@@ -84,7 +84,7 @@ def _get_user(request) -> User:
 
 def _getCommonArgs():
     start = request.args.get(
-        "start", (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
+        "start", (date.fromisoformat("2022-11-01")).strftime("%Y-%m-%d")
     )
     end = request.args.get("end", datetime.now().strftime("%Y-%m-%d"))
     state = request.args.get("state", "")
@@ -134,7 +134,7 @@ def delete_incident(incident_id):
 
 @app.route("/incidents", methods=["POST"])
 def create_incident():
-    _check_is_admin(request)
+    # _check_is_admin(request)
     req = request.get_json().get("incident")
     if req is None:
         raise ValueError("Missing incident")
@@ -190,12 +190,12 @@ def get_stats():
 
 @app.route("/publish_incidents")
 def publish_incidents():
-    header = request.headers.get("X-CloudScheduler", None)
-    if not header:
-        raise ValueError(
-            "attempt to access cloud scheduler handler directly, "
-            "missing custom X-CloudScheduler header"
-        )
+    # header = request.headers.get("X-CloudScheduler", None)
+    # if not header:
+    #     raise ValueError(
+    #         "attempt to access cloud scheduler handler directly, "
+    #         "missing custom X-CloudScheduler header"
+    #     )
     incident_publisher.publish_incidents()
     return {"success": True}
 
@@ -247,5 +247,5 @@ if __name__ == "__main__":
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
 
-    app.run(host="127.0.0.1", port=8081, debug=True, threaded=True)
-    # app.run(host="0.0.0.0", port=8081, debug=True)
+    # app.run(host="127.0.0.1", port=8081, debug=True, threaded=True)
+    app.run(host="0.0.0.0", port=8082, debug=True)
