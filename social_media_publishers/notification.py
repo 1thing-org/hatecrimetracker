@@ -42,7 +42,7 @@ class PushNotification(Publisher):
 
             if not push_messages:
                 break
-
+            print(f"Publishing batch {batch_no} ...")
             try:
                 results = self.push_client.publish_multiple(push_messages)
                 res.append(results)

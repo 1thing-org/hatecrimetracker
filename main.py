@@ -196,8 +196,8 @@ def publish_incidents():
     #         "attempt to access cloud scheduler handler directly, "
     #         "missing custom X-CloudScheduler header"
     #     )
-    incident_publisher.publish_incidents()
-    return {"success": True}
+    result = incident_publisher.publish_incidents()
+    return {"success": True, "result": result}
 
 
 # @app.route('/loaddata')

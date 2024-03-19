@@ -17,7 +17,7 @@ def publish_incidents():
         "notification": PushNotification(),
     }
     incidents = (
-        Incident.collection.filter("incident_time", ">=", datetime(2022, 1, 22))
+        Incident.collection.filter("incident_time", ">=", datetime(2022, 12, 1))
         .order("incident_time")
         .fetch()
     )
@@ -38,6 +38,14 @@ def publish_incidents():
             print("Successfully published to ", target, " at ", publish_time)
             incident.publish_status[target] = publish_time
             # Uncomment me once the publishers are working
-            incident.save()
+            try:
+                incident.save()
+                print("success: " + incident.to_dict()["id"])
+            except Exception as e:
+                print(
+                    "An error occurred:",
+                    e,
+                    incident.to_dict()["id"],
+                )
             success += 1
     print("success:", success, " failed:", failed)
