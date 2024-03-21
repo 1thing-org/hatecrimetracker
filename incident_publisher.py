@@ -40,7 +40,7 @@ def publish_incidents():
             # Uncomment me once the publishers are working
             try:
                 incident.save()
-                print("success: " + incident.to_dict()["id"])
+                print("Successfully saved publish_status: " + incident.to_dict()["id"])
             except Exception as e:
                 print(
                     "An error occurred:",
