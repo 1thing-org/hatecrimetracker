@@ -38,6 +38,14 @@ def publish_incidents():
             print("Successfully published to ", target, " at ", publish_time)
             incident.publish_status[target] = publish_time
             # Uncomment me once the publishers are working
-            incident.save()
+            try:
+                incident.save()
+                print("Successfully saved publish_status: " + incident.to_dict()["id"])
+            except Exception as e:
+                print(
+                    "An error occurred:",
+                    e,
+                    incident.to_dict()["id"],
+                )
             success += 1
     print("success:", success, " failed:", failed)
