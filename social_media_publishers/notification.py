@@ -1,7 +1,7 @@
 from datetime import datetime
 from social_media_publishers.publisher import Publisher
 from firestore.incidents import Incident
-from firestore.tokens_v2 import Token, delete_token
+from firestore.tokens import Token, delete_token
 from datetime import datetime
 import concurrent.futures
 
@@ -26,9 +26,8 @@ class PushNotification(Publisher):
 
         while True:
             batch_no += 1
-            print(f"Grouping batch {batch_no} ...")
 
-            # Group tokens by first two characters
+            print(f"Grouping batch {batch_no} ...")
             push_messages = []
             for token in tokens:
                 push_messages.append(
@@ -39,9 +38,9 @@ class PushNotification(Publisher):
                         data={},  # Optional data payload
                     )
                 )
-
             if not push_messages:
                 break
+
             print(f"Publishing batch {batch_no} ...")
             try:
                 results = self.push_client.publish_multiple(push_messages)
