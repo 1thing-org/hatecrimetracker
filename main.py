@@ -30,20 +30,12 @@ from firestore.incidents import deleteIncident, getIncidents, getStats, insertIn
 from firestore.tokens import add_token
 import incident_publisher
 
-# import fireo
-
-# transaction = fireo.transaction()
-
-# from flask_limiter import Limiter
-# from flask_limiter.util import get_remote_address
-
 # [END gae_python3_datastore_store_and_fetch_user_times]
 # [END gae_python38_datastore_store_and_fetch_user_times]
 app = Flask(__name__)
 # cors = CORS(app, resources={r"/*": {"origins": "*"}})
 cors = CORS(app)
 firebase_request_adapter = requests.Request()
-# limiter = Limiter(get_remote_address, app=app, default_limits=["200/day", "50/hour"])
 
 
 def _check_is_admin(request) -> bool:
@@ -213,10 +205,6 @@ def publish_incidents():
 #     load_from_csv("loadtata_result.csv")
 #     return "success"
 
-import queue
-
-token_q = queue.Queue()
-
 
 @app.route("/token", methods=["PUT"])
 def register_token():
@@ -227,13 +215,7 @@ def register_token():
     if not token:
         raise ValueError("No token detected")
 
-    token_q.put(deviceId)
-    while not token_q.empty() and token_q.queue[0] != deviceId:
-        pass
-
     res = add_token(deviceId, token)
-    token_q.get()
-    print(res)
     return {"success": True}
 
 
