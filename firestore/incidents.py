@@ -4,8 +4,8 @@ import dateparser
 from cachetools import cached
 from fireo import models as mdl
 
-from firestore.cachemanager import (INCIDENT_CACHE, INCIDENT_STATS_CACHE,
-                                    flush_cache)
+from firestore.cachemanager import INCIDENT_CACHE, INCIDENT_STATS_CACHE, flush_cache
+
 
 class Incident(mdl.Model):
     incident_time = mdl.DateTime(required=True)
@@ -18,36 +18,44 @@ class Incident(mdl.Model):
     created_by = mdl.TextField(required=False)
     title = mdl.TextField(required=True)
     title_translate = mdl.MapField(required=False)
-    publish_status = mdl.MapField(required=True, default={
-        'twitter' : None,
-        'linkedin' : None
-    })
-    donation_link = mdl.TextField() #  Donation: link to donation website
-    police_tip_line = mdl.TextField() # Police Tip Line: phone number to provide tips to police to help capture the suspect
-    help_the_victim = mdl.TextField() # Help the victim: other free style text about how people can help the victim
+    publish_status = mdl.MapField(
+        required=True, default={"twitter": None, "linkedin": None}
+    )
+    donation_link = mdl.TextField()  #  Donation: link to donation website
+    police_tip_line = (
+        mdl.TextField()
+    )  # Police Tip Line: phone number to provide tips to police to help capture the suspect
+    help_the_victim = (
+        mdl.TextField()
+    )  # Help the victim: other free style text about how people can help the victim
+    parent_doc = mdl.TextField(column_name="parent")
+
 
 @cached(cache=INCIDENT_CACHE)
 def queryIncidents(start: datetime, end: datetime, state=""):
     end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
-    query = Incident.collection.filter(
-        'incident_time', '>=', start).filter('incident_time', '<=', end_time)
+    query = Incident.collection.filter("incident_time", ">=", start).filter(
+        "incident_time", "<=", end_time
+    )
     if state != "":
-        query = query.filter('incident_location', '==', state)
+        query = query.filter("incident_location", "==", state)
 
-    result = query.order('-incident_time').fetch()
+    result = query.order("-incident_time").fetch()
     return [incident.to_dict() for incident in result]
 
+
 def deleteIncident(incident_id):
-    if Incident.collection.delete("incident/"+incident_id):
+    if Incident.collection.delete("incident/" + incident_id):
         flush_cache()
         return True
     return False
 
 
 def getIncidents(start: datetime, end: datetime, state="", skip_cache=False):
-    if skip_cache: 
+    if skip_cache:
         INCIDENT_CACHE.clear()
     return queryIncidents(start, end, state)
+
 
 # incidents should be [
 #   {
@@ -74,22 +82,38 @@ def insertIncident(incident, to_flush_cache=True):
     # return incident id
     print("INSERTING:", incident)
     new_incident = Incident(
-        incident_time=dateparser.parse(incident["incident_time"]) if isinstance(incident["incident_time"], str) else incident["incident_time"],
+        incident_time=(
+            dateparser.parse(incident["incident_time"])
+            if isinstance(incident["incident_time"], str)
+            else incident["incident_time"]
+        ),
         incident_location=incident["incident_location"],
         abstract=incident["abstract"],
         url=incident["url"],
-        incident_source=incident["incident_source"], 
+        incident_source=incident["incident_source"],
         created_by=incident["created_by"],
-        title=incident["title"]
+        title=incident["title"],
     )
-        
+
     new_incident.id = incident["id"] if "id" in incident else None
-    new_incident.abstract_translate = incident["abstract_translate"] if "abstract_translate" in incident else {}
-    new_incident.title_translate = incident["title_translate"] if "title_translate" in incident else {}
-    new_incident.publish_status=incident["publish_status"] if "publish_status" in incident else {}
-    new_incident.donation_link=incident["donation_link"] if "donation_link" in incident else None
-    new_incident.police_tip_line=incident["police_tip_line"] if "police_tip_line" in incident else None
-    new_incident.help_the_victim=incident["help_the_victim"] if "help_the_victim" in incident else None
+    new_incident.abstract_translate = (
+        incident["abstract_translate"] if "abstract_translate" in incident else {}
+    )
+    new_incident.title_translate = (
+        incident["title_translate"] if "title_translate" in incident else {}
+    )
+    new_incident.publish_status = (
+        incident["publish_status"] if "publish_status" in incident else {}
+    )
+    new_incident.donation_link = (
+        incident["donation_link"] if "donation_link" in incident else None
+    )
+    new_incident.police_tip_line = (
+        incident["police_tip_line"] if "police_tip_line" in incident else None
+    )
+    new_incident.help_the_victim = (
+        incident["help_the_victim"] if "help_the_victim" in incident else None
+    )
 
     incident_id = new_incident.upsert().id
     if incident_id:
@@ -98,6 +122,7 @@ def insertIncident(incident, to_flush_cache=True):
         return incident_id
     else:
         raise SystemError("Failed to upsert the incident with id:" + new_incident.id)
+
 
 # Query incidents within the given dates and state
 # Return [ { key: date, value : count, incident_location: state } ]
@@ -116,10 +141,6 @@ def getStats(start: datetime, end: datetime, state=""):
     ret = []
     for key in stats:
         (date, state) = key
-        ret.append({
-            "key": date,
-            "incident_location": state,
-            "value": stats[key]
-        })
+        ret.append({"key": date, "incident_location": state, "value": stats[key]})
 
     return ret
