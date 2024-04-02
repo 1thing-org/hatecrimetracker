@@ -19,7 +19,7 @@ class Incident(mdl.Model):
     title = mdl.TextField(required=True)
     title_translate = mdl.MapField(required=False)
     publish_status = mdl.MapField(
-        required=True, default={"twitter": None, "linkedin": None}
+        required=True, default={"twitter": None, "linkedin": None, "notification": None}
     )
     donation_link = mdl.TextField()  #  Donation: link to donation website
     police_tip_line = (
