@@ -17,8 +17,6 @@ class UserReport(mdl.Model):
     created_by = mdl.TextField(required=False)  # Contact info is not required
     email = mdl.TextField(required=False)
     phone = mdl.TextField(required=False)
-    title = mdl.TextField(required=False)  # Title is not required for user reports
-    title_translate = mdl.MapField(required=False)
     publish_status = mdl.MapField(
         required=True, default={"twitter": None, "linkedin": None, "notification": None}
     )
@@ -34,7 +32,6 @@ class UserReport(mdl.Model):
 
 def insertUserReport(user_report, to_flush_cache=True):
     # return user_report id
-    print("INSERTING:", user_report)
     new_user_report = UserReport(
         user_report_time=(
             dateparser.parse(user_report["user_report_time"])
