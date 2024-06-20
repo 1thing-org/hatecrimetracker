@@ -17,10 +17,12 @@ from datetime import datetime, timedelta, date
 import dateparser
 from logging import error
 from time import time
+
+from testCSV import to_csv
 from translate import translate_incidents, clean_unused_translation
 
 import google.oauth2.id_token
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from flask_cors import CORS
 from google.auth.transport import Response, requests
 
@@ -202,9 +204,16 @@ def publish_incidents():
 # def load_csv():
 #     #Load incidents from loaddata_result.csv
 #     #loadData("data.json")
-#     load_from_csv("loadtata_result.csv")
+#     load_from_csv("incident_data.csv")
 #     return "success"
 
+# Return the csv file
+@app.route('/get_csv')
+def get_csv():
+    try:
+        return send_from_directory('./', 'incident_data.csv', as_attachment=True)
+    except:
+        return '<h1> File Not Found <h1>'
 
 @app.route("/token", methods=["PUT"])
 def register_token():
