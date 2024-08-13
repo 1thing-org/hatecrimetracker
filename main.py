@@ -29,6 +29,8 @@ from common import User
 from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident
 from firestore.tokens import add_token
 import incident_publisher
+from firestore import update_user_profile  
+
 
 # [END gae_python3_datastore_store_and_fetch_user_times]
 # [END gae_python38_datastore_store_and_fetch_user_times]
@@ -217,6 +219,20 @@ def register_token():
 
     res = add_token(deviceId, token)
     return {"success": True}
+
+@app.route("/user_report_profile", methods=["POST"])
+def update_user_report_profile():
+    data = request.json
+    contact_name = data.get('contact_name')
+    email = data.get('email')
+    phone = data.get('phone')
+    report_id = data.get('report_id')  # Ensure this is provided from the frontend
+
+    if not (contact_name and email and phone and report_id):
+        return {"error": "Missing data"}, 400
+
+    response = update_user_profile(report_id, contact_name, email, phone)
+    return {"success": True, "report_id": response['report_id']}, 200
 
 
 if __name__ == "__main__":
