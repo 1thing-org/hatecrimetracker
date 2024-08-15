@@ -39,11 +39,9 @@ def update_user_profile(contact_name, email, phone, report_id='abc123'):
         
         # Iterate over the query results and return the first match
         for doc in query:
-            print(f"Document found: {doc.id}, Data: {doc.to_dict()}")
             return doc.id, doc.to_dict()  # Return both the document ID and its data
         
         # If no match found, return None
-        print("No matching document found.")
         return None, None
     
     # Get the document ID and the user report data

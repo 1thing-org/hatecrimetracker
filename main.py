@@ -223,7 +223,7 @@ def register_token():
 @app.route("/user_report_profile", methods=["POST"])
 def update_user_report_profile():
     data = request.args
-    print('update_user_report_profile request', data)
+
     contact_name = data.get('contact_name')
     email = data.get('email')
     phone = data.get('phone')
@@ -233,7 +233,7 @@ def update_user_report_profile():
         return {"error": "Missing data"}, 400
 
     response, code = update_user_profile(contact_name, email, phone, report_id)
-    print("response: ", response, "code: ", code)
+
     return {"report_id": response['report_id']}, code
 
 
