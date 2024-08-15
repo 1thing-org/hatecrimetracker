@@ -221,18 +221,20 @@ def register_token():
     return {"success": True}
 
 @app.route("/user_report_profile", methods=["POST"])
-def update_user_report_profile():
-    data = request.args
-
+def update_user_report_profile():    
+    data = request.get_json(force=True)
+  
     contact_name = data.get('contact_name')
     email = data.get('email')
     phone = data.get('phone')
     report_id = data.get('report_id')  # Ensure this is provided from the frontend
 
     if not (contact_name and email and phone and report_id):
+        
         return {"error": "Missing data"}, 400
 
     response, code = update_user_profile(contact_name, email, phone, report_id)
+    
 
     return {"report_id": response['report_id']}, code
 

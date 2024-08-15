@@ -26,7 +26,7 @@ class UserReportProfile(mdl.Model):
     # created_on = mdl.DateTime(auto=True)
 
 
-def update_user_profile(contact_name, email, phone, report_id='abc123'):
+def update_user_profile(contact_name, email, phone, report_id='abc123'): #replace 'abc123' with the actual report_id
     # Initialize Firestore client
     db = firestore.Client()
 
