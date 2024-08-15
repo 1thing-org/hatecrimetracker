@@ -27,7 +27,7 @@ class UserReportProfile(mdl.Model):
 
 
 def update_user_profile(report_id, contact_name, email, phone):
-     # Initialize Firestore client
+    # Initialize Firestore client
     db = firestore.Client()
 
     def get_user_report_by_report_id(report_id):
@@ -39,20 +39,26 @@ def update_user_profile(report_id, contact_name, email, phone):
         
         # Iterate over the query results and return the first match
         for doc in query:
-            return doc.to_dict()
+            return doc.id, doc.to_dict()  # Return both the document ID and its data
         
         # If no match found, return None
-        return None
+        return None, None
     
-    user_report_ref = get_user_report_by_report_id(report_id)
-    # Create a user report object
+    # Get the document ID and the user report data
+    doc_id, user_report = get_user_report_by_report_id(report_id)
+    
+    if doc_id is None:
+        return {"error": "Report ID not found"}, 404  # Return an error if the report_id does not exist
+
+    # Reference to the specific document to update
+    user_report_ref = db.collection('userReport').document(doc_id)
+    
+    # Update the document with the new details
     user_report_ref.update({
-            'contact_name': contact_name,
-            'email': email,
-            'phone': phone,
-            # 'created_on': datetime.now()
-        })
+        'contact_name': contact_name,
+        'email': email,
+        'phone': phone
+    })
     
     # Return the report_id in the response
-    return {'report_id': report_id}
-
+    return {'report_id': report_id}, 200

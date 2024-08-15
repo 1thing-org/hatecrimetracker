@@ -29,7 +29,7 @@ from common import User
 from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident
 from firestore.tokens import add_token
 import incident_publisher
-from firestore import update_user_profile  
+from firestore.user_report_profile import update_user_profile  
 
 
 # [END gae_python3_datastore_store_and_fetch_user_times]
