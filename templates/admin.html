@@ -1,6 +1,5 @@
 <html>
-
-<head>
+  <head>
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
 
@@ -9,32 +8,40 @@
     <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-analytics.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-auth.js"></script>
     <script>
-        // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        var firebaseConfig = {
-            apiKey: "AIzaSyCdt-8N8Em3JHcMeEua-QMR3txkqdR01dg",
-            authDomain: "hate-crime-tracker.firebaseapp.com",
-            projectId: "hate-crime-tracker",
-            storageBucket: "hate-crime-tracker.appspot.com",
-            messagingSenderId: "46658644173",
-            appId: "1:46658644173:web:c2640c99b9caa1b69e2184",
-            measurementId: "G-XS3NGG7FZS"
-        };
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        firebase.analytics();
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      var firebaseConfig = {
+        apiKey: "AIzaSyBIOn5ELop2zVXs1rKRKh_mcokq3xxEvVs",
+        authDomain: "hate-crime-tracker-dev.firebaseapp.com",
+        databaseURL:
+          "https://hate-crime-tracker-dev-default-rtdb.firebaseio.com",
+        projectId: "hate-crime-tracker-dev",
+        storageBucket: "hate-crime-tracker-dev.appspot.com",
+        messagingSenderId: "1091367340523",
+        appId: "1:1091367340523:web:67211435028c4cab40b1ae",
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      firebase.analytics();
     </script>
     <script src="https://www.gstatic.com/firebasejs/ui/4.8.1/firebase-ui-auth.js"></script>
-    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.8.1/firebase-ui-auth.css" />
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="https://www.gstatic.com/firebasejs/ui/4.8.1/firebase-ui-auth.css"
+    />
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
 
-<body>
+  <body>
     <h1>Welcome to Admin Page for The HateCrimeTracker</h1>
     <div id="firebaseui-auth-container"></div>
     <div id="login-info"></div>
-    <button id="sign-out" hidden=true>Sign Out</button>
-</body>
-
+    <button id="sign-out" hidden="true">Sign Out</button>
+  </body>
 </html>
