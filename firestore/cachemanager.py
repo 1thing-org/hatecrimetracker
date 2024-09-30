@@ -32,7 +32,7 @@ def __listener(event):
 
 
 # Make sure to create a realtime db with the following URL and a json path called as /cache_update
-my_app_name = "hate-crime-tracker"
+my_app_name = "tracker"
 options = {
     "databaseURL": "https://hate-crime-tracker-dev-default-rtdb.firebaseio.com/",
     "storageBucket": "hate-crime-tracker.appspot.com",
