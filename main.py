@@ -20,7 +20,7 @@ from time import time
 from translate import translate_incidents, clean_unused_translation
 
 import google.oauth2.id_token
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from google.auth.transport import Response, requests
 
@@ -144,12 +144,19 @@ def delete_incident(incident_id):
 
 @app.route("/incidents", methods=["POST"])
 def create_incident():
-    #_check_is_admin(request)
-    req = request.get_json().get("incident")
-    if req is None:
-        raise ValueError("Missing incident")
-    id = insertIncident(req)
-    return {"incident_id": id}
+    try:
+        # _check_is_admin(request)
+        req = request.get_json().get("incident")
+        if req is None:
+            return jsonify({"error": "Invalid request data or internal server error."}), 400
+        id = insertIncident(req)
+        return jsonify({
+            "message": "Incident reported successfully.",
+            "user_report_id": str(id)
+        }), 201
+    except Exception as e:
+        # log the exception e if needed
+        return jsonify({"error": "Invalid request data or internal server error."}), 500
 
 
 @app.route("/user_reports", methods=["POST"])
@@ -274,7 +281,7 @@ if __name__ == "__main__":
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
 
-    app.run(host="0.0.0.0", port=8083, debug=True)
+    app.run(host="192.168.1.161", port=8082, debug=True)
 
     #app.run(host="192.168.0.18", port=8082, debug=True)
     # app.run(host="0.0.0.0", port=8082, debug=True)
