@@ -256,7 +256,7 @@ if __name__ == "__main__":
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
 
-    app.run(host="192.168.1.161", port=8082, debug=True)
+    app.run(host="0.0.0.0", port=8082, debug=True)
 
     #app.run(host="192.168.0.18", port=8082, debug=True)
     # app.run(host="0.0.0.0", port=8082, debug=True)
