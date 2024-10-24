@@ -163,15 +163,49 @@ def getAllIncidents(params, user_role):
     if validation_error:
         return validation_error
     
-    # Your existing logic to fetch incidents...
-    incidents = []  # Replace with actual fetching logic
+    # Extract parameters with defaults
+    incident_status = params.get('status', 'both')
+    self_report_status = params.get('self_report_status', 'approved' if user_role == 'viewer' else 'new')
+    state = params.get('state', '')
+    start_date = dateparser.parse(params.get('start_date', '2021-09-08')) # Default start date, the earliest incident i found in firebase
+    end_date = dateparser.parse(params.get('end_date', datetime.now().strftime("%Y-%m-%d")))
+    page_size = int(params.get('page_size', 10))
+    start_row = int(params.get('start_row', 0))
 
-    return {
+    # Construct the base query
+    query = Incident.collection.filter("incident_time", ">=", start_date).filter(
+        "incident_time", "<=", end_date
+    )
+
+    # Apply state filter if provided
+    if state:
+        query = query.filter("incident_location", "==", state)
+
+    # Apply filters based on the status of the incident
+    if incident_status != 'both':
+        query = query.filter("incident_source", "==", incident_status)
+
+    # Apply filters based on self-report status for the 'self-report' type only
+    if incident_status == 'self-report' and self_report_status != 'all':
+        query = query.filter("publish_status.self_report_status", "==", self_report_status)
+
+    # Enforce admin rule: self_report_status should only be used when type is 'self-report'
+    if user_role == 'admin' and self_report_status != 'new' and incident_status != 'self-report':
+        return {"error": "Invalid query. 'self_report_status' can only be used when 'type' is set to 'self-report'."}, 400
+
+    # Sort the results by the incident time in descending order
+    query = query.order("-incident_time")
+
+    # Handle pagination using start_row
+    incidents = query.fetch(offset=start_row, limit=page_size)
+    incidents_list = [incident.to_dict() for incident in incidents]
+
+    # Prepare the response, no need for total and next page token for now
+    response = {
         "page_info": {
             "start_row": 0,
             "page_size": 10,
-            "total_records": len(incidents),
-            "next_page_token": None
         },
-        "incidents": incidents
+        "incidents": incidents_list
     }
+    return response, 200
