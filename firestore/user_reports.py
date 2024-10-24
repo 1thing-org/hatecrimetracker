@@ -10,15 +10,14 @@ from firestore.cachemanager import INCIDENT_CACHE, INCIDENT_STATS_CACHE, flush_c
 class UserReport(mdl.Model):
     user_report_time = mdl.DateTime(required=True)
     created_on = mdl.DateTime(auto=True)
-    user_report_location = mdl.TextField()
+    user_report_location = mdl.TextField(required=True)
     description = mdl.TextField(required=True)
+    attachments = mdl.TextField(required=True)
+    status = mdl.TextField(required=False) # set to False for the convenience of development, need to change to True in the future
     description_translate = mdl.MapField(required=False)
-    attachments = mdl.MapField(required=False)
-    created_by = mdl.TextField(required=False)  # Contact info is not required
+    approved_by = mdl.TextField(required=False)  # Contact info is not required
     email = mdl.TextField(required=False)
     phone = mdl.TextField(required=False)
-    title = mdl.TextField(required=False)  # Title is not required for user reports
-    title_translate = mdl.MapField(required=False)
     publish_status = mdl.MapField(
         required=True, default={"twitter": None, "linkedin": None, "notification": None}
     )
@@ -29,12 +28,10 @@ class UserReport(mdl.Model):
     help_the_victim = (
         mdl.TextField()
     )  # Help the victim: other free style text about how people can help the victim
-    parent_doc = mdl.TextField(column_name="parent")
 
 
 def insertUserReport(user_report, to_flush_cache=True):
     # return user_report id
-    print("INSERTING:", user_report)
     new_user_report = UserReport(
         user_report_time=(
             dateparser.parse(user_report["user_report_time"])
@@ -43,6 +40,7 @@ def insertUserReport(user_report, to_flush_cache=True):
         ),
         user_report_location=user_report["user_report_location"],
         description=user_report["description"],
+        attachments=user_report["attachments"]
     )
 
     new_user_report.id = user_report["id"] if "id" in user_report else None
@@ -51,18 +49,14 @@ def insertUserReport(user_report, to_flush_cache=True):
         if "description_translate" in user_report
         else {}
     )
-    new_user_report.attachments = (
-        user_report["attachments"] if "attachments" in user_report else {}
+    new_user_report.status = (
+        user_report["status"] if "status" in user_report else {}
     )
-    new_user_report.created_by = (
+    new_user_report.approved_by = (
         user_report["created_by"] if "created_by" in user_report else None
     )
     new_user_report.email = user_report["email"] if "email" in user_report else None
     new_user_report.phone = user_report["phone"] if "phone" in user_report else None
-    new_user_report.title = user_report["title"] if "title" in user_report else None
-    new_user_report.title_translate = (
-        user_report["title_translate"] if "title_translate" in user_report else {}
-    )
     new_user_report.publish_status = (
         user_report["publish_status"] if "publish_status" in user_report else {}
     )
