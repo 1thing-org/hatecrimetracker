@@ -12,12 +12,12 @@ def publish_incidents():
     success = 0
     failed = 0
     PUBLISHERS = {
-        #"twitter": TwitterV2(),
-        #"linkedin": LinkedIn(),
+        "twitter": TwitterV2(),
+        "linkedin": LinkedIn(),
         "notification": PushNotification(),
     }
     incidents = (
-        Incident.collection.filter("incident_time", ">=", datetime(2024, 1, 1))
+        Incident.collection.filter("incident_time", ">=", datetime(2022, 1, 22))
         .order("incident_time")
         .fetch()
     )
