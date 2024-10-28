@@ -29,8 +29,6 @@ from common import User
 from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident
 from firestore.tokens import add_token
 import incident_publisher
-from firestore.user_report_profile import update_user_profile  
-
 
 # [END gae_python3_datastore_store_and_fetch_user_times]
 # [END gae_python38_datastore_store_and_fetch_user_times]
@@ -78,7 +76,7 @@ def _get_user(request) -> User:
 
 def _getCommonArgs():
     start = request.args.get(
-        "start", (date.fromisoformat("2022-11-01")).strftime("%Y-%m-%d")
+        "start", (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
     )
     end = request.args.get("end", datetime.now().strftime("%Y-%m-%d"))
     state = request.args.get("state", "")
@@ -128,7 +126,7 @@ def delete_incident(incident_id):
 
 @app.route("/incidents", methods=["POST"])
 def create_incident():
-    #_check_is_admin(request)
+    _check_is_admin(request)
     req = request.get_json().get("incident")
     if req is None:
         raise ValueError("Missing incident")
@@ -184,12 +182,12 @@ def get_stats():
 
 @app.route("/publish_incidents")
 def publish_incidents():
-    #header = request.headers.get("X-CloudScheduler", None)
-    #if not header:
-    #    raise ValueError(
-    #        "attempt to access cloud scheduler handler directly, "
-    #        "missing custom X-CloudScheduler header"
-    #    )
+    header = request.headers.get("X-CloudScheduler", None)
+    if not header:
+        raise ValueError(
+            "attempt to access cloud scheduler handler directly, "
+            "missing custom X-CloudScheduler header"
+        )
     result = incident_publisher.publish_incidents()
     return {"success": True, "result": result}
 
@@ -220,24 +218,6 @@ def register_token():
     res = add_token(deviceId, token)
     return {"success": True}
 
-@app.route("/user_report_profile", methods=["POST"])
-def update_user_report_profile():    
-    data = request.get_json(force=True)
-  
-    contact_name = data.get('contact_name')
-    email = data.get('email')
-    phone = data.get('phone')
-    report_id = data.get('report_id')  # Ensure this is provided from the frontend
-
-    if not (contact_name and email and phone and report_id):
-        
-        return {"error": "Missing data"}, 400
-
-    response, code = update_user_profile(contact_name, email, phone, report_id)
-    
-
-    return {"report_id": response['report_id']}, code
-
 
 if __name__ == "__main__":
     # This is used when running locally only. When deploying to Google App
@@ -249,8 +229,4 @@ if __name__ == "__main__":
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
 
-    #app.run(host="192.168.0.18", port=8083, debug=True)
-    app.run(host="0.0.0.0", port=8083, debug=True)
-    #app.run(host="192.168.0.18", port=8082, debug=True)
-    # app.run(host="0.0.0.0", port=8082, debug=True)
-    # run on actual IP address
+    app.run(host="127.0.0.1", port=8081, debug=True, threaded=True)
