@@ -27,6 +27,7 @@ from google.auth.transport import Response, requests
 import firestore.admins
 from common import User
 from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident
+from firestore.user_reports import getUserReports, insertUserReport
 from firestore.tokens import add_token
 import incident_publisher
 
@@ -107,12 +108,27 @@ def get_incidents():
     start, end, state = _getCommonArgs()
     skip_cache = request.args.get("skip_cache", "false")
     if skip_cache.lower() == "true":
-        _check_is_admin(request)  # only asdmin can set this flag to true
+        _check_is_admin(request)  # only admin can set this flag to true
     incidents = getIncidents(start, end, state, skip_cache.lower() == "true")
     lang = _get_lang(request)
     return {
         "incidents": clean_unused_translation(
             translate_incidents(incidents, lang), lang
+        )
+    }
+
+
+@app.route("/user_reports")
+def get_user_reports():
+    start, end, state = _getCommonArgs()
+    skip_cache = request.args.get("skip_cache", "false")
+    if skip_cache.lower() == "true":
+        _check_is_admin(request)  # only admin can set this flag to true
+    user_reports = getUserReports(start, end, state, skip_cache.lower() == "true")
+    lang = _get_lang(request)
+    return {
+        "user_reports": clean_unused_translation(
+            translate_incidents(user_reports, lang), lang
         )
     }
 
@@ -132,6 +148,15 @@ def create_incident():
         raise ValueError("Missing incident")
     id = insertIncident(req)
     return {"incident_id": id}
+
+
+@app.route("/user_reports", methods=["POST"])
+def create_user_report():
+    req = request.get_json().get("user_report")
+    if req is None:
+        raise ValueError("Missing user report")
+    id = insertUserReport(req)
+    return {"user_report_id": id}
 
 
 def _aggregate_monthly_total(fullmonth_stats, state):
