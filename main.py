@@ -76,7 +76,7 @@ def _get_user(request) -> User:
 
 def _getCommonArgs():
     start = request.args.get(
-        "start", (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
+        "start", (date.fromisoformat("2022-11-01")).strftime("%Y-%m-%d")
     )
     end = request.args.get("end", datetime.now().strftime("%Y-%m-%d"))
     state = request.args.get("state", "")
