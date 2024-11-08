@@ -26,8 +26,7 @@ from google.auth.transport import Response, requests
 
 import firestore.admins
 from common import User
-from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident
-from firestore.user_reports import getUserReports, insertUserReport
+from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, getUserReports, insertUserReport
 from firestore.tokens import add_token
 import incident_publisher
 
@@ -77,7 +76,7 @@ def _get_user(request) -> User:
 
 def _getCommonArgs():
     start = request.args.get(
-        "start", (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
+        "start", (date.fromisoformat("2022-11-01")).strftime("%Y-%m-%d")
     )
     end = request.args.get("end", datetime.now().strftime("%Y-%m-%d"))
     state = request.args.get("state", "")
@@ -207,12 +206,12 @@ def get_stats():
 
 @app.route("/publish_incidents")
 def publish_incidents():
-    header = request.headers.get("X-CloudScheduler", None)
-    if not header:
-        raise ValueError(
-            "attempt to access cloud scheduler handler directly, "
-            "missing custom X-CloudScheduler header"
-        )
+    # header = request.headers.get("X-CloudScheduler", None)
+    # if not header:
+    #     raise ValueError(
+    #         "attempt to access cloud scheduler handler directly, "
+    #         "missing custom X-CloudScheduler header"
+    #     )
     result = incident_publisher.publish_incidents()
     return {"success": True, "result": result}
 
@@ -254,4 +253,6 @@ if __name__ == "__main__":
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
 
-    app.run(host="127.0.0.1", port=8081, debug=True, threaded=True)
+    app.run(host="192.168.1.217", port=8081, debug=True)
+    app.run(host="192.168.1.217", port=8082, debug=True)
+    # run on actual IP address

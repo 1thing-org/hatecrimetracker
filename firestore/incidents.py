@@ -15,6 +15,8 @@ class BaseReport(mdl.Model):
     donation_link = mdl.TextField()  # Link to donation website
     police_tip_line = mdl.TextField()  # Phone number to provide tips to police
     help_the_victim = mdl.TextField()  # Text about how people can help the victim
+    class Meta:
+        abstract = True  # Mark this model as abstract
 
 
 class UserReport(BaseReport):
