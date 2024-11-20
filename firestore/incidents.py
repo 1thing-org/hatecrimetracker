@@ -44,30 +44,6 @@ class Incident(BaseReport):
     parent_doc = mdl.TextField(column_name="parent")
 
 
-# class Incident(mdl.Model):
-#     incident_time = mdl.DateTime(required=True)
-#     created_on = mdl.DateTime(auto=True)
-#     incident_location = mdl.TextField()
-#     abstract = mdl.TextField(required=True)
-#     abstract_translate = mdl.MapField(required=False)
-#     url = mdl.TextField(required=False)
-#     incident_source = mdl.TextField(required=False)
-#     created_by = mdl.TextField(required=False)
-#     title = mdl.TextField(required=False)
-#     title_translate = mdl.MapField(required=False)
-#     publish_status = mdl.MapField(
-#         required=True, default={"twitter": None, "linkedin": None, "notification": None}
-#     )
-#     donation_link = mdl.TextField()  #  Donation: link to donation website
-#     police_tip_line = (
-#         mdl.TextField()
-#     )  # Police Tip Line: phone number to provide tips to police to help capture the suspect
-#     help_the_victim = (
-#         mdl.TextField()
-#     )  # Help the victim: other free style text about how people can help the victim
-#     parent_doc = mdl.TextField(column_name="parent")
-
-
 @cached(cache=INCIDENT_CACHE)
 def queryIncidents(start: datetime, end: datetime, state=""):
     end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
