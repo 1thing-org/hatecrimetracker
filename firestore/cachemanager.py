@@ -34,7 +34,7 @@ def __listener(event):
 # Make sure to create a realtime db with the following URL and a json path called as /cache_update
 my_app_name = "hate-crime-tracker"
 options = {
-    "databaseURL": "https://hate-crime-tracker-default-rtdb.firebaseio.com",
+    "databaseURL": "https://hate-crime-tracker-dev-default-rtdb.firebaseio.com/",
     "storageBucket": "hate-crime-tracker.appspot.com",
 }
 filebase_app = firebase_admin.initialize_app(options=options, name=my_app_name)
