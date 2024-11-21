@@ -175,3 +175,77 @@ def getAllIncidents(params, user_role):
         },
         "incidents": incidents
     }
+
+def incident_exists(incident_id):
+    """
+    Check if an incident with the given incident_id exists.
+    
+    Args:
+    - incident_id (str): The ID of the incident to check.
+    
+    Returns:
+    - bool: True if the incident exists, False otherwise.
+    """
+    try:
+        incident = Incident.collection.get(incident_id)
+        return incident is not None  # Return True if incident is found, otherwise False
+    except Exception as e:
+        print(f"Error checking existence of incident {incident_id}: {e}")
+        return False
+
+def updateIncident(incident_id, update_data, is_admin=False):
+    """
+    Update the incident with the given incident_id using the provided update_data.
+    
+    Args:
+    - incident_id (str): The ID of the incident to update.
+    - update_data (dict): The fields to update for the incident.
+    - is_admin (bool): Whether the user is an admin or not. Admins can update the status field.
+    
+    Returns:
+    - bool: True if the incident was successfully updated, False otherwise.
+    """
+    try:
+        # Fetch the incident by its ID
+        incident = Incident.collection.get(incident_id)
+        if not incident:
+            raise ValueError(f"Incident with ID {incident_id} not found.")
+
+        # Update allowed fields
+        if "incident_date" in update_data:
+            incident.incident_time = dateparser.parse(update_data["incident_date"]) \
+                if isinstance(update_data["incident_date"], str) else update_data["incident_date"]
+
+        if "incident_location" in update_data:
+            incident.incident_location = update_data["incident_location"]
+
+        if "description" in update_data:
+            incident.abstract = update_data["description"]
+
+        if "attachments" in update_data and isinstance(update_data["attachments"], list):
+            incident.attachments = update_data["attachments"][:5]  # Limit to max 5 attachments
+
+        if "user_info" in update_data:
+            # Handle optional user_info fields
+            user_info = update_data.get("user_info", {})
+            if "contact_name" in user_info:
+                incident.contact_name = user_info.get("contact_name")
+            if "email" in user_info:
+                incident.email = user_info.get("email")
+            if "phone" in user_info:
+                incident.phone = user_info.get("phone")
+
+        # Only admins can update the status field
+        if is_admin and "status" in update_data:
+            incident.status = update_data["status"]
+
+        # Save the updated incident
+        incident.upsert()
+
+        # Clear the cache after updating
+        flush_cache()
+
+        return True
+    except Exception as e:
+        print(f"Error updating incident {incident_id}: {e}")
+        return False

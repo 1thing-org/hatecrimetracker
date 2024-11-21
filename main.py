@@ -26,7 +26,7 @@ from google.auth.transport import Response, requests
 
 import firestore.admins
 from common import User
-from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident
+from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident,incident_exists,updateIncident
 from firestore.user_reports import getUserReports, insertUserReport
 from firestore.tokens import add_token
 import incident_publisher
@@ -158,6 +158,50 @@ def create_incident():
         # log the exception e if needed
         return jsonify({"error": "Invalid request data or internal server error."}), 500
 
+@app.route("/incidents/<incident_id>", methods=["PATCH"])
+def update_incident(incident_id):
+    try:
+
+        # Check if the incident exists
+        if not incident_exists(incident_id):
+            return jsonify({"error": "Incident not found."}), 400  # Return 400 if incident doesn't exist
+
+        # Get the request data
+        req_data = request.get_json().get("user_report")
+        if req_data is None:
+            return jsonify({"error": "Invalid request data."}), 400  # Return 400 if data is invalid
+
+        # Validate required fields
+        # if not all(field in req_data for field in ["incident_date", "incident_location", "description","attachments"]):
+        #     return jsonify({"error": "Invalid request data."}), 400
+
+        # Use _check_is_admin to validate admin permissions
+        try:
+            if _check_is_admin(request):
+                # Admin can update all fields, including the status
+                if not updateIncident(incident_id, req_data, is_admin_user=True):
+                  return jsonify({"error": "Failed to update the incident."}), 400  # Return 400 if update fails
+                return jsonify({
+                    "message": "Self-report incident updated successfully.",
+                    "incident_id": incident_id
+                }), 200
+        except PermissionError:
+            # Reporter: Reporters cannot update the status field
+            if "status" in req_data:
+                return jsonify({"error": "Invalid request data."}), 400
+
+            # Update the incident for reporters
+            if not updateIncident(incident_id, req_data, is_admin_user=False):
+               return jsonify({"error": "Failed to update the incident."}), 400  # Return 400 if update fails
+            return jsonify({
+                "message": "Self-report incident updated successfully.",
+                "incident_id": incident_id
+            }), 200
+
+    except Exception as e:
+        # Log the exception and return a 400 error
+        print(e)
+        return jsonify({"error": "Invalid request data or incident not found."}), 400
 
 @app.route("/user_reports", methods=["POST"])
 def create_user_report():
