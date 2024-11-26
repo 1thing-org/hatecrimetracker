@@ -5,6 +5,7 @@ from cachetools import cached
 from fireo import models as mdl
 
 from firestore.cachemanager import INCIDENT_CACHE, INCIDENT_STATS_CACHE, flush_cache
+from firestore.get_all_validation import get_all_validation
 
 
 class BaseReport(mdl.Model):
@@ -234,3 +235,32 @@ def getUserReports(start: datetime, end: datetime, state="", skip_cache=False):
     if skip_cache:
         INCIDENT_CACHE.clear()
     return queryUserReports(start, end, state)
+
+def getAllIncidents(params, user_role):
+    """
+    Fetches all incidents based on query parameters and user role.
+    
+    Args:
+    - params (dict): Query parameters
+    - user_role (str): The role of the user ('admin' or 'viewer')
+    
+    Returns:
+    - (dict, int): Response and HTTP status code
+    """
+    # Validate query parameters
+    validation_error = get_all_validation(params, user_role)
+    if validation_error:
+        return validation_error
+    
+    # Your existing logic to fetch incidents...
+    incidents = []  # Replace with actual fetching logic
+
+    return {
+        "page_info": {
+            "start_row": 0,
+            "page_size": 10,
+            "total_records": len(incidents),
+            "next_page_token": None
+        },
+        "incidents": incidents
+    }
