@@ -264,3 +264,18 @@ def getAllIncidents(params, user_role):
         },
         "incidents": incidents
     }
+
+def getIncidentById(incident_id: str):
+    """
+    Fetches a single incident by its ID.
+    
+    Args:
+        incident_id (str): The unique identifier of the incident
+        
+    Returns:
+        dict: The incident data if found, None otherwise
+    """
+    incident = Incident.collection.get(f"incident/{incident_id}")
+    if incident:
+        return incident.to_dict()
+    return None
