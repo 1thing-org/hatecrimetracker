@@ -26,7 +26,7 @@ from google.auth.transport import Response, requests
 
 import firestore.admins
 from common import User
-from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, getUserReports, insertUserReport
+from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, getUserReports, insertUserReport, getIncidentById
 from firestore.tokens import add_token
 import incident_publisher
 from firestore.user_report_profile import update_user_profile  
@@ -118,6 +118,33 @@ def get_incidents():
         )
     }
 
+@app.route("/incidents/<incident_id>", methods=["GET"])
+def get_incident(incident_id):
+    try:
+        # Get the incident data from Firestore
+        incident = getIncidentById(incident_id)
+        if not incident:
+            return jsonify({"error": "Incident not found"}), 404
+            
+        # Format the response according to API specification
+        return jsonify({
+            "user_report": {
+                "incident_date": incident["incident_time"].strftime("%Y-%m-%d") if "incident_time" in incident else None,
+                "incident_location": incident.get("incident_location"),
+                "description": incident.get("abstract"),
+                "attachments": incident.get("attachments", []),
+                "user_info": {
+                    "contact_name": incident.get("contact_name"),
+                    "email": incident.get("email"),
+                    "phone": incident.get("phone")
+                } if any(key in incident for key in ["contact_name", "email", "phone"]) else None,
+                "status": incident.get("status", "new")
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({"error": f"Invalid request or internal server error: {str(e)}"}), 500
+        
 
 @app.route("/user_reports")
 def get_user_reports():
