@@ -1,5 +1,5 @@
 cachetools
-dateparser
+dateparser == 1.2.0
 firebase-admin==4.5.3
 fireo == 1.4.1
 flask-cors==3.0.10
