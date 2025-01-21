@@ -4,6 +4,7 @@ import dateparser
 from cachetools import cached
 from fireo import models as mdl
 
+from google.cloud import firestore
 from firestore.cachemanager import INCIDENT_CACHE, INCIDENT_STATS_CACHE, flush_cache
 from firestore.get_all_validation import get_all_validation
 
@@ -28,6 +29,8 @@ class UserReport(BaseReport):
     attachments = mdl.TextField(required=True)
     status = mdl.TextField(required=False)
     approved_by = mdl.TextField(required=False)
+    report_id = mdl.ListField(required=False)
+    contact_name = mdl.TextField(required=False)
     email = mdl.TextField(required=False)
     phone = mdl.TextField(required=False)
 
@@ -229,6 +232,43 @@ def deleteUserReport(user_report_id):
         flush_cache()
         return True
     return False
+
+def update_user_profile(contact_name, email, phone, report_id='abc123'): #replace 'abc123' with the actual report_id
+    # Initialize Firestore client
+    db = firestore.Client()
+
+    def get_user_report_by_report_id(report_id):
+        # Reference to the userReport collection
+        user_report_ref = db.collection('user_report')
+        
+        # Query for the document with the specified report_id
+        query = user_report_ref.where('report_id', '==', report_id).stream()
+        
+        # Iterate over the query results and return the first match
+        for doc in query:
+            return doc.id, doc.to_dict()  # Return both the document ID and its data
+        
+        # If no match found, return None
+        return None, None
+    
+    # Get the document ID and the user report data
+    doc_id, user_report = get_user_report_by_report_id(report_id)
+    
+    if doc_id is None:
+        return {"error": "Report ID not found"}, 404  # Return an error if the report_id does not exist
+
+    # Reference to the specific document to update
+    user_report_ref = db.collection('user_report').document(doc_id)
+    
+    # Update the document with the new details
+    user_report_ref.update({
+        'contact_name': contact_name,
+        'email': email,
+        'phone': phone
+    })
+    
+    # Return the report_id in the response
+    return {'report_id': report_id}, 200
 
 
 def getUserReports(start: datetime, end: datetime, state="", skip_cache=False):

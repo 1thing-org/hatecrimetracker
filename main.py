@@ -26,10 +26,10 @@ from google.auth.transport import Response, requests
 
 import firestore.admins
 from common import User
-from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, getUserReports, insertUserReport
+from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, getUserReports, insertUserReport, update_user_profile
 from firestore.tokens import add_token
 import incident_publisher
-from firestore.user_report_profile import update_user_profile  
+# from firestore.user_report_profile import update_user_profile
 
 
 # [END gae_python3_datastore_store_and_fetch_user_times]
@@ -156,15 +156,6 @@ def create_incident():
     except Exception as e:
         # log the exception e if needed
         return jsonify({"error": "Invalid request data or internal server error."}), 500
-
-
-@app.route("/user_reports", methods=["POST"])
-def create_user_report():
-    req = request.get_json().get("user_report")
-    if req is None:
-        raise ValueError("Missing user report")
-    id = insertUserReport(req)
-    return {"user_report_id": id}
 
 
 @app.route("/user_reports", methods=["POST"])
