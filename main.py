@@ -26,10 +26,9 @@ from google.auth.transport import Response, requests
 
 import firestore.admins
 from common import User
-from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, getUserReports, insertUserReport, update_user_profile
+from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, getUserReports, insertUserReport, updateUserReport
 from firestore.tokens import add_token
 import incident_publisher
-# from firestore.user_report_profile import update_user_profile
 
 
 # [END gae_python3_datastore_store_and_fetch_user_times]
@@ -158,15 +157,6 @@ def create_incident():
         return jsonify({"error": "Invalid request data or internal server error."}), 500
 
 
-@app.route("/user_reports", methods=["POST"])
-def create_user_report():
-    req = request.get_json().get("user_report")
-    if req is None:
-        raise ValueError("Missing user report")
-    id = insertUserReport(req)
-    return {"user_report_id": id}
-
-
 def _aggregate_monthly_total(fullmonth_stats, state):
     monthly_total = {}
     for daily in fullmonth_stats:
@@ -253,22 +243,23 @@ def register_token():
     res = add_token(deviceId, token)
     return {"success": True}
 
+
+@app.route("/user_reports", methods=["POST"])
+def create_user_report():
+    req = request.get_json().get("user_report")
+    if req is None:
+        raise ValueError("Missing user report")
+    id = insertUserReport(req)
+    return {"user_report_id": id}
+
 @app.route("/user_report_profile", methods=["POST"])
-def update_user_report_profile():    
-    data = request.get_json(force=True)
-  
-    contact_name = data.get('contact_name')
-    email = data.get('email')
-    phone = data.get('phone')
-    report_id = data.get('report_id')  # Ensure this is provided from the frontend
-
-    if not (contact_name and email and phone and report_id):
-        
+def update_user_report():
+    data = request.get_json(force=True).get("user_report")
+    if (data is None or not (response['report_id'])):
         return {"error": "Missing data"}, 400
-
-    response, code = update_user_profile(contact_name, email, phone, report_id)
-    
-
+    if data.get('status'):
+        _check_is_admin(request)
+    response, code = updateUserReport(data)
     return {"report_id": response['report_id']}, code
 
 

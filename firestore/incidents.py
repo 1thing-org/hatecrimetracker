@@ -213,6 +213,39 @@ def insertUserReport(user_report, to_flush_cache=True):
             "Failed to upsert the user_report with id:" + new_user_report.id
         )
 
+def updateUserReport(user_report):
+    # Initialize Firestore client
+    db = firestore.Client()
+
+    def get_user_report_by_report_id(report_id):
+        # Reference to the userReport collection
+        user_report_ref = db.collection('user_report')
+        # Query for the document with the specified report_id
+        query = user_report_ref.where('report_id', '==', report_id).stream()
+        # Iterate over the query results and return the first match
+        for doc in query:
+            return doc.id, doc.to_dict()  # Return both the document ID and its data
+        # If no match found, return None
+        return None, None
+    
+    # Get the document ID and the user report data
+    doc_id, user_report = get_user_report_by_report_id(user_report["report_id"])
+    
+    if doc_id is None:
+        return {"error": "Report ID not found"}, 404  # Return an error if the report_id does not exist
+
+    # Reference to the specific document to update
+    user_report_ref = db.collection('user_report').document(doc_id)
+    
+    # Update the document with the new details
+    if user_report["contact_name"]: user_report_ref.update({ 'contact_name': user_report["contact_name"] })
+    if user_report["email"]: user_report_ref.update({ 'email': user_report["email"] })
+    if user_report["phone"]: user_report_ref.update({ 'phone': user_report["phone"] })
+    if user_report["status"]: user_report_ref.update({ 'status': user_report["status"] }) #replace 'abc123' with the actual report_id - Tianzhi
+    
+    # Return the report_id in the response
+    return {'report_id': user_report["report_id"]}, 200
+
 
 @cached(cache=INCIDENT_CACHE)
 def queryUserReports(start: datetime, end: datetime, state=""):
@@ -232,44 +265,6 @@ def deleteUserReport(user_report_id):
         flush_cache()
         return True
     return False
-
-def update_user_profile(contact_name, email, phone, report_id='abc123'): #replace 'abc123' with the actual report_id
-    # Initialize Firestore client
-    db = firestore.Client()
-
-    def get_user_report_by_report_id(report_id):
-        # Reference to the userReport collection
-        user_report_ref = db.collection('user_report')
-        
-        # Query for the document with the specified report_id
-        query = user_report_ref.where('report_id', '==', report_id).stream()
-        
-        # Iterate over the query results and return the first match
-        for doc in query:
-            return doc.id, doc.to_dict()  # Return both the document ID and its data
-        
-        # If no match found, return None
-        return None, None
-    
-    # Get the document ID and the user report data
-    doc_id, user_report = get_user_report_by_report_id(report_id)
-    
-    if doc_id is None:
-        return {"error": "Report ID not found"}, 404  # Return an error if the report_id does not exist
-
-    # Reference to the specific document to update
-    user_report_ref = db.collection('user_report').document(doc_id)
-    
-    # Update the document with the new details
-    user_report_ref.update({
-        'contact_name': contact_name,
-        'email': email,
-        'phone': phone
-    })
-    
-    # Return the report_id in the response
-    return {'report_id': report_id}, 200
-
 
 def getUserReports(start: datetime, end: datetime, state="", skip_cache=False):
     if skip_cache:
