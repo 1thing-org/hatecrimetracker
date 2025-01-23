@@ -233,6 +233,7 @@ def load_from_csv(fileName):
 
             del incident["id"]
             incident["created_on"] = datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S")
+            incident["created_by"] = datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S")
             print(incident)
             incident["incident_time"] =incident["incident_time"]
             print(incident)
