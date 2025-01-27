@@ -26,7 +26,7 @@ class UserReport(BaseReport):
     user_report_location = mdl.TextField(required=True)
     description = mdl.TextField(required=True)
     description_translate = mdl.MapField(required=False)
-    attachments = mdl.TextField(required=True)
+    attachments = mdl.TextField(required=False)
     status = mdl.TextField(required=False)
     approved_by = mdl.TextField(required=False)
     report_id = mdl.ListField(required=False)

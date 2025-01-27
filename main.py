@@ -255,8 +255,9 @@ def create_user_report():
 @app.route("/user_report_profile", methods=["POST"])
 def update_user_report():
     data = request.get_json(force=True).get("user_report")
-    if (data is None or not (response['report_id'])):
-        return {"error": "Missing data"}, 400
+    if not (response['report_id']):
+        raise ValueError("Missing user report")
+        # return {"error": "Missing data"}, 400
     if data.get('status'):
         _check_is_admin(request)
     response, code = updateUserReport(data)
