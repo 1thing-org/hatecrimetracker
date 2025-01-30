@@ -26,7 +26,7 @@ from google.auth.transport import Response, requests
 
 import firestore.admins
 from common import User
-from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, getUserReports, insertUserReport, getIncidentById
+from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, getUserReports, insertUserReport, getIncidentById, getUserReportById
 from firestore.tokens import add_token
 import incident_publisher
 from firestore.user_report_profile import update_user_profile  
@@ -118,27 +118,27 @@ def get_incidents():
         )
     }
 
-@app.route("/incidents/<incident_id>", methods=["GET"])
-def get_incident(incident_id):
+@app.route("/user-reports/<report_id>", methods=["GET"])
+def get_user_report(report_id):
     try:
-        # Get the incident data from Firestore
-        incident = getIncidentById(incident_id)
-        if not incident:
-            return jsonify({"error": "Incident not found"}), 404
+        # Get the user report data from Firestore
+        user_report = getUserReportById(report_id)  # Need to implement this function
+        if not user_report:
+            return jsonify({"error": "User report not found"}), 404
             
         # Format the response according to API specification
         return jsonify({
             "user_report": {
-                "incident_date": incident["incident_time"].strftime("%Y-%m-%d") if "incident_time" in incident else None,
-                "incident_location": incident.get("incident_location"),
-                "description": incident.get("abstract"),
-                "attachments": incident.get("attachments", []),
+                "incident_date": user_report["user_report_time"].strftime("%Y-%m-%d") if "user_report_time" in user_report else None,
+                "incident_location": user_report.get("user_report_location"),
+                "description": user_report.get("description"),
+                "attachments": user_report.get("attachments", []),
                 "user_info": {
-                    "contact_name": incident.get("contact_name"),
-                    "email": incident.get("email"),
-                    "phone": incident.get("phone")
-                } if any(key in incident for key in ["contact_name", "email", "phone"]) else None,
-                "status": incident.get("status", "new")
+                    "contact_name": user_report.get("contact_name"),
+                    "email": user_report.get("email"),
+                    "phone": user_report.get("phone")
+                } if any(key in user_report for key in ["contact_name", "email", "phone"]) else None,
+                "status": user_report.get("status", "new")
             }
         })
         
