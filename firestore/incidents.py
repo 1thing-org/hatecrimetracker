@@ -236,6 +236,12 @@ def getUserReports(start: datetime, end: datetime, state="", skip_cache=False):
         INCIDENT_CACHE.clear()
     return queryUserReports(start, end, state)
 
+def getUserReportById(report_id: str):
+    user_report = UserReport.collection.get(f"user_report/{report_id}")
+    if user_report:
+        return user_report.to_dict()
+    return None
+
 def getAllIncidents(params, user_role):
     """
     Fetches all incidents based on query parameters and user role.
