@@ -33,6 +33,8 @@ class UserReport(BaseReport):
     contact_name = mdl.TextField(required=False)
     email = mdl.TextField(required=False)
     phone = mdl.TextField(required=False)
+    class Meta:
+        collection_name = "incident"  # Force this class to use the "incident" collection
 
 
 class Incident(BaseReport):
