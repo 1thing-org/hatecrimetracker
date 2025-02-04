@@ -203,7 +203,7 @@ def updateUserReport(user_report):
         user_report_ref = db.collection('incident')
         # Query for the document with the specified report_id
         query = user_report_ref.where('id', '==', report_id).stream()
-        # Iterate over the query results and return the first match
+        # Iterate over the query results and return the first match (There should be only one doc in the query)
         for doc in query:
             print(f"Found document: {doc.id}, data: {doc.to_dict()}")
             # print(f"Found document: {doc.id}")  # Debugging: Print the document ID
