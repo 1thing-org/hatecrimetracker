@@ -252,17 +252,6 @@ def create_user_report():
     id = insertUserReport(req)
     return {"user_report_id": id}
 
-# @app.route("/user_report_profile", methods=["POST"])
-# def update_user_report():
-#     data = request.get_json(force=True).get("user_report")
-#     if not (response['report_id']):
-#         raise ValueError("Missing user report")
-#         # return {"error": "Missing data"}, 400
-#     if data.get('status'):
-#         _check_is_admin(request)
-#     response, code = updateUserReport(data)
-#     return {"report_id": response['report_id']}, code
-
 @app.route("/user_report_profile", methods=["POST"])
 def update_user_report():
     data = request.get_json(force=True).get("user_report")
@@ -275,25 +264,6 @@ def update_user_report():
     # Call the updateUserReport function and get the response and status code
     response, code = updateUserReport(data)
     return response, code
-
-# @app.route("/user_report_profile", methods=["POST"])
-# def update_user_report():
-#     data = request.get_json(force=True).get("user_report")
-#     if not data or not data.get("report_id"):
-#         return {"error": "Missing report_id"}, 400  # Return an error if report_id is missing
-
-#     # Check if the user is an admin if updating the status
-#     if data.get('status'):
-#         _check_is_admin(request)
-
-#     # Call the updateUserReport function and get the response and status code
-#     response, code = updateUserReport(data)
-
-#     # Ensure the response contains 'report_id'
-#     if "report_id" not in response:
-#         response["report_id"] = data["report_id"]  # Add report_id to the response if missing
-
-#     return response, code
 
 if __name__ == "__main__":
     # This is used when running locally only. When deploying to Google App

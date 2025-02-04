@@ -74,27 +74,6 @@ def getIncidents(start: datetime, end: datetime, state="", skip_cache=False):
     return queryIncidents(start, end, state)
 
 
-# incidents should be [
-#   {
-#       "id" : id, //optional
-#       "incident_time" : incident_time
-#       "created_on"    : created_on
-#       "incident_location": incident_location
-#       "abstract"  : abstract
-#       "abstract_translate": abstract_translate
-#       "url"           : url
-#       "incident_source": incident_source
-#       "created_by" : created_by
-#       "title"         : title
-#       "title_translate" : title_translate
-#       "publish_status" : publish_status
-#       "donation_link" : donation_link
-#       "police_tip_line" : police_tip_line
-#       "help_the_victim" : help_the_victim
-#   }
-# ]
-
-
 def insertIncident(incident, to_flush_cache=True):
     # return incident id
     print("INSERTING:", incident)
@@ -212,39 +191,6 @@ def insertUserReport(user_report, to_flush_cache=True):
         raise SystemError(
             "Failed to upsert the user_report with id:" + new_user_report.id
         )
-
-# def updateUserReport(user_report):
-#     # Initialize Firestore client
-#     db = firestore.Client()
-
-#     def get_user_report_by_report_id(report_id):
-#         # Reference to the userReport collection
-#         user_report_ref = db.collection('user_report')
-#         # Query for the document with the specified report_id
-#         query = user_report_ref.where('report_id', '==', report_id).stream()
-#         # Iterate over the query results and return the first match
-#         for doc in query:
-#             return doc.id, doc.to_dict()  # Return both the document ID and its data
-#         # If no match found, return None
-#         return None, None
-    
-#     # Get the document ID and the user report data
-#     doc_id, user_report = get_user_report_by_report_id(user_report["report_id"])
-    
-#     if doc_id is None:
-#         return {"error": "Report ID not found"}, 404  # Return an error if the report_id does not exist
-
-#     # Reference to the specific document to update
-#     user_report_ref = db.collection('user_report').document(doc_id)
-    
-#     # Update the document with the new details
-#     if user_report["contact_name"]: user_report_ref.update({ 'contact_name': user_report["contact_name"] })
-#     if user_report["email"]: user_report_ref.update({ 'email': user_report["email"] })
-#     if user_report["phone"]: user_report_ref.update({ 'phone': user_report["phone"] })
-#     if user_report["status"]: user_report_ref.update({ 'status': user_report["status"] })
-    
-#     # Return the report_id in the response
-#     return {'report_id': user_report["report_id"]}, 200
 
 def updateUserReport(user_report):
     # Initialize Firestore client
