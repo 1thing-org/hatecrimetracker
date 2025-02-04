@@ -200,45 +200,48 @@ def updateUserReport(user_report):
 
     def get_user_report_by_report_id(report_id):
         # Reference to the userReport collection
-        user_report_ref = db.collection('user_report')
+        user_report_ref = db.collection('incident')
         # Query for the document with the specified report_id
-        # query = user_report_ref.where('id', '==', report_id).stream()
         query = user_report_ref.where('id', '==', report_id).stream()
-        # print(f"Query: {query}")
         # Iterate over the query results and return the first match
         for doc in query:
             print(f"Found document: {doc.id}, data: {doc.to_dict()}")
             # print(f"Found document: {doc.id}")  # Debugging: Print the document ID
             return doc.id, doc.to_dict()  # Return both the document ID and its data
-        print(f"No document found with report_id: {report_id}")  # Debugging: Print if no docume
         # If no match found, return None
+        print(f"No document found with report_id: {report_id}")  # Debugging: Print if no docume
         return None, None
 
-    # Get the document ID and the user report data
-    doc_id, existing_report = get_user_report_by_report_id(user_report["report_id"])
+    try:
+        # Get the document ID and the user report data
+        doc_id, existing_report = get_user_report_by_report_id(user_report["report_id"])
 
-    if doc_id is None:
-        return {"error": "Report ID not found", "report_id": user_report["report_id"]}, 404  # Return an error if the report_id does not exist
+        if doc_id is None:
+            return {"error": "Report ID not found", "report_id": user_report["report_id"]}, 404  # Return an error if the report_id does not exist
 
-    # Reference to the specific document to update
-    user_report_ref = db.collection('user_report').document(doc_id)
+        # Reference to the specific document to update
+        user_report_ref = db.collection('incident').document(doc_id)
 
-    # Update the document with the new details
-    updates = {}
-    if user_report.get("contact_name"):
-        updates['contact_name'] = user_report["contact_name"]
-    if user_report.get("email"):
-        updates['email'] = user_report["email"]
-    if user_report.get("phone"):
-        updates['phone'] = user_report["phone"]
-    if user_report.get("status"):
-        updates['status'] = user_report["status"]
+        # Update the document with the new details
+        updates = {}
+        if user_report.get("contact_name"):
+            updates['contact_name'] = user_report["contact_name"]
+        if user_report.get("email"):
+            updates['email'] = user_report["email"]
+        if user_report.get("phone"):
+            updates['phone'] = user_report["phone"]
+        if user_report.get("status"):
+            updates['status'] = user_report["status"]
 
-    if updates:
-        user_report_ref.update(updates)
+        if updates:
+            user_report_ref.update(updates)
 
-    # Return the report_id in the response
-    return {'report_id': user_report["report_id"]}, 200
+        # Return the report_id in the response
+        return {'report_id': user_report["report_id"]}, 200
+    
+    except Exception as e:
+        print(f"Error updating user report: {str(e)}")  # Log the error
+        return {"error": "Failed to update user report", "details": str(e)}, 500
 
 @cached(cache=INCIDENT_CACHE)
 def queryUserReports(start: datetime, end: datetime, state=""):
