@@ -199,17 +199,13 @@ def updateUserReport(user_report):
     db = firestore.Client()
 
     def get_user_report_by_report_id(report_id):
-        # Reference to the userReport collection
-        user_report_ref = db.collection('incident')
         # Query for the document with the specified report_id
-        query = user_report_ref.where('id', '==', report_id).stream()
-        # Iterate over the query results and return the first match (There should be only one doc in the query)
-        for doc in query:
-            print(f"Found document: {doc.id}, data: {doc.to_dict()}")
-            # print(f"Found document: {doc.id}")  # Debugging: Print the document ID
+        doc_ref = db.collection('incident').document(report_id)
+        doc = doc_ref.get()
+        # Iterate over the query results and return the first match
+        if doc.exists:
             return doc.id, doc.to_dict()  # Return both the document ID and its data
         # If no match found, return None
-        print(f"No document found with report_id: {report_id}")  # Debugging: Print if no docume
         return None, None
 
     try:
