@@ -4,6 +4,7 @@ import dateparser
 from cachetools import cached
 from fireo import models as mdl
 
+from google.cloud import firestore
 from firestore.cachemanager import INCIDENT_CACHE, INCIDENT_STATS_CACHE, flush_cache
 from firestore.get_all_validation import get_all_validation
 
@@ -28,8 +29,12 @@ class UserReport(BaseReport):
     attachments = mdl.TextField(required=True)
     status = mdl.TextField(required=False)
     approved_by = mdl.TextField(required=False)
+    report_id = mdl.ListField(required=False)
+    contact_name = mdl.TextField(required=False)
     email = mdl.TextField(required=False)
     phone = mdl.TextField(required=False)
+    class Meta:
+        collection_name = "incident"  # Force this class to use the "incident" collection
 
 
 class Incident(BaseReport):
@@ -69,27 +74,6 @@ def getIncidents(start: datetime, end: datetime, state="", skip_cache=False):
     if skip_cache:
         INCIDENT_CACHE.clear()
     return queryIncidents(start, end, state)
-
-
-# incidents should be [
-#   {
-#       "id" : id, //optional
-#       "incident_time" : incident_time
-#       "created_on"    : created_on
-#       "incident_location": incident_location
-#       "abstract"  : abstract
-#       "abstract_translate": abstract_translate
-#       "url"           : url
-#       "incident_source": incident_source
-#       "created_by" : created_by
-#       "title"         : title
-#       "title_translate" : title_translate
-#       "publish_status" : publish_status
-#       "donation_link" : donation_link
-#       "police_tip_line" : police_tip_line
-#       "help_the_victim" : help_the_victim
-#   }
-# ]
 
 
 def insertIncident(incident, to_flush_cache=True):
@@ -180,7 +164,7 @@ def insertUserReport(user_report, to_flush_cache=True):
         else {}
     )
     new_user_report.status = (
-        user_report["status"] if "status" in user_report else {}
+        str(user_report["status"]) if "status" in user_report else None
     )
     new_user_report.approved_by = (
         user_report["created_by"] if "created_by" in user_report else None
@@ -210,6 +194,50 @@ def insertUserReport(user_report, to_flush_cache=True):
             "Failed to upsert the user_report with id:" + new_user_report.id
         )
 
+def updateUserReport(user_report):
+    # Initialize Firestore client
+    db = firestore.Client()
+
+    def get_user_report_by_report_id(report_id):
+        # Query for the document with the specified report_id
+        doc_ref = db.collection('incident').document(report_id)
+        doc = doc_ref.get()
+        # Iterate over the query results and return the first match
+        if doc.exists:
+            return doc.id, doc.to_dict()  # Return both the document ID and its data
+        # If no match found, return None
+        return None, None
+
+    try:
+        # Get the document ID and the user report data
+        doc_id, existing_report = get_user_report_by_report_id(user_report["report_id"])
+
+        if doc_id is None:
+            return {"error": "Report ID not found", "report_id": user_report["report_id"]}, 404  # Return an error if the report_id does not exist
+
+        # Reference to the specific document to update
+        user_report_ref = db.collection('incident').document(doc_id)
+
+        # Update the document with the new details
+        updates = {}
+        if user_report.get("contact_name"):
+            updates['contact_name'] = user_report["contact_name"]
+        if user_report.get("email"):
+            updates['email'] = user_report["email"]
+        if user_report.get("phone"):
+            updates['phone'] = user_report["phone"]
+        if user_report.get("status"):
+            updates['status'] = user_report["status"]
+
+        if updates:
+            user_report_ref.update(updates)
+
+        # Return the report_id in the response
+        return {'report_id': user_report["report_id"]}, 200
+    
+    except Exception as e:
+        print(f"Error updating user report: {str(e)}")  # Log the error
+        return {"error": "Failed to update user report", "details": str(e)}, 500
 
 @cached(cache=INCIDENT_CACHE)
 def queryUserReports(start: datetime, end: datetime, state=""):
@@ -229,7 +257,6 @@ def deleteUserReport(user_report_id):
         flush_cache()
         return True
     return False
-
 
 def getUserReports(start: datetime, end: datetime, state="", skip_cache=False):
     if skip_cache:
