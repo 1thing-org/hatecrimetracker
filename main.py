@@ -26,7 +26,7 @@ from google.auth.transport import Response, requests
 
 import firestore.admins
 from common import User
-from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, getUserReports, insertUserReport, updateUserReport
+from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, getUserReports, insertUserReport, updateUserReport, get_incident_by_id
 from firestore.tokens import add_token
 import incident_publisher
 
@@ -264,6 +264,17 @@ def update_user_report():
     # Call the updateUserReport function and get the response and status code
     response, code = updateUserReport(data)
     return response, code
+
+
+@app.route('/incidents/<report_id>', methods=['GET'])
+def get_incident(report_id):
+    try:
+        _check_is_admin(request)
+        response, code = get_incident_by_id(report_id)
+        return jsonify(response), code
+    except Exception as e:
+        print(f"Error in get_incident endpoint: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
 
 if __name__ == "__main__":
     # This is used when running locally only. When deploying to Google App
