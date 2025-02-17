@@ -17,16 +17,18 @@ class BaseReport(mdl.Model):
     donation_link = mdl.TextField()  # Link to donation website
     police_tip_line = mdl.TextField()  # Phone number to provide tips to police
     help_the_victim = mdl.TextField()  # Text about how people can help the victim
+    incident_time = mdl.DateTime(required=True)
+    incident_location = mdl.TextField()
+    type = mdl.TextField()
+    self_report_status = mdl.TextField(required=False)
     class Meta:
         abstract = True  # Mark this model as abstract
 
 
 class UserReport(BaseReport):
-    user_report_time = mdl.DateTime(required=True)
-    user_report_location = mdl.TextField(required=True)
-    description = mdl.TextField(required=True)
+    description = mdl.TextField(required=False)
     description_translate = mdl.MapField(required=False)
-    attachments = mdl.TextField(required=True)
+    attachments = mdl.TextField(required=False)
     status = mdl.TextField(required=False)
     approved_by = mdl.TextField(required=False)
     report_id = mdl.ListField(required=False)
@@ -38,12 +40,10 @@ class UserReport(BaseReport):
 
 
 class Incident(BaseReport):
-    incident_time = mdl.DateTime(required=True)
-    incident_location = mdl.TextField()
-    abstract = mdl.TextField(required=True)
-    abstract_translate = mdl.MapField(required=True)
+    abstract = mdl.TextField(required=False)
+    abstract_translate = mdl.MapField(required=False)
     url = mdl.TextField(required=False)
-    incident_source = mdl.TextField(required=True)
+    incident_source = mdl.TextField(required=False)
     created_by = mdl.TextField(required=False)
     title = mdl.TextField(required=False)
     title_translate = mdl.MapField(required=False)
@@ -51,13 +51,25 @@ class Incident(BaseReport):
 
 
 @cached(cache=INCIDENT_CACHE)
-def queryIncidents(start: datetime, end: datetime, state=""):
+def queryIncidents(start: datetime, end: datetime, state="", type="", self_report_status=""):
     end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
     query = Incident.collection.filter("incident_time", ">=", start).filter(
         "incident_time", "<=", end_time
     )
     if state != "":
         query = query.filter("incident_location", "==", state)
+    if type == "self_report":
+        query = query.filter("type", "==", "self_report")
+    elif type == "news":
+        query = query.filter("type", "==", None)
+    if type != "news":
+        if self_report_status == "approved":
+            query = query.filter("self_report_status", "==", "approved")
+        elif self_report_status == "rejected":
+            query = query.filter("self_report_status", "==", "rejected")
+        elif self_report_status == "new":
+            query = query.filter("self_report_status", "==", "new")
+
 
     result = query.order("-incident_time").fetch()
     return [incident.to_dict() for incident in result]
@@ -70,10 +82,10 @@ def deleteIncident(incident_id):
     return False
 
 
-def getIncidents(start: datetime, end: datetime, state="", skip_cache=False):
+def getIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", skip_cache=False):
     if skip_cache:
         INCIDENT_CACHE.clear()
-    return queryIncidents(start, end, state)
+    return queryIncidents(start, end, state, type, self_report_status)
 
 
 def insertIncident(incident, to_flush_cache=True):
@@ -147,16 +159,17 @@ def getStats(start: datetime, end: datetime, state=""):
 def insertUserReport(user_report, to_flush_cache=True):
     # return user_report id
     new_user_report = UserReport(
-        user_report_time=(
-            dateparser.parse(user_report["user_report_time"])
-            if isinstance(user_report["user_report_time"], str)
-            else user_report["user_report_time"]
+        incident_time=(
+            dateparser.parse(user_report["incident_time"])
+            if isinstance(user_report["incident_time"], str)
+            else user_report["incident_time"]
         ),
-        user_report_location=user_report["user_report_location"],
+        incident_location=user_report["incident_location"],
         description=user_report["description"],
         attachments=user_report["attachments"]
     )
-
+    new_user_report.type = "self_report"
+    new_user_report.self_report_status = user_report["self_report_status"] if "self_report_status" in user_report else None
     new_user_report.id = user_report["id"] if "id" in user_report else None
     new_user_report.description_translate = (
         user_report["description_translate"]
@@ -242,13 +255,13 @@ def updateUserReport(user_report):
 @cached(cache=INCIDENT_CACHE)
 def queryUserReports(start: datetime, end: datetime, state=""):
     end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
-    query = UserReport.collection.filter("user_report_time", ">=", start).filter(
-        "user_report_time", "<=", end_time
+    query = UserReport.collection.filter("incident_time", ">=", start).filter(
+        "incident_time", "<=", end_time
     )
     if state != "":
-        query = query.filter("user_report_location", "==", state)
+        query = query.filter("incident_location", "==", state)
 
-    result = query.order("-user_report_time").fetch()
+    result = query.order("-incident_time").fetch()
     return [user_report.to_dict() for user_report in result]
 
 
@@ -262,6 +275,23 @@ def getUserReports(start: datetime, end: datetime, state="", skip_cache=False):
     if skip_cache:
         INCIDENT_CACHE.clear()
     return queryUserReports(start, end, state)
+
+def getAll(start: datetime, end: datetime, state="", skip_cache=False):
+    if skip_cache:
+        INCIDENT_CACHE.clear()
+    return queryAll(start, end, state)
+
+@cached(cache=INCIDENT_CACHE)
+def queryAll(start: datetime, end: datetime, state=""):
+    end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
+    query = Incident.collection.filter("incident_time", ">=", start).filter(
+        "incident_time", "<=", end_time
+    )
+    if state != "":
+        query = query.filter("incident_location", "==", state)
+
+    result = query.order("-incident_time").fetch()
+    return [incident.to_dict() for incident in result]
 
 def getAllIncidents(params, user_role):
     """
