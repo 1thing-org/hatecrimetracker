@@ -84,7 +84,9 @@ def _getCommonArgs():
     state = request.args.get("state", "")
     type = request.args.get("type", "")
     self_report_status = request.args.get("self_report_status", "")
-    return dateparser.parse(start), dateparser.parse(end), state, type, self_report_status
+    start_row = request.args.get("start_row", "")
+    page_size = request.args.get("page_size", "")
+    return dateparser.parse(start), dateparser.parse(end), state, type, self_report_status, start_row, page_size
 
 
 @app.route("/")
@@ -108,13 +110,13 @@ def get_is_admin():
 
 @app.route("/incidents")
 def get_incidents():
-    start, end, state, type, self_report_status = _getCommonArgs()
+    start, end, state, type, self_report_status, start_row, page_size = _getCommonArgs()
     skip_cache = request.args.get("skip_cache", "false")
     if skip_cache.lower() == "true" or self_report_status != "approved":
         _check_is_admin(request)
-    incidents = getIncidents(start, end, state, type, self_report_status, skip_cache.lower() == "true")
-        
-    # Handle Sentinel type in the created_on field
+    incidents = getIncidents(start, end, state, type, self_report_status, start_row, page_size, skip_cache.lower() == "true")
+
+    # Handle potential Sentinel type in the created_on field
     for incident in incidents:
         if 'created_on' in incident and incident['created_on'] == SERVER_TIMESTAMP:
             incident['created_on'] = None

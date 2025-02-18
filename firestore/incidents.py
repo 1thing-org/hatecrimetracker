@@ -51,7 +51,11 @@ class Incident(BaseReport):
 
 
 @cached(cache=INCIDENT_CACHE)
-def queryIncidents(start: datetime, end: datetime, state="", type="", self_report_status=""):
+def queryIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", start_row="", page_size=""):
+    # Convert start_row and page_size to integers
+    start_row = int(start_row) if start_row else 0
+    page_size = int(page_size) if page_size else 10
+    
     end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
     query = Incident.collection.filter("incident_time", ">=", start).filter(
         "incident_time", "<=", end_time
@@ -69,9 +73,19 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
             query = query.filter("self_report_status", "==", "rejected")
         elif self_report_status == "new":
             query = query.filter("self_report_status", "==", "new")
+    query = query.order("-incident_time")
+    if start_row > 0:
+        docs = list(query.fetch(start_row))
+        if docs:
+            last_doc = docs[-1]  # Get the last document
+            if hasattr(last_doc, 'key'):
+                query = query.start_after(last_doc.key)
+            else:
+                print("Warning: last_doc has no key attribute, skipping start_after.")
+    if page_size:
+        query = query.limit(page_size)
 
-
-    result = query.order("-incident_time").fetch()
+    result = query.fetch()
     return [incident.to_dict() for incident in result]
 
 
@@ -82,10 +96,10 @@ def deleteIncident(incident_id):
     return False
 
 
-def getIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", skip_cache=False):
+def getIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", start_row="", page_size="", skip_cache=False):
     if skip_cache:
         INCIDENT_CACHE.clear()
-    return queryIncidents(start, end, state, type, self_report_status)
+    return queryIncidents(start, end, state, type, self_report_status, start_row, page_size)
 
 
 def insertIncident(incident, to_flush_cache=True):
