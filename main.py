@@ -26,7 +26,7 @@ from google.auth.transport import Response, requests
 
 import firestore.admins
 from common import User
-from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, getUserReports, insertUserReport, updateUserReport
+from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, insertUserReport, updateUserReport
 from firestore.tokens import add_token
 import incident_publisher
 from google.cloud.firestore_v1 import SERVER_TIMESTAMP
@@ -127,36 +127,6 @@ def get_incidents():
             translate_incidents(incidents, lang), lang
         )
     }
-
-
-@app.route("/user_reports")
-def get_user_reports():
-    start, end, state = _getCommonArgs()
-    skip_cache = request.args.get("skip_cache", "false")
-    if skip_cache.lower() == "true":
-        _check_is_admin(request)  # only admin can set this flag to true
-    user_reports = getUserReports(start, end, state, skip_cache.lower() == "true")
-    lang = _get_lang(request)
-    return {
-        "user_reports": clean_unused_translation(
-            translate_incidents(user_reports, lang), lang
-        )
-    }
-
-
-# @app.route("/all")
-# def get_all():
-#     start, end, state = _getCommonArgs()
-#     skip_cache = request.args.get("skip_cache", "false")
-#     if skip_cache.lower() == "true":
-#         _check_is_admin(request)  # only admin can set this flag to true
-#     user_reports = getAll(start, end, state, skip_cache.lower() == "true")
-#     lang = _get_lang(request)
-#     return {
-#         "user_reports": clean_unused_translation(
-#             translate_incidents(user_reports, lang), lang
-#         )
-#     }
 
 
 @app.route("/incidents/<incident_id>", methods=["DELETE"])

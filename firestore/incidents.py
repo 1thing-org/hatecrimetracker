@@ -266,46 +266,12 @@ def updateUserReport(user_report):
         print(f"Error updating user report: {str(e)}")  # Log the error
         return {"error": "Failed to update user report", "details": str(e)}, 500
 
-@cached(cache=INCIDENT_CACHE)
-def queryUserReports(start: datetime, end: datetime, state=""):
-    end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
-    query = UserReport.collection.filter("incident_time", ">=", start).filter(
-        "incident_time", "<=", end_time
-    )
-    if state != "":
-        query = query.filter("incident_location", "==", state)
-
-    result = query.order("-incident_time").fetch()
-    return [user_report.to_dict() for user_report in result]
-
 
 def deleteUserReport(user_report_id):
     if UserReport.collection.delete("user_report/" + user_report_id):
         flush_cache()
         return True
     return False
-
-def getUserReports(start: datetime, end: datetime, state="", skip_cache=False):
-    if skip_cache:
-        INCIDENT_CACHE.clear()
-    return queryUserReports(start, end, state)
-
-def getAll(start: datetime, end: datetime, state="", skip_cache=False):
-    if skip_cache:
-        INCIDENT_CACHE.clear()
-    return queryAll(start, end, state)
-
-@cached(cache=INCIDENT_CACHE)
-def queryAll(start: datetime, end: datetime, state=""):
-    end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
-    query = Incident.collection.filter("incident_time", ">=", start).filter(
-        "incident_time", "<=", end_time
-    )
-    if state != "":
-        query = query.filter("incident_location", "==", state)
-
-    result = query.order("-incident_time").fetch()
-    return [incident.to_dict() for incident in result]
 
 def getAllIncidents(params, user_role):
     """
