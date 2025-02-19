@@ -62,31 +62,38 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
     )
     if state != "":
         query = query.filter("incident_location", "==", state)
-    if type == "self_report":
-        query = query.filter("type", "==", "self_report")
-    elif type == "news":
-        query = query.filter("type", "==", None)
-    if type != "news":
-        if self_report_status == "approved":
-            query = query.filter("self_report_status", "==", "approved")
-        elif self_report_status == "rejected":
-            query = query.filter("self_report_status", "==", "rejected")
-        elif self_report_status == "new":
-            query = query.filter("self_report_status", "==", "new")
-    query = query.order("-incident_time")
-    if start_row > 0:
-        docs = list(query.fetch(start_row))
-        if docs:
-            last_doc = docs[-1]  # Get the last document
-            if hasattr(last_doc, 'key'):
-                query = query.start_after(last_doc.key)
-            else:
-                print("Warning: last_doc has no key attribute, skipping start_after.")
-    if page_size:
-        query = query.limit(page_size)
 
-    result = query.fetch()
-    return [incident.to_dict() for incident in result]
+    incidents = []
+
+    if type == "both":
+        # Fetch news incidents (where type is None or missing)
+        all_incidents = list(query.fetch())
+        news_incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, ""]]
+        # Fetch self_report incidents with self_report_status
+        self_report_incidents = [i for i in all_incidents if hasattr(i, "type") and i.type == "self_report"]
+        if self_report_status:
+            self_report_incidents = [i for i in self_report_incidents if i.self_report_status == self_report_status]
+        # Merge both queries
+        incidents = sorted(news_incidents + self_report_incidents, key=lambda x: x.incident_time, reverse=True)
+
+    else:
+        if type == "self_report":
+            query = query.filter("type", "==", "self_report")
+            if self_report_status:
+                query = query.filter("self_report_status", "==", self_report_status)
+        elif type == "news":
+            all_incidents = list(query.fetch())
+            incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, ""]]
+
+        incidents = list(query.order("-incident_time").fetch())  # Fetch incidents
+
+    # Apply pagination
+    if start_row > 0:
+        incidents = incidents[start_row:]  # Skip first start_row items
+    if page_size:
+        incidents = incidents[:page_size]  # Limit results to page_size
+
+    return [incident.to_dict() for incident in incidents]
 
 
 def deleteIncident(incident_id):
