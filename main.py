@@ -265,7 +265,7 @@ def update_user_report():
     response, code = updateUserReport(data)
     return response, code
 
-
+# Admin-only endpoint to view user reported incident details that may including private contact information
 @app.route('/incidents/<report_id>', methods=['GET'])
 def get_incident(report_id):
     try:
