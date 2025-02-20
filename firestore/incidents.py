@@ -295,17 +295,11 @@ def getAllIncidents(params, user_role):
 def get_incident_by_id(report_id):
     try:
         db = firestore.Client()
-
         doc_ref = db.collection('incident').document(report_id)
         doc = doc_ref.get()
-        
-
         if not doc.exists:
             return {"error": "Report ID not found", "report_id": report_id}, 404
-            
-
         return doc.to_dict(), 200
-        
     except Exception as e:
         print(f"Error getting incident by ID: {str(e)}") 
         return {"error": "Failed to get incident", "details": str(e)}, 500
