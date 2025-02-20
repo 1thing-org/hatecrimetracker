@@ -50,12 +50,23 @@ class Incident(BaseReport):
     parent_doc = mdl.TextField(column_name="parent")
 
 
+VALID_SELF_REPORT_STATUSES = {"all", "approved", "rejected", "new"}
+VALID_TYPE_STATUSES = {"news", "self_report", "both"}
+
 @cached(cache=INCIDENT_CACHE)
 def queryIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", start_row="", page_size=""):
     # Convert start_row and page_size to integers
     # TODO: implement the pagination based on Firestore (https://firebase.google.com/docs/firestore/query-data/query-cursors)
-    start_row = int(start_row) if start_row else 0
-    page_size = int(page_size) if page_size else 10
+    try:
+        # Validate type and self_report_status
+        if self_report_status not in VALID_SELF_REPORT_STATUSES:
+            return {"error": f"Invalid self_report_status: {self_report_status}. Allowed values are {VALID_SELF_REPORT_STATUSES}"}
+        if type not in VALID_TYPE_STATUSES:
+            return {"error": f"Invalid type: {type}. Allowed values are {VALID_TYPE_STATUSES}"}
+        start_row = int(start_row) if str(start_row).isdigit() and int(start_row) >= 0 else 0
+        page_size = int(page_size) if str(page_size).isdigit() and int(page_size) > 0 else 10
+    except ValueError:
+        start_row, page_size = 0, 10  # Default values
     
     end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
     query = Incident.collection.filter("incident_time", ">=", start).filter(
@@ -179,6 +190,10 @@ def getStats(start: datetime, end: datetime, state=""):
 
 
 def insertUserReport(user_report, to_flush_cache=True):
+    if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
+        return {"error": "Invalid self_report_status value"}, 400
+    if user_report["type"] not in VALID_TYPE_STATUSES:
+        return {"error": "Invalid type value"}, 400
     # return user_report id
     new_user_report = UserReport(
         incident_time=(

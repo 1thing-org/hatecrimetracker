@@ -114,11 +114,16 @@ def get_incidents():
     skip_cache = request.args.get("skip_cache", "false")
     if skip_cache.lower() == "true" or self_report_status != "approved":
         _check_is_admin(request)
+    # Get incidents (this might return an error response instead of a list)
     incidents = getIncidents(start, end, state, type, self_report_status, start_row, page_size, skip_cache.lower() == "true")
+    
+    # Check if incidents is an error response
+    if isinstance(incidents, dict) and "error" in incidents:
+        return jsonify(incidents), 400
 
     # Handle potential Sentinel type in the created_on field
     for incident in incidents:
-        if 'created_on' in incident and incident['created_on'] == SERVER_TIMESTAMP:
+        if isinstance(incident, dict) and 'created_on' in incident and incident['created_on'] == SERVER_TIMESTAMP:
             incident['created_on'] = None
 
     lang = _get_lang(request)
