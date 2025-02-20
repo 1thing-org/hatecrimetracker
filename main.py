@@ -133,10 +133,10 @@ def get_user_reports():
     }
 
 
-@app.route("/incidents/<incident_id>", methods=["DELETE"])
-def delete_incident(incident_id):
+@app.route("/incidents/<id>", methods=["DELETE"])
+def delete_incident(id):
     _check_is_admin(request)
-    deleteIncident(incident_id)
+    deleteIncident(id)
     return {"status": "success"}
 
 
@@ -266,11 +266,11 @@ def update_user_report():
     return response, code
 
 # Admin-only endpoint to view user reported incident details that may including private contact information
-@app.route('/incidents/<report_id>', methods=['GET'])
-def get_incident(report_id):
+@app.route('/incidents/<id>', methods=['GET'])
+def get_incident(id):
     try:
         _check_is_admin(request)
-        response, code = get_incident_by_id(report_id)
+        response, code = get_incident_by_id(id)
         return jsonify(response), code
     except Exception as e:
         print(f"Error in get_incident endpoint: {str(e)}")
