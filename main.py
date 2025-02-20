@@ -270,10 +270,8 @@ def update_user_report():
 def get_incident(report_id):
     try:
         _check_is_admin(request)
-        
         response, code = get_incident_by_id(report_id)
         return jsonify(response), code
-    
     except Exception as e:
         print(f"Error in get_incident endpoint: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
