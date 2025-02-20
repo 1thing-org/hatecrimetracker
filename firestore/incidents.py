@@ -53,6 +53,7 @@ class Incident(BaseReport):
 @cached(cache=INCIDENT_CACHE)
 def queryIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", start_row="", page_size=""):
     # Convert start_row and page_size to integers
+    # TODO: implement the pagination based on Firestore (https://firebase.google.com/docs/firestore/query-data/query-cursors)
     start_row = int(start_row) if start_row else 0
     page_size = int(page_size) if page_size else 10
     
