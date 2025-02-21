@@ -99,7 +99,7 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
 
         incidents = list(query.order("-incident_time").fetch())  # Fetch incidents
 
-    # Apply pagination
+    # Apply pagination. If the value of start_row/page_size is greater than the length of incidents, return [] (empty set).
     if start_row > 0:
         incidents = incidents[start_row:]  # Skip first start_row items
     if page_size:
