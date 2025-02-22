@@ -26,9 +26,10 @@ from google.auth.transport import Response, requests
 
 import firestore.admins
 from common import User
-from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, getUserReports, insertUserReport, updateUserReport, get_incident_by_id
+from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, insertUserReport, updateUserReport, get_incident_by_id
 from firestore.tokens import add_token
 import incident_publisher
+from google.cloud.firestore_v1 import SERVER_TIMESTAMP
 
 
 # [END gae_python3_datastore_store_and_fetch_user_times]
@@ -81,7 +82,11 @@ def _getCommonArgs():
     )
     end = request.args.get("end", datetime.now().strftime("%Y-%m-%d"))
     state = request.args.get("state", "")
-    return dateparser.parse(start), dateparser.parse(end), state
+    type = request.args.get("type", "")
+    self_report_status = request.args.get("self_report_status", "")
+    start_row = request.args.get("start_row", "")
+    page_size = request.args.get("page_size", "")
+    return dateparser.parse(start), dateparser.parse(end), state, type, self_report_status, start_row, page_size
 
 
 @app.route("/")
@@ -105,30 +110,26 @@ def get_is_admin():
 
 @app.route("/incidents")
 def get_incidents():
-    start, end, state = _getCommonArgs()
+    start, end, state, type, self_report_status, start_row, page_size = _getCommonArgs()
     skip_cache = request.args.get("skip_cache", "false")
-    if skip_cache.lower() == "true":
-        _check_is_admin(request)  # only admin can set this flag to true
-    incidents = getIncidents(start, end, state, skip_cache.lower() == "true")
+    if skip_cache.lower() == "true" or self_report_status != "approved":
+        _check_is_admin(request)
+    # Get incidents (this might return an error response instead of a list)
+    incidents = getIncidents(start, end, state, type, self_report_status, start_row, page_size, skip_cache.lower() == "true")
+    
+    # Check if incidents is an error response
+    if isinstance(incidents, dict) and "error" in incidents:
+        return jsonify(incidents), 400
+
+    # Handle potential Sentinel type in the created_on field
+    for incident in incidents:
+        if isinstance(incident, dict) and 'created_on' in incident and incident['created_on'] == SERVER_TIMESTAMP:
+            incident['created_on'] = None
+
     lang = _get_lang(request)
     return {
         "incidents": clean_unused_translation(
             translate_incidents(incidents, lang), lang
-        )
-    }
-
-
-@app.route("/user_reports")
-def get_user_reports():
-    start, end, state = _getCommonArgs()
-    skip_cache = request.args.get("skip_cache", "false")
-    if skip_cache.lower() == "true":
-        _check_is_admin(request)  # only admin can set this flag to true
-    user_reports = getUserReports(start, end, state, skip_cache.lower() == "true")
-    lang = _get_lang(request)
-    return {
-        "user_reports": clean_unused_translation(
-            translate_incidents(user_reports, lang), lang
         )
     }
 
@@ -145,7 +146,7 @@ def create_incident():
     try:
         # _check_is_admin(request)
         req = request.get_json().get("incident")
-        if req is None:
+        if req is None or not req.get("abstract") or not req.get("abstract_translate") or not req.get("incident_source"):
             return jsonify({"error": "Invalid request data or internal server error."}), 400
         id = insertIncident(req)
         return jsonify({
@@ -247,7 +248,7 @@ def register_token():
 @app.route("/user_reports", methods=["POST"])
 def create_user_report():
     req = request.get_json().get("user_report")
-    if req is None:
+    if req is None or not req.get("description") or not req.get("attachments") or not req.get("self_report_status"):
         raise ValueError("Missing user report")
     id = insertUserReport(req)
     return {"user_report_id": id}
@@ -255,7 +256,7 @@ def create_user_report():
 @app.route("/user_report_profile", methods=["POST"])
 def update_user_report():
     data = request.get_json(force=True).get("user_report")
-    if not data or not data.get("report_id"):  # Check if "report_id" is present in the data
+    if not data or not data.get("report_id"):
         return {"error": "Missing report_id"}, 400
 
     if data.get('status'):  # Only admins can update the status
