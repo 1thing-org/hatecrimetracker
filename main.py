@@ -92,7 +92,7 @@ def _getCommonArgs():
 @app.route("/")
 def root():
     start, end, state = _getCommonArgs()
-    incidents = getIncidents(start, end, state)
+    incidents = getIncidents(start, end, state, type)
     return render_template(
         "index.html", incidents=incidents, current_user=_get_user(request)
     )
