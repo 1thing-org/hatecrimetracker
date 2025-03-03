@@ -91,8 +91,8 @@ def _getCommonArgs():
 
 @app.route("/")
 def root():
-    start, end, state = _getCommonArgs()
-    incidents = getIncidents(start, end, state, type)
+    start, end, state, type, self_report_status, start_row, page_size = _getCommonArgs()
+    incidents = getIncidents(start, end, state, type, self_report_status, start_row, page_size)
     return render_template(
         "index.html", incidents=incidents, current_user=_get_user(request)
     )
