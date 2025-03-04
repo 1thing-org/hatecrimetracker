@@ -173,13 +173,16 @@ def get_stats():
     # return
     # stats: [{"key": date, "value": count}] this is daily count filtered by state if needed
     # total: { "location": count } : total per state, not filtered by state
-    start_date, end_date, state, type = _getCommonArgs()
+    start_date, end_date, state, type, self_report_status = _getCommonArgs()
     str_start = start_date.strftime("%Y-%m-%d")
     str_end = end_date.strftime("%Y-%m-%d")
 
     fullmonth_stats = getStats(
         start_date.replace(day=1),
         end_date.replace(day=calendar.monthrange(end_date.year, end_date.month)[1]),
+        state,
+        type,
+        self_report_status
     )  # [{key(date), incident_location, value}]
     monthly_stats = _aggregate_monthly_total(fullmonth_stats, state)
     total = {}

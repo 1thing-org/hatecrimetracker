@@ -172,9 +172,9 @@ def insertIncident(incident, to_flush_cache=True):
 
 
 @cached(cache=INCIDENT_STATS_CACHE)
-def getStats(start: datetime, end: datetime, state="", type=""):
+def getStats(start: datetime, end: datetime, state="", type="", self_report_status=""):
     stats = {}  # (date, state) : count
-    for incident in queryIncidents(start, end, state, type):
+    for incident in queryIncidents(start, end, state, type, self_report_status):
         incident_date = incident["incident_time"].strftime("%Y-%m-%d")
         key = (incident_date, incident["incident_location"])
         if key not in stats:
