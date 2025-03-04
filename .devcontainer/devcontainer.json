@@ -1,0 +1,33 @@
+{
+  "name": "Hate Crime Tracker Backend",
+  "dockerFile": "Dockerfile",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker",
+        "googlecloudtools.cloudcode",
+        "cschleiden.vscode-github-actions",
+        "github.vscode-github-actions"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.formatting.provider": "black",
+        "editor.formatOnSave": true,
+        "editor.rulers": [80, 100]
+      }
+    }
+  },
+  "forwardPorts": [8080, 5000],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "GOOGLE_APPLICATION_CREDENTIALS": "/workspace/hate-crime-tracker-7d52738f7212.json",
+    "FIRESTORE_EMULATOR_HOST": "localhost:8080"
+  }
+}
