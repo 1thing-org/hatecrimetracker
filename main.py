@@ -173,7 +173,7 @@ def get_stats():
     # return
     # stats: [{"key": date, "value": count}] this is daily count filtered by state if needed
     # total: { "location": count } : total per state, not filtered by state
-    start_date, end_date, state, type, self_report_status = _getCommonArgs()
+    start_date, end_date, state, type, self_report_status, _, _ = _getCommonArgs()
     str_start = start_date.strftime("%Y-%m-%d")
     str_end = end_date.strftime("%Y-%m-%d")
 
