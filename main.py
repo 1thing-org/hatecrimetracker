@@ -91,8 +91,8 @@ def _getCommonArgs():
 
 @app.route("/")
 def root():
-    start, end, state = _getCommonArgs()
-    incidents = getIncidents(start, end, state)
+    start, end, state, type, self_report_status, start_row, page_size = _getCommonArgs()
+    incidents = getIncidents(start, end, state, type, self_report_status, start_row, page_size)
     return render_template(
         "index.html", incidents=incidents, current_user=_get_user(request)
     )
@@ -173,13 +173,16 @@ def get_stats():
     # return
     # stats: [{"key": date, "value": count}] this is daily count filtered by state if needed
     # total: { "location": count } : total per state, not filtered by state
-    start_date, end_date, state = _getCommonArgs()
+    start_date, end_date, state, type, self_report_status, _, _ = _getCommonArgs()
     str_start = start_date.strftime("%Y-%m-%d")
     str_end = end_date.strftime("%Y-%m-%d")
 
     fullmonth_stats = getStats(
         start_date.replace(day=1),
         end_date.replace(day=calendar.monthrange(end_date.year, end_date.month)[1]),
+        state,
+        type,
+        self_report_status
     )  # [{key(date), incident_location, value}]
     monthly_stats = _aggregate_monthly_total(fullmonth_stats, state)
     total = {}
