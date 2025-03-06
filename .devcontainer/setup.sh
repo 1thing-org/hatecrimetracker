@@ -8,12 +8,6 @@ source env/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 
-# Initialize Firebase project
-echo "Attempting Firebase login..."
-if ! firebase login --no-localhost; then
-    echo "⚠️  Firebase login failed. Please try again manually after container setup."
-fi
-
 # Check for credentials file
 if [ ! -f "./hate-crime-tracker-7d52738f7212.json" ]; then
     echo "⚠️  Please add your Google Cloud credentials file (hate-crime-tracker-7d52738f7212.json)"
