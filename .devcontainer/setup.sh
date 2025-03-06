@@ -23,9 +23,6 @@ if [ ! -f "./hate-crime-tracker-7d52738f7212.json" ]; then
     echo "3. Pasting your credentials"
 fi
 
-# Initialize Firebase emulator
-firebase init emulators
-
 echo "Development environment setup complete"
 echo "To start the development server:"
 echo "1. Start Firebase emulator: firebase emulators:start"
