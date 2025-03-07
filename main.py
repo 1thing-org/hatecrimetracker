@@ -180,11 +180,11 @@ def get_stats():
     fullmonth_stats = getStats(
         start_date.replace(day=1),
         end_date.replace(day=calendar.monthrange(end_date.year, end_date.month)[1]),
-        state,
+        "",  # Empty state to get all states, this is by design
         type,
         self_report_status
     )  # [{key(date), incident_location, value}]
-    monthly_stats = _aggregate_monthly_total(fullmonth_stats, state)
+    monthly_stats = _aggregate_monthly_total(fullmonth_stats, state)  # Pass state here for filtering
     total = {}
     # national data is by state and by date, merge all state per date, and calculate state total
     aggregated = {}
@@ -195,11 +195,10 @@ def get_stats():
 
         value = stat["value"]
         location = stat["incident_location"]
-        # national total count will always include all states
+        # Always include in totals regardless of state filter
         total[location] = total.get(location, 0) + value
+        # Only include in daily stats if matches state filter
         if not state or state == location:
-            # if state is specified, only aggregate state daily data
-            # otherwise aggregate all data
             aggregated[str_date] = aggregated.get(str_date, 0) + value
 
     stats = [{"key": k, "value": v} for k, v in aggregated.items()]
