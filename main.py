@@ -29,6 +29,11 @@ from common import User
 from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident
 from firestore.tokens import add_token
 import incident_publisher
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+FLASK_ENV = os.getenv("FLASK_ENV")
 
 # [END gae_python3_datastore_store_and_fetch_user_times]
 # [END gae_python38_datastore_store_and_fetch_user_times]
@@ -94,7 +99,11 @@ def root():
 
 @app.route("/admin")
 def admin():
-    return render_template("admin.html")
+    return (
+        render_template("admin.html")
+        if FLASK_ENV != "development"
+        else render_template("admin_dev.html")
+    )
 
 
 @app.route("/isadmin")
@@ -126,7 +135,8 @@ def delete_incident(incident_id):
 
 @app.route("/incidents", methods=["POST"])
 def create_incident():
-    _check_is_admin(request)
+    if FLASK_ENV != "development":
+        _check_is_admin(request)
     req = request.get_json().get("incident")
     if req is None:
         raise ValueError("Missing incident")
@@ -182,12 +192,13 @@ def get_stats():
 
 @app.route("/publish_incidents")
 def publish_incidents():
-    header = request.headers.get("X-CloudScheduler", None)
-    if not header:
-        raise ValueError(
-            "attempt to access cloud scheduler handler directly, "
-            "missing custom X-CloudScheduler header"
-        )
+    if FLASK_ENV != "development":
+        header = request.headers.get("X-CloudScheduler", None)
+        if not header:
+            raise ValueError(
+                "attempt to access cloud scheduler handler directly, "
+                "missing custom X-CloudScheduler header"
+            )
     result = incident_publisher.publish_incidents()
     return {"success": True, "result": result}
 
