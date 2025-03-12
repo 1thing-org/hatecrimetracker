@@ -36,7 +36,9 @@ class UserReport(BaseReport):
     email = mdl.TextField(required=False)
     phone = mdl.TextField(required=False)
     class Meta:
-        collection_name = "incident"  # Force this class to use the "incident" collection
+        # If you want to use a different collection:
+        # Before running the app, set with: export FIRESTORE_COLLECTION=your_test_collection
+        collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')  # Default to 'incident'
 
 
 class Incident(BaseReport):
