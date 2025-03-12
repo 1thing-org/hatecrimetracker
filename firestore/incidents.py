@@ -80,7 +80,7 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
     if type == "both":
         # Fetch news incidents (where type is None or missing)
         all_incidents = list(query.fetch())
-        news_incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, ""]]
+        news_incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, "", "news"]]
         # Fetch self_report incidents with self_report_status
         self_report_incidents = [i for i in all_incidents if hasattr(i, "type") and i.type == "self_report"]
         if self_report_status:
