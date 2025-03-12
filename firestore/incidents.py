@@ -64,7 +64,7 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
         if type not in VALID_TYPE_STATUSES:
             return {"error": f"Invalid type: {type}. Allowed values are {VALID_TYPE_STATUSES}"}
         start_row = int(start_row) if str(start_row).isdigit() and int(start_row) >= 0 else 0
-        page_size = int(page_size) if str(page_size).isdigit() and int(page_size) > 0 else 10
+        page_size = int(page_size) if str(page_size).isdigit() and int(page_size) > 0 else 1000
     except ValueError:
         start_row, page_size = 0, 10  # Default values
     
