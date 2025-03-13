@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 import dateparser
@@ -36,7 +37,10 @@ class UserReport(BaseReport):
     email = mdl.TextField(required=False)
     phone = mdl.TextField(required=False)
     class Meta:
-        collection_name = "incident"  # Force this class to use the "incident" collection
+        # If you want to use a different collection:
+        # Before running the app, set with: export FIRESTORE_COLLECTION=your_test_collection
+        # If running with run.sh, the collection name is set in the run.sh script
+        collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')  # Default to 'incident'
 
 
 class Incident(BaseReport):
@@ -48,6 +52,8 @@ class Incident(BaseReport):
     title = mdl.TextField(required=False)
     title_translate = mdl.MapField(required=False)
     parent_doc = mdl.TextField(column_name="parent")
+    class Meta:
+        collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')
 
 
 VALID_SELF_REPORT_STATUSES = {"all", "approved", "rejected", "new"}
@@ -336,3 +342,15 @@ def get_incident_by_id(report_id):
     except Exception as e:
         print(f"Error getting incident by ID: {str(e)}") 
         return {"error": "Failed to get incident", "details": str(e)}, 500
+
+# Log for checking the firesotre colection name in use
+def verify_collection():
+    collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')
+    print(f"Using collection: {collection_name}")
+    # Example query to verify
+    db = firestore.Client()
+    docs = db.collection(collection_name).limit(1).stream()
+    for doc in docs:
+        print(f"Document in collection: {doc.id}")
+
+verify_collection()
