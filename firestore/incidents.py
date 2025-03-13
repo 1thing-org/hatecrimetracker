@@ -60,7 +60,7 @@ VALID_SELF_REPORT_STATUSES = {"all", "approved", "rejected", "new"}
 VALID_TYPE_STATUSES = {"news", "self_report", "both"}
 
 @cached(cache=INCIDENT_CACHE)
-def queryIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", start_row="", page_size="", use_cache=False):
+def queryIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", start_row="", page_size=""):
     # Convert start_row and page_size to integers
     # TODO: implement the pagination based on Firestore (https://firebase.google.com/docs/firestore/query-data/query-cursors)
     try:
