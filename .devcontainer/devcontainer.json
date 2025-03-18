@@ -21,13 +21,38 @@
       }
     }
   },
-  "forwardPorts": [5000],
+  "forwardPorts": [5000, 5001, 8080, 9199],
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
   "workspaceFolder": "/workspace",
   "postCreateCommand": "bash .devcontainer/setup.sh",
   "remoteUser": "vscode",
   "containerEnv": {
     "GOOGLE_APPLICATION_CREDENTIALS": "/workspace/hate-crime-tracker-7d52738f7212.json",
-    "FIRESTORE_EMULATOR_HOST": "localhost:8080"
+    "FIRESTORE_EMULATOR_HOST": "localhost:8080",
+    "FLASK_ENV": "development",
+    "FLASK_APP": "main.py",
+    "FIREBASE_AUTH_EMULATOR_HOST": "localhost:9099",
+    "FIREBASE_STORAGE_EMULATOR_HOST": "localhost:9199"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {}
+  },
+  "portsAttributes": {
+    "5000": {
+      "protocol": "http",
+      "visibility": "public"
+    },
+    "5001": {
+      "protocol": "http",
+      "visibility": "public"
+    },
+    "8080": {
+      "protocol": "http",
+      "visibility": "public"
+    },
+    "9199": {
+      "protocol": "http",
+      "visibility": "public"
+    }
   }
 }
