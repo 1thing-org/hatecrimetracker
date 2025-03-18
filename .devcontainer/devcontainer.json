@@ -21,7 +21,7 @@
       }
     }
   },
-  "forwardPorts": [5000, 5001, 8080, 9199],
+  "forwardPorts": [5000, 5001, 8080, 9099, 9199, 4000],
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
   "workspaceFolder": "/workspace",
   "postCreateCommand": "bash .devcontainer/setup.sh",
@@ -32,7 +32,8 @@
     "FLASK_ENV": "development",
     "FLASK_APP": "main.py",
     "FIREBASE_AUTH_EMULATOR_HOST": "localhost:9099",
-    "FIREBASE_STORAGE_EMULATOR_HOST": "localhost:9199"
+    "FIREBASE_STORAGE_EMULATOR_HOST": "localhost:9199",
+    "FIREBASE_FUNCTIONS_EMULATOR_HOST": "localhost:5001"
   },
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {}
@@ -50,7 +51,15 @@
       "protocol": "http",
       "visibility": "public"
     },
+    "9099": {
+      "protocol": "http",
+      "visibility": "public"
+    },
     "9199": {
+      "protocol": "http",
+      "visibility": "public"
+    },
+    "4000": {
       "protocol": "http",
       "visibility": "public"
     }
