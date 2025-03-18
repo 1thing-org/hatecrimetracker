@@ -21,7 +21,7 @@
       }
     }
   },
-  "forwardPorts": [8080, 5000],
+  "forwardPorts": [8080, 5000, 8081],
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
   "workspaceFolder": "/workspace",
   "postCreateCommand": "bash .devcontainer/setup.sh",
