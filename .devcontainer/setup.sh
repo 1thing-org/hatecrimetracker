@@ -5,7 +5,9 @@ python -m venv env
 source env/bin/activate
 
 # Add virtual environment activation to .bashrc
-echo "source /workspace/env/bin/activate" >> ~/.bashrc
+echo "if [ -d \"\$HOME/workspace/env\" ]; then" >> ~/.bashrc
+echo "    source \$HOME/workspace/env/bin/activate" >> ~/.bashrc
+echo "fi" >> ~/.bashrc
 
 # Install project dependencies
 pip install --upgrade pip
