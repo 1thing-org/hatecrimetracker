@@ -1,42 +1,25 @@
-FROM python:3.11-slim
+FROM python:3.8-slim
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    build-essential \
     curl \
+    gnupg \
+    apt-transport-https \
+    ca-certificates \
     git \
-    nodejs \
-    npm \
-    openjdk-17-jdk \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Firebase CLI
-RUN npm install -g firebase-tools
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g firebase-tools
 
 # Install Google Cloud SDK
-RUN curl -sSL https://sdk.cloud.google.com | bash
-
-# Add Google Cloud SDK to PATH
-ENV PATH $PATH:/root/google-cloud-sdk/bin
-
-# Set working directory
-WORKDIR /workspace
-
-# Copy requirements.txt (will be mounted from host)
-COPY requirements.txt .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Set environment variables
-ENV PYTHONPATH=/workspace
-ENV GOOGLE_APPLICATION_CREDENTIALS=/workspace/hate-crime-tracker-7d52738f7212.json
-
-# Expose ports for Flask and Firebase emulators
-EXPOSE 5000 8080 9099 9199 4000
-
-# Set the default command
-CMD ["/bin/bash"]
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
+    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - \
+    && apt-get update && apt-get install -y google-cloud-sdk \
+    && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
 ARG USERNAME=vscode
@@ -56,6 +39,9 @@ RUN chown ${USERNAME}:${USERNAME} /workspace
 
 # Switch to non-root user
 USER $USERNAME
+
+# Install Python tools
+RUN pip install --user pipenv pylint black pytest
 
 # Note: requirements.txt will be mounted from the host
 # Python dependencies will be installed by setup.sh 
