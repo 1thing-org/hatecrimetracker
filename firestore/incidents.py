@@ -84,11 +84,10 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
     incidents = []
 
     if type == "both":
-        # Fetch news incidents (where type is None or missing)
         all_incidents = list(query.fetch())
-        news_incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, "", "news"]]
-        # Fetch self_report incidents with self_report_status
-        self_report_incidents = [i for i in all_incidents if hasattr(i, "type") and i.type == "self_report"]
+        # Split into news and self_report incidents based on type
+        news_incidents = [i for i in all_incidents if i.type == "news"]
+        self_report_incidents = [i for i in all_incidents if i.type == "self_report"]
         if self_report_status:
             self_report_incidents = [i for i in self_report_incidents if i.self_report_status == self_report_status]
         # Merge both queries
@@ -100,8 +99,7 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
             if self_report_status:
                 query = query.filter("self_report_status", "==", self_report_status)
         elif type == "news":
-            all_incidents = list(query.fetch())
-            incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, ""]]
+            query = query.filter("type", "==", "news")
 
         incidents = list(query.order("-incident_time").fetch())  # Fetch incidents
 
