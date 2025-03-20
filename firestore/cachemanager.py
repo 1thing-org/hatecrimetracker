@@ -2,6 +2,11 @@ from datetime import datetime
 import firebase_admin
 from cachetools import TTLCache, cached
 from firebase_admin import db
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+FLASK_ENV = os.getenv("FLASK_ENV")
 
 ADMIN_CACHE = TTLCache(maxsize=128, ttl=3600 * 24)
 INCIDENT_CACHE = TTLCache(maxsize=1024, ttl=3600 * 24)
@@ -32,11 +37,17 @@ def __listener(event):
 
 
 # Make sure to create a realtime db with the following URL and a json path called as /cache_update
-my_app_name = "hate-crime-tracker"
-options = {
-    "databaseURL": "https://hate-crime-tracker-dev-default-rtdb.firebaseio.com/",
-    "storageBucket": "hate-crime-tracker.appspot.com",
-}
+if FLASK_ENV == "development":
+    my_app_name = "tracker"
+    options = {
+        "databaseURL": "https://hate-crime-tracker-dev-default-rtdb.firebaseio.com"
+    }
+else:
+    my_app_name = "hate-crime-tracker"
+    options = {
+        "databaseURL": "https://hate-crime-tracker-default-rtdb.firebaseio.com",
+        "storageBucket": "hate-crime-tracker.appspot.com",
+    }
 filebase_app = firebase_admin.initialize_app(options=options, name=my_app_name)
 cache_update_db_ref = db.reference("/cache_update", app=filebase_app)
 cache_update_db_ref.listen(__listener)

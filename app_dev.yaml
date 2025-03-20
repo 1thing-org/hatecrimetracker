@@ -16,6 +16,7 @@ runtime: python39
 
 env_variables:
   GAE_USE_SOCKETS_HTTPLIB : 'true'
+  FLASK_ENV : development
 
 handlers:
   # This configures Google App Engine to serve the files in the app's static

@@ -14,3 +14,4 @@ python-twitter==3.5
 google-cloud-secret-manager==2.0.0
 exponent_server_sdk
 flask_limiter
+python-dotenv
