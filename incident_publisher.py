@@ -3,11 +3,6 @@ from social_media_publishers.linkedin import LinkedIn
 from social_media_publishers.twitter_v2 import TwitterV2
 from social_media_publishers.notification import PushNotification
 from firestore.incidents import Incident
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-FLASK_ENV = os.getenv("FLASK_ENV")
 
 # check all incidents in database, and publish those have not yet been published yet
 # update incident.publish_status when done
@@ -16,27 +11,16 @@ FLASK_ENV = os.getenv("FLASK_ENV")
 def publish_incidents():
     success = 0
     failed = 0
-    if FLASK_ENV == "development":
-        PUBLISHERS = {
-            "notification": PushNotification(),
-        }
-        incidents = (
-            Incident.collection.filter("incident_time", ">=", datetime(2024, 1, 1))
-            .order("incident_time")
-            .fetch()
-        )
-    else:
-        PUBLISHERS = {
-            "twitter": TwitterV2(),
-            "linkedin": LinkedIn(),
-            "notification": PushNotification(),
-        }
-        incidents = (
-            Incident.collection.filter("incident_time", ">=", datetime(2022, 1, 22))
-            .order("incident_time")
-            .fetch()
-        )
-
+    PUBLISHERS = {
+        "twitter": TwitterV2(),
+        "linkedin": LinkedIn(),
+        "notification": PushNotification(),
+    }
+    incidents = (
+        Incident.collection.filter("incident_time", ">=", datetime(2022, 1, 22))
+        .order("incident_time")
+        .fetch()
+    )
     for incident in incidents:
         for target, publisher in PUBLISHERS.items():
             if not incident.publish_status:
