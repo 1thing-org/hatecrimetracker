@@ -24,20 +24,12 @@ def get_all_validation(params, user_role):
     # Get 'self_report_status' with a default value
     self_report_status = params.get('self_report_status', 'new')
     
-    # Viewer validation: Only approved incidents should be shown
-    if user_role == 'viewer':
-        if self_report_status != 'approved':
-            return {"error": "Invalid query for viewers. Only 'approved' self-report incidents can be viewed."}, 400
+    # Admin validation: Validate self_report_status value when used
+    if user_role == 'admin' and self_report_status not in valid_self_report_status:
+        return {"error": "Invalid value for 'self_report_status'. Allowed values are 'all', 'new', 'rejected', 'approved'."}, 400
     
-    # Admin validation: Self_report_status can only be used when type is 'self-report'
-    if user_role == 'admin':
-        if self_report_status not in valid_self_report_status:
-            return {"error": "Invalid value for 'self_report_status'. Allowed values are 'all', 'new', 'rejected', 'approved'."}, 400
-        
-        if self_report_status != 'new' and incident_type != 'self-report':
-            return {
-                "error": "Invalid query. 'self_report_status' can only be used when 'type' is set to 'self-report'."
-            }, 400
+    # Viewer validation: Only approved self-reports can be viewed
+    if user_role == 'viewer' and incident_type == 'self-report' and self_report_status != 'approved':
+        return {"error": "Invalid query for viewers. Only 'approved' self-report incidents can be viewed."}, 400
 
-    # Validation passed, return None
     return None
