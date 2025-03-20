@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 
 import dateparser
@@ -17,16 +18,18 @@ class BaseReport(mdl.Model):
     donation_link = mdl.TextField()  # Link to donation website
     police_tip_line = mdl.TextField()  # Phone number to provide tips to police
     help_the_victim = mdl.TextField()  # Text about how people can help the victim
+    incident_time = mdl.DateTime(required=True)
+    incident_location = mdl.TextField()
+    type = mdl.TextField()
+    self_report_status = mdl.TextField(required=False)
     class Meta:
         abstract = True  # Mark this model as abstract
 
 
 class UserReport(BaseReport):
-    user_report_time = mdl.DateTime(required=True)
-    user_report_location = mdl.TextField(required=True)
-    description = mdl.TextField(required=True)
+    description = mdl.TextField(required=False)
     description_translate = mdl.MapField(required=False)
-    attachments = mdl.TextField(required=True)
+    attachments = mdl.TextField(required=False)
     status = mdl.TextField(required=False)
     approved_by = mdl.TextField(required=False)
     report_id = mdl.ListField(required=False)
@@ -34,24 +37,43 @@ class UserReport(BaseReport):
     email = mdl.TextField(required=False)
     phone = mdl.TextField(required=False)
     class Meta:
-        collection_name = "incident"  # Force this class to use the "incident" collection
+        # If you want to use a different collection:
+        # Before running the app, set with: export FIRESTORE_COLLECTION=your_test_collection
+        # If running with run.sh, the collection name is set in the run.sh script
+        collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')  # Default to 'incident'
 
 
 class Incident(BaseReport):
-    incident_time = mdl.DateTime(required=True)
-    incident_location = mdl.TextField()
-    abstract = mdl.TextField(required=True)
-    abstract_translate = mdl.MapField(required=True)
+    abstract = mdl.TextField(required=False)
+    abstract_translate = mdl.MapField(required=False)
     url = mdl.TextField(required=False)
-    incident_source = mdl.TextField(required=True)
+    incident_source = mdl.TextField(required=False)
     created_by = mdl.TextField(required=False)
     title = mdl.TextField(required=False)
     title_translate = mdl.MapField(required=False)
     parent_doc = mdl.TextField(column_name="parent")
+    class Meta:
+        collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')
 
+
+VALID_SELF_REPORT_STATUSES = {"all", "approved", "rejected", "new"}
+VALID_TYPE_STATUSES = {"news", "self_report", "both"}
 
 @cached(cache=INCIDENT_CACHE)
-def queryIncidents(start: datetime, end: datetime, state=""):
+def queryIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", start_row="", page_size=""):
+    # Convert start_row and page_size to integers
+    # TODO: implement the pagination based on Firestore (https://firebase.google.com/docs/firestore/query-data/query-cursors)
+    try:
+        # Validate type and self_report_status
+        if self_report_status not in VALID_SELF_REPORT_STATUSES:
+            return {"error": f"Invalid self_report_status: {self_report_status}. Allowed values are {VALID_SELF_REPORT_STATUSES}"}
+        if type not in VALID_TYPE_STATUSES:
+            return {"error": f"Invalid type: {type}. Allowed values are {VALID_TYPE_STATUSES}"}
+        start_row = int(start_row) if str(start_row).isdigit() and int(start_row) >= 0 else 0
+        page_size = int(page_size) if str(page_size).isdigit() and int(page_size) > 0 else 1000
+    except ValueError:
+        start_row, page_size = 0, 10  # Default values
+    
     end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
     query = Incident.collection.filter("incident_time", ">=", start).filter(
         "incident_time", "<=", end_time
@@ -59,8 +81,37 @@ def queryIncidents(start: datetime, end: datetime, state=""):
     if state != "":
         query = query.filter("incident_location", "==", state)
 
-    result = query.order("-incident_time").fetch()
-    return [incident.to_dict() for incident in result]
+    incidents = []
+
+    if type == "both":
+        # Fetch news incidents (where type is None or missing)
+        all_incidents = list(query.fetch())
+        news_incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, "", "news"]]
+        # Fetch self_report incidents with self_report_status
+        self_report_incidents = [i for i in all_incidents if hasattr(i, "type") and i.type == "self_report"]
+        if self_report_status:
+            self_report_incidents = [i for i in self_report_incidents if i.self_report_status == self_report_status]
+        # Merge both queries
+        incidents = sorted(news_incidents + self_report_incidents, key=lambda x: x.incident_time, reverse=True)
+
+    else:
+        if type == "self_report":
+            query = query.filter("type", "==", "self_report")
+            if self_report_status:
+                query = query.filter("self_report_status", "==", self_report_status)
+        elif type == "news":
+            all_incidents = list(query.fetch())
+            incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, ""]]
+
+        incidents = list(query.order("-incident_time").fetch())  # Fetch incidents
+
+    # Apply pagination. If the value of start_row/page_size is greater than the length of incidents, return [] (empty set).
+    if start_row > 0:
+        incidents = incidents[start_row:]  # Skip first start_row items
+    if page_size:
+        incidents = incidents[:page_size]  # Limit results to page_size
+
+    return [incident.to_dict() for incident in incidents]
 
 
 def deleteIncident(incident_id):
@@ -70,10 +121,10 @@ def deleteIncident(incident_id):
     return False
 
 
-def getIncidents(start: datetime, end: datetime, state="", skip_cache=False):
+def getIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", start_row="", page_size="", skip_cache=False):
     if skip_cache:
         INCIDENT_CACHE.clear()
-    return queryIncidents(start, end, state)
+    return queryIncidents(start, end, state, type, self_report_status, start_row, page_size)
 
 
 def insertIncident(incident, to_flush_cache=True):
@@ -127,9 +178,9 @@ def insertIncident(incident, to_flush_cache=True):
 
 
 @cached(cache=INCIDENT_STATS_CACHE)
-def getStats(start: datetime, end: datetime, state=""):
+def getStats(start: datetime, end: datetime, state="", type="", self_report_status=""):
     stats = {}  # (date, state) : count
-    for incident in queryIncidents(start, end, state):
+    for incident in queryIncidents(start, end, state, type, self_report_status):
         incident_date = incident["incident_time"].strftime("%Y-%m-%d")
         key = (incident_date, incident["incident_location"])
         if key not in stats:
@@ -145,18 +196,23 @@ def getStats(start: datetime, end: datetime, state=""):
 
 
 def insertUserReport(user_report, to_flush_cache=True):
+    if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
+        return {"error": "Invalid self_report_status value"}, 400
+    if user_report["type"] not in VALID_TYPE_STATUSES:
+        return {"error": "Invalid type value"}, 400
     # return user_report id
     new_user_report = UserReport(
-        user_report_time=(
-            dateparser.parse(user_report["user_report_time"])
-            if isinstance(user_report["user_report_time"], str)
-            else user_report["user_report_time"]
+        incident_time=(
+            dateparser.parse(user_report["incident_time"])
+            if isinstance(user_report["incident_time"], str)
+            else user_report["incident_time"]
         ),
-        user_report_location=user_report["user_report_location"],
+        incident_location=user_report["incident_location"],
         description=user_report["description"],
         attachments=user_report["attachments"]
     )
-
+    new_user_report.type = "self_report"
+    new_user_report.self_report_status = user_report["self_report_status"] if "self_report_status" in user_report else None
     new_user_report.id = user_report["id"] if "id" in user_report else None
     new_user_report.description_translate = (
         user_report["description_translate"]
@@ -239,29 +295,12 @@ def updateUserReport(user_report):
         print(f"Error updating user report: {str(e)}")  # Log the error
         return {"error": "Failed to update user report", "details": str(e)}, 500
 
-@cached(cache=INCIDENT_CACHE)
-def queryUserReports(start: datetime, end: datetime, state=""):
-    end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
-    query = UserReport.collection.filter("user_report_time", ">=", start).filter(
-        "user_report_time", "<=", end_time
-    )
-    if state != "":
-        query = query.filter("user_report_location", "==", state)
-
-    result = query.order("-user_report_time").fetch()
-    return [user_report.to_dict() for user_report in result]
-
 
 def deleteUserReport(user_report_id):
     if UserReport.collection.delete("user_report/" + user_report_id):
         flush_cache()
         return True
     return False
-
-def getUserReports(start: datetime, end: datetime, state="", skip_cache=False):
-    if skip_cache:
-        INCIDENT_CACHE.clear()
-    return queryUserReports(start, end, state)
 
 def getAllIncidents(params, user_role):
     """
@@ -291,3 +330,27 @@ def getAllIncidents(params, user_role):
         },
         "incidents": incidents
     }
+    
+def get_incident_by_id(report_id):
+    try:
+        db = firestore.Client()
+        doc_ref = db.collection('incident').document(report_id)
+        doc = doc_ref.get()
+        if not doc.exists:
+            return {"error": "Report ID not found", "report_id": report_id}, 404
+        return doc.to_dict(), 200
+    except Exception as e:
+        print(f"Error getting incident by ID: {str(e)}") 
+        return {"error": "Failed to get incident", "details": str(e)}, 500
+
+# Log for checking the firesotre colection name in use
+def verify_collection():
+    collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')
+    print(f"Using collection: {collection_name}")
+    # Example query to verify
+    db = firestore.Client()
+    docs = db.collection(collection_name).limit(1).stream()
+    for doc in docs:
+        print(f"Document in collection: {doc.id}")
+
+verify_collection()
