@@ -182,7 +182,7 @@ def insertIncident(incident, to_flush_cache=True):
 
 @cached(cache=INCIDENT_STATS_CACHE)
 def getStats(start: datetime, end: datetime, state="", type="", self_report_status=""):
-    stats = {}  # (date, state) : count
+    stats = {}  # (date, state) : {"news": count, "self_report": count}
     incidents = queryIncidents(start, end, state, type, self_report_status)
     
     # Check if we got an error response
@@ -196,14 +196,26 @@ def getStats(start: datetime, end: datetime, state="", type="", self_report_stat
             incident_time = dateparser.parse(incident_time)
         incident_date = incident_time.strftime("%Y-%m-%d")
         key = (incident_date, incident["incident_location"])
+        
         if key not in stats:
-            stats[key] = 0
-        stats[key] += 1
+            stats[key] = {"news": 0, "self_report": 0}
+        
+        # Count the incidents by type for frontend display
+        incident_type = incident.get("type", "news")  # Default to news if type not specified
+        if incident_type == "self_report":
+            stats[key]["self_report"] += 1
+        else:
+            stats[key]["news"] += 1
 
     ret = []
     for key in stats:
         (date, state) = key
-        ret.append({"key": date, "incident_location": state, "value": stats[key]})
+        ret.append({
+            "key": date,
+            "incident_location": state,
+            "news": stats[key]["news"],
+            "self_report": stats[key]["self_report"]
+        })
 
     return ret
 

@@ -160,20 +160,24 @@ def create_incident():
         return jsonify({"error": "Invalid request data or internal server error."}), 500
 
 
-def _aggregate_monthly_total(fullmonth_stats, state):
+def _aggregate_monthly_total(stats, state=None):
     monthly_total = {}
-    for daily in fullmonth_stats:
-        location = daily["incident_location"]
-        if not state or state == location:
-            str_month = datetime.strptime(daily["key"], "%Y-%m-%d").strftime("%Y-%m")
-            monthly_total[str_month] = monthly_total.get(str_month, 0) + daily["value"]
+    for daily in stats:
+        # Skip if state is specified and doesn't match
+        if state and daily["incident_location"] != state:
+            continue
+        # Convert YYYY-MM-DD to YYYY-MM
+        str_month = daily["key"][:7]
+        # Sum both news and self-report counts to get total
+        total = daily["news"] + daily["self_report"]
+        monthly_total[str_month] = monthly_total.get(str_month, 0) + total
     return monthly_total
 
 
 @app.route("/stats")
 def get_stats():
     # return
-    # stats: [{"key": date, "value": count}] this is daily count filtered by state if needed
+    # stats: [{"key": date, "news": count, "self_report": count}] this is daily count filtered by state if needed
     # total: { "location": count } : total per state, not filtered by state
     start_date, end_date, state, type, self_report_status, _, _ = _getCommonArgs()
     str_start = start_date.strftime("%Y-%m-%d")
@@ -185,7 +189,7 @@ def get_stats():
         "",  # Empty state to get all states, this is by design
         type,
         self_report_status
-    )  # [{key(date), incident_location, value}]
+    )  # [{key(date), incident_location, news, self_report}]
     monthly_stats = _aggregate_monthly_total(fullmonth_stats, state)  # Pass state here for filtering
     total = {}
     # national data is by state and by date, merge all state per date, and calculate state total
@@ -195,15 +199,20 @@ def get_stats():
         if str_date < str_start or str_date > str_end:
             continue
 
-        value = stat["value"]
+        # Sum news and self_report for total value
+        value = stat["news"] + stat["self_report"]
         location = stat["incident_location"]
         # Always include in totals regardless of state filter
         total[location] = total.get(location, 0) + value
         # Only include in daily stats if matches state filter
         if not state or state == location:
-            aggregated[str_date] = aggregated.get(str_date, 0) + value
+            if str_date not in aggregated:
+                aggregated[str_date] = {"news": 0, "self_report": 0}
+            aggregated[str_date]["news"] += stat["news"]
+            aggregated[str_date]["self_report"] += stat["self_report"]
 
-    stats = [{"key": k, "value": v} for k, v in aggregated.items()]
+    # Convert aggregated to the format expected by frontend
+    stats = [{"key": k, "news": v["news"], "self_report": v["self_report"]} for k, v in aggregated.items()]
 
     return {"stats": stats, "total": total, "monthly_stats": monthly_stats}
 
