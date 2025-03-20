@@ -183,11 +183,12 @@ def get_stats():
     str_start = start_date.strftime("%Y-%m-%d")
     str_end = end_date.strftime("%Y-%m-%d")
 
+    # Always fetch both types for stats, regardless of type parameter
     fullmonth_stats = getStats(
         start_date.replace(day=1),
         end_date.replace(day=calendar.monthrange(end_date.year, end_date.month)[1]),
         "",  # Empty state to get all states, this is by design
-        type,
+        "both",  # Always fetch both types for stats
         self_report_status
     )  # [{key(date), incident_location, news, self_report}]
     monthly_stats = _aggregate_monthly_total(fullmonth_stats, state)  # Pass state here for filtering
