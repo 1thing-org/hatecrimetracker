@@ -84,12 +84,15 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
     incidents = []
 
     if type == "both":
-        # Fetch news incidents (where type is None or missing)
         all_incidents = list(query.fetch())
-        news_incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, "", "news"]]
-        # Fetch self_report incidents with self_report_status
-        self_report_incidents = [i for i in all_incidents if hasattr(i, "type") and i.type == "self_report"]
-        if self_report_status:
+        # Split into news and self_report incidents based on type
+        news_incidents = [i for i in all_incidents if i.type == "news"]
+        self_report_incidents = [i for i in all_incidents if i.type == "self_report"]
+        # For self-reports, only show approved ones unless explicitly requested
+        if not self_report_status:
+            self_report_incidents = [i for i in self_report_incidents if i.self_report_status == "approved"]
+        elif self_report_status != "approved":
+            # If requesting non-approved status, we need to check admin permissions in main.py
             self_report_incidents = [i for i in self_report_incidents if i.self_report_status == self_report_status]
         # Merge both queries
         incidents = sorted(news_incidents + self_report_incidents, key=lambda x: x.incident_time, reverse=True)
@@ -100,8 +103,7 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
             if self_report_status:
                 query = query.filter("self_report_status", "==", self_report_status)
         elif type == "news":
-            all_incidents = list(query.fetch())
-            incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, ""]]
+            query = query.filter("type", "==", "news")
 
         incidents = list(query.order("-incident_time").fetch())  # Fetch incidents
 
@@ -111,7 +113,8 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
     if page_size:
         incidents = incidents[:page_size]  # Limit results to page_size
 
-    return [incident.to_dict() for incident in incidents]
+    # Convert all incidents to dictionaries
+    return [incident.to_dict() for incident in incidents] if incidents else []
 
 
 def deleteIncident(incident_id):
@@ -180,8 +183,18 @@ def insertIncident(incident, to_flush_cache=True):
 @cached(cache=INCIDENT_STATS_CACHE)
 def getStats(start: datetime, end: datetime, state="", type="", self_report_status=""):
     stats = {}  # (date, state) : count
-    for incident in queryIncidents(start, end, state, type, self_report_status):
-        incident_date = incident["incident_time"].strftime("%Y-%m-%d")
+    incidents = queryIncidents(start, end, state, type, self_report_status)
+    
+    # Check if we got an error response
+    if isinstance(incidents, dict) and "error" in incidents:
+        return []
+        
+    for incident in incidents:
+        # Handle both string and datetime inputs
+        incident_time = incident["incident_time"]
+        if isinstance(incident_time, str):
+            incident_time = dateparser.parse(incident_time)
+        incident_date = incident_time.strftime("%Y-%m-%d")
         key = (incident_date, incident["incident_location"])
         if key not in stats:
             stats[key] = 0
