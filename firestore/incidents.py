@@ -113,7 +113,8 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
     if page_size:
         incidents = incidents[:page_size]  # Limit results to page_size
 
-    return [incident.to_dict() for incident in incidents]
+    # Convert all incidents to dictionaries
+    return [incident.to_dict() for incident in incidents] if incidents else []
 
 
 def deleteIncident(incident_id):
@@ -182,8 +183,18 @@ def insertIncident(incident, to_flush_cache=True):
 @cached(cache=INCIDENT_STATS_CACHE)
 def getStats(start: datetime, end: datetime, state="", type="", self_report_status=""):
     stats = {}  # (date, state) : count
-    for incident in queryIncidents(start, end, state, type, self_report_status):
-        incident_date = incident["incident_time"].strftime("%Y-%m-%d")
+    incidents = queryIncidents(start, end, state, type, self_report_status)
+    
+    # Check if we got an error response
+    if isinstance(incidents, dict) and "error" in incidents:
+        return []
+        
+    for incident in incidents:
+        # Handle both string and datetime inputs
+        incident_time = incident["incident_time"]
+        if isinstance(incident_time, str):
+            incident_time = dateparser.parse(incident_time)
+        incident_date = incident_time.strftime("%Y-%m-%d")
         key = (incident_date, incident["incident_location"])
         if key not in stats:
             stats[key] = 0
