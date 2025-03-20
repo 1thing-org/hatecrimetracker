@@ -168,9 +168,11 @@ def _aggregate_monthly_total(stats, state=None):
             continue
         # Convert YYYY-MM-DD to YYYY-MM
         str_month = daily["key"][:7]
-        # Sum both news and self-report counts to get total
-        total = daily["news"] + daily["self_report"]
-        monthly_total[str_month] = monthly_total.get(str_month, 0) + total
+        # Store separate counts for news and self-report for frontend needs
+        if str_month not in monthly_total:
+            monthly_total[str_month] = {"news": 0, "self_report": 0}
+        monthly_total[str_month]["news"] += daily["news"]
+        monthly_total[str_month]["self_report"] += daily["self_report"]
     return monthly_total
 
 
