@@ -112,7 +112,9 @@ def get_is_admin():
 def get_incidents():
     start, end, state, type, self_report_status, start_row, page_size = _getCommonArgs()
     skip_cache = request.args.get("skip_cache", "false")
-    if skip_cache.lower() == "true" or self_report_status != "approved":
+    
+    # Only check admin for self-report type when status is not approved
+    if skip_cache.lower() == "true" or (type == "self-report" and self_report_status != "approved"):
         _check_is_admin(request)
     # Get incidents (this might return an error response instead of a list)
     incidents = getIncidents(start, end, state, type, self_report_status, start_row, page_size, skip_cache.lower() == "true")
