@@ -60,15 +60,7 @@ VALID_SELF_REPORT_STATUSES = {"all", "approved", "rejected", "new"}
 VALID_TYPE_STATUSES = {"news", "self_report", "both"}
 
 @cached(cache=INCIDENT_CACHE)
-def queryIncidents(
-    start: datetime, 
-    end: datetime, 
-    state="", 
-    type="", 
-    self_report_status="", 
-    page_size=10,
-    last_doc=None
-):
+def queryIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", page_size=10, last_doc=None):
     # Validate inputs
     if self_report_status not in VALID_SELF_REPORT_STATUSES:
         return {"error": f"Invalid self_report_status: {self_report_status}. Allowed values are {VALID_SELF_REPORT_STATUSES}"}
