@@ -29,7 +29,7 @@ class BaseReport(mdl.Model):
 class UserReport(BaseReport):
     description = mdl.TextField(required=False)
     description_translate = mdl.MapField(required=False)
-    attachments = mdl.TextField(required=False)
+    attachments = mdl.ListField(required=True)
     status = mdl.TextField(required=False)
     approved_by = mdl.TextField(required=False)
     report_id = mdl.ListField(required=False)
