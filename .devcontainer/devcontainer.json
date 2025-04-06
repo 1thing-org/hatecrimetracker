@@ -1,0 +1,67 @@
+{
+  "name": "Hate Crime Tracker Backend",
+  "dockerFile": "Dockerfile",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker",
+        "googlecloudtools.cloudcode",
+        "cschleiden.vscode-github-actions",
+        "github.vscode-github-actions"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/workspace/env/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.formatting.provider": "black",
+        "editor.formatOnSave": true,
+        "editor.rulers": [80, 100]
+      }
+    }
+  },
+  "forwardPorts": [5000, 5001, 8080, 9099, 9199, 4000],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "remoteUser": "vscode",
+  "containerEnv": {
+    "GOOGLE_APPLICATION_CREDENTIALS": "/workspace/hate-crime-tracker-7d52738f7212.json",
+    "FIRESTORE_EMULATOR_HOST": "localhost:8080",
+    "FLASK_ENV": "development",
+    "FLASK_APP": "main.py",
+    "FIREBASE_AUTH_EMULATOR_HOST": "localhost:9099",
+    "FIREBASE_STORAGE_EMULATOR_HOST": "localhost:9199",
+    "FIREBASE_FUNCTIONS_EMULATOR_HOST": "localhost:5001"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {}
+  },
+  "portsAttributes": {
+    "5000": {
+      "protocol": "http",
+      "visibility": "public"
+    },
+    "5001": {
+      "protocol": "http",
+      "visibility": "public"
+    },
+    "8080": {
+      "protocol": "http",
+      "visibility": "public"
+    },
+    "9099": {
+      "protocol": "http",
+      "visibility": "public"
+    },
+    "9199": {
+      "protocol": "http",
+      "visibility": "public"
+    },
+    "4000": {
+      "protocol": "http",
+      "visibility": "public"
+    }
+  }
+}
