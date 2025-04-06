@@ -227,8 +227,8 @@ def insertUserReport(user_report, to_flush_cache=True):
             else user_report["incident_time"]
         ),
         incident_location=user_report["incident_location"],
-        abstraction=user_report["abstract"],
-        attachments=user_report["attachments"]
+        abstract=user_report["abstract"],
+        attachments= user_report["attachments"] if "self_report_status" in user_report else []
     )
     new_user_report.type = "self_report"
     new_user_report.self_report_status = user_report["self_report_status"] if "self_report_status" in user_report else "new"
