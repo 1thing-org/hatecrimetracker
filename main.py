@@ -180,7 +180,7 @@ def _aggregate_monthly_total(stats, state=None):
 def get_stats():
     # return
     # stats: [{"key": date, "news": count, "self_report": count}] this is daily count filtered by state if needed
-    # total: { "location": count } : total per state, not filtered by state
+    # total: { "location": {"news": count, "self_report": count} } : total per state, not filtered by state
     start_date, end_date, state, type, self_report_status, _, _ = _getCommonArgs()
     str_start = start_date.strftime("%Y-%m-%d")
     str_end = end_date.strftime("%Y-%m-%d")
@@ -202,11 +202,16 @@ def get_stats():
         if str_date < str_start or str_date > str_end:
             continue
 
-        # Sum news and self_report for total value
-        value = stat["news"] + stat["self_report"]
         location = stat["incident_location"]
-        # Always include in totals regardless of state filter
-        total[location] = total.get(location, 0) + value
+        
+        # Initialize the total object for this location if not exists
+        if location not in total:
+            total[location] = {"news": 0, "self_report": 0}
+            
+        # Count by type in total - always include in totals regardless of state filter
+        total[location]["news"] += stat["news"] 
+        total[location]["self_report"] += stat["self_report"]
+        
         # Only include in daily stats if matches state filter
         if not state or state == location:
             if str_date not in aggregated:
