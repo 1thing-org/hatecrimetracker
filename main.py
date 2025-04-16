@@ -181,20 +181,25 @@ def get_stats():
     # return
     # stats: [{"key": date, "news": count, "self_report": count}] this is daily count filtered by state if needed
     # total: { "location": count } : total per state, not filtered by state
+    # insight: { "location": {"news": count, "self_report": count} } : breakdown by type
     start_date, end_date, state, type, self_report_status, _, _ = _getCommonArgs()
     str_start = start_date.strftime("%Y-%m-%d")
     str_end = end_date.strftime("%Y-%m-%d")
 
-    # Always fetch both types for stats, regardless of type parameter
+    # Use the type parameter from request instead of hardcoding "both"
     fullmonth_stats = getStats(
         start_date.replace(day=1),
         end_date.replace(day=calendar.monthrange(end_date.year, end_date.month)[1]),
         "",  # Empty state to get all states, this is by design
-        "both",  # Always fetch both types for stats
-        self_report_status
+        type,  # Use the type filter from the request
+        self_report_status  # Pass through any self_report_status filter
     )  # [{key(date), incident_location, news, self_report}]
     monthly_stats = _aggregate_monthly_total(fullmonth_stats, state)  # Pass state here for filtering
+    
+    # Initialize both total and insight dictionaries
     total = {}
+    insight = {}  # New field for type breakdown
+    
     # national data is by state and by date, merge all state per date, and calculate state total
     aggregated = {}
     for stat in fullmonth_stats:
@@ -205,8 +210,18 @@ def get_stats():
         # Sum news and self_report for total value
         value = stat["news"] + stat["self_report"]
         location = stat["incident_location"]
+        
         # Always include in totals regardless of state filter
         total[location] = total.get(location, 0) + value
+        
+        # Initialize the insight object for this location if not exists
+        if location not in insight:
+            insight[location] = {"news": 0, "self_report": 0}
+            
+        # Count by type in insight - always include in totals regardless of state filter
+        insight[location]["news"] += stat["news"] 
+        insight[location]["self_report"] += stat["self_report"]
+        
         # Only include in daily stats if matches state filter
         if not state or state == location:
             if str_date not in aggregated:
@@ -217,7 +232,7 @@ def get_stats():
     # Convert aggregated to the format expected by frontend
     stats = [{"key": k, "news": v["news"], "self_report": v["self_report"]} for k, v in aggregated.items()]
 
-    return {"stats": stats, "total": total, "monthly_stats": monthly_stats}
+    return {"stats": stats, "total": total, "monthly_stats": monthly_stats, "insight": insight}
 
 
 @app.route("/publish_incidents")
