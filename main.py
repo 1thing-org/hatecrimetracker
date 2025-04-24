@@ -279,8 +279,10 @@ def register_token():
 @app.route("/user_reports", methods=["POST"])
 def create_user_report():
     req = request.get_json().get("user_report")
-    if req is None or not req.get("description") or not req.get("attachments") or not req.get("self_report_status"):
-        raise ValueError("Missing user report")
+    req["type"] = "user_report"  # Ensure the type is set to user_report
+    
+    if req is None or not req.get("abstract") or not req.get("incident_location")  or not req.get("incident_time"):
+        raise ValueError("Missing user report abstract, location or time ")
     id = insertUserReport(req)
     return {"user_report_id": id}
 
@@ -318,5 +320,5 @@ if __name__ == "__main__":
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
 
-    app.run(host="0.0.0.0", port=8081, debug=True)
+    app.run(host="0.0.0.0", port=8088, debug=True)
     # run on 0.0.0.0 for easy access for the development
