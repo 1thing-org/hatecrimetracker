@@ -87,27 +87,22 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
         query = query.filter("incident_location", "==", state)
     
     # Order by incident_time in descending order
-    query = query.order_by("incident_time", direction="DESCENDING")
+    query = query.order("-incident_time")
     
-    # Apply cursor pagination if last_doc is provided
-    if last_doc:
+    # Apply cursor pagination if last_doc is provided and is a valid document reference
+    if last_doc and hasattr(last_doc, 'id'):
         query = query.start_after(last_doc)
     
     # Apply page size limit
     query = query.limit(page_size)
     
-    # Execute different queries based on type
+    # Execute query and get results
+    incidents = []
+    last_incident = None
+    
     if type == "both":
-        # For "both" type, we need to handle this differently since it combines two different queries
-        snapshot = query.get()
-        
-        if not snapshot:
-            return {
-                "incidents": [],
-                "last_doc": None
-            }
-        
-        all_incidents = list(snapshot)
+        # Fetch all incidents matching our base criteria
+        all_incidents = list(query.fetch())
         
         # Separate incidents by type
         news_incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, "", "news"]]
@@ -122,35 +117,26 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
         
         # Limit to page size
         incidents = incidents[:page_size]
-    else:
-        # For specific types, we can use Firestore queries directly
-        if type == "self_report":
-            query = query.filter("type", "==", "self_report")
-            if self_report_status and self_report_status != "all":
-                query = query.filter("self_report_status", "==", self_report_status)
-        elif type == "news":
-            # For news type, we need to handle the case where type might be None or ""
-            snapshot = query.get()
-            incidents = [i for i in snapshot if not hasattr(i, "type") or i.type in [None, "", "news"]]
-            
-            # If we have a last document reference, ensure we're getting the right results
-            last_doc = snapshot.docs[-1] if snapshot and len(snapshot.docs) > 0 else None
-            
-            return {
-                "incidents": [incident.to_dict() for incident in incidents],
-                "last_doc": last_doc
-            }
         
-        # Execute query and get results
-        snapshot = query.get()
-        incidents = list(snapshot)
+    elif type == "self_report":
+        query = query.filter("type", "==", "self_report")
+        if self_report_status and self_report_status != "all":
+            query = query.filter("self_report_status", "==", self_report_status)
+        incidents = list(query.fetch())
+        
+    elif type == "news":
+        # Fetch all incidents matching our base criteria
+        all_incidents = list(query.fetch())
+        # Filter for news incidents (type is None, empty, or "news")
+        incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, "", "news"]]
     
-    # Get the last document for pagination
-    last_doc = snapshot.docs[-1] if snapshot and len(snapshot.docs) > 0 else None
+    # Get the last incident for pagination if we have results
+    if incidents:
+        last_incident = incidents[-1]
     
     return {
         "incidents": [incident.to_dict() for incident in incidents],
-        "last_doc": last_doc
+        "last_doc": last_incident
     }
 
 
@@ -160,11 +146,26 @@ def deleteIncident(incident_id):
         return True
     return False
 
-
-def getIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", start_row="", page_size="", skip_cache=False):
+def getIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", start_row=None, page_size=10, skip_cache=False):
     if skip_cache:
         INCIDENT_CACHE.clear()
-    return queryIncidents(start, end, state, type, self_report_status, start_row, page_size)
+    
+    # Convert start_row to a document reference if needed
+    last_doc = None
+    if start_row and isinstance(start_row, str) and start_row != "":
+        # If start_row is a document ID, get the document reference
+        try:
+            last_doc = Incident.collection.get(start_row)
+        except:
+            # If document lookup fails, continue without pagination
+            pass
+    
+    result = queryIncidents(start, end, state, type, self_report_status, page_size, last_doc)
+    
+    # Extract just the incidents list from the result
+    if isinstance(result, dict) and "incidents" in result:
+        return result["incidents"]
+    return result
 
 
 def insertIncident(incident, to_flush_cache=True):

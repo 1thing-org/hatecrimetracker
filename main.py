@@ -78,7 +78,7 @@ def _get_user(request) -> User:
 
 def _getCommonArgs():
     start = request.args.get(
-        "start", (date.fromisoformat("2022-11-01")).strftime("%Y-%m-%d")
+        "start", (date.fromisoformat("2019-11-01")).strftime("%Y-%m-%d")
     )
     end = request.args.get("end", datetime.now().strftime("%Y-%m-%d"))
     state = request.args.get("state", "")
@@ -93,6 +93,7 @@ def _getCommonArgs():
 def root():
     start, end, state, type, self_report_status, start_row, page_size = _getCommonArgs()
     incidents = getIncidents(start, end, state, type, self_report_status, start_row, page_size)
+    print(incidents)
     return render_template(
         "index.html", incidents=incidents, current_user=_get_user(request)
     )
@@ -129,10 +130,35 @@ def get_incidents():
             incident['created_on'] = None
 
     lang = _get_lang(request)
+
+    # In the response, include the ID of the last document for pagination
+    last_doc_id = None
+    if incidents and len(incidents) > 0:
+        last_doc_id = incidents[-1].get('id')  # Assuming 'id' is stored in the document
+    
+    translated_incidents = translate_incidents(incidents, lang)
+    
+    # Add safety check for string values
+    cleaned_incidents = []
+    string_items_found = False
+    
+    for item in translated_incidents:
+        if isinstance(item, str):
+            string_items_found = True
+            print(f"Found string item: {item}")
+            # You could skip it or convert it to a dict if appropriate
+        else:
+            cleaned_incidents.append(item)
+    
+    if string_items_found:
+        # Log this unexpected condition
+        print("Warning: String items found in translated incidents")
+    
     return {
         "incidents": clean_unused_translation(
             translate_incidents(incidents, lang), lang
         )
+        # , "last_doc_id": last_doc_id
     }
 
 
@@ -303,5 +329,5 @@ if __name__ == "__main__":
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
 
-    app.run(host="0.0.0.0", port=8081, debug=True)
+    app.run(host="0.0.0.0", port=8081, debug=False)
     # run on 0.0.0.0 for easy access for the development
