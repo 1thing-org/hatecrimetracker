@@ -101,22 +101,21 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
     last_incident = None
     
     if type == "both":
-        # Fetch all incidents matching our base criteria
-        all_incidents = list(query.fetch())
-        
-        # Separate incidents by type
-        news_incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, "", "news"]]
-        self_report_incidents = [i for i in all_incidents if hasattr(i, "type") and i.type == "self_report"]
-        
-        # Filter self_report incidents by status if needed
+        # If self_report_status is specified and not "all",
+        # we need to handle the news and self_report separately and add a filter to self_report
         if self_report_status and self_report_status != "all":
-            self_report_incidents = [i for i in self_report_incidents if i.self_report_status == self_report_status]
-        
-        # Combine and sort incidents
-        incidents = sorted(news_incidents + self_report_incidents, key=lambda x: x.incident_time, reverse=True)
-        
-        # Limit to page size
-        incidents = incidents[:page_size]
+            # For news incidents: type is null, empty or "news"
+            news_query = query.filter("type", "in", [None, "", "news"])
+            news_incidents = list(news_query.fetch())
+            
+            # For self-reports: type is "self_report" AND status matches
+            self_report_query = query.filter("type", "==", "self_report").filter("self_report_status", "==", self_report_status)
+            self_report_incidents = list(self_report_query.fetch())
+            
+            incidents = sorted(news_incidents + self_report_incidents, key=lambda x: x.incident_time, reverse=True)[:page_size]
+        else:
+            # If no status filter, we can get all incidents
+            incidents = list(query.fetch())[:page_size]
         
     elif type == "self_report":
         query = query.filter("type", "==", "self_report")
