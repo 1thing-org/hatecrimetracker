@@ -15,7 +15,7 @@ VALID_QUERY_SELF_REPORT_STATUSES = VALID_SELF_REPORT_STATUSES | {"all"}
 VALID_INCIDENT_TYPES = {"news", "self_report"}
 VALID_QUERY_INCIDENT_TYPES = VALID_INCIDENT_TYPES | {"both"}
 
-class BaseReport(mdl.Model):
+class Incident(mdl.Model):
     created_on = mdl.DateTime(auto=True)
     publish_status = mdl.MapField(
         required=True, default={"twitter": None, "linkedin": None, "notification": None}
@@ -28,26 +28,23 @@ class BaseReport(mdl.Model):
     abstract = mdl.TextField(required=True)
     abstract_translate = mdl.MapField(required=False)
     type = mdl.TextField()
-    class Meta:
-        abstract = True  # Mark this model as abstract
+    parent_doc = mdl.TextField(column_name="parent")
 
-class UserReport(BaseReport):
+
+    #news incident data
+    url = mdl.TextField(required=False)
+    incident_source = mdl.TextField(required=False)
+    created_by = mdl.TextField(required=False)
+    title = mdl.TextField(required=False)
+    title_translate = mdl.MapField(required=False)
+    
+    # self-report incident data
     attachments = mdl.ListField(required=False)
     self_report_status = mdl.TextField(required=True, default="new")
     approved_by = mdl.TextField(required=False)
     contact_name = mdl.TextField(required=False)
     email = mdl.TextField(required=False)
     phone = mdl.TextField(required=False)
-    class Meta:
-        collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')  # Default to 'incident'
-
-class Incident(BaseReport):
-    url = mdl.TextField(required=False)
-    incident_source = mdl.TextField(required=False)
-    created_by = mdl.TextField(required=False)
-    title = mdl.TextField(required=False)
-    title_translate = mdl.MapField(required=False)
-    parent_doc = mdl.TextField(column_name="parent")
     class Meta:
         collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')  # Default to 'incident'
 
@@ -220,7 +217,7 @@ def insertUserReport(user_report, to_flush_cache=True):
     if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
         return {"error": "Invalid self_report_status value"}, 400
     # return user_report id
-    new_user_report = UserReport(
+    new_user_report = Incident(
         incident_time=(
             dateparser.parse(user_report["incident_time"])
             if isinstance(user_report["incident_time"], str)
@@ -302,12 +299,6 @@ def updateUserReport(user_report):
         print(f"Error updating user report: {str(e)}")  # Log the error
         return {"error": "Failed to update user report", "details": str(e)}, 500
 
-
-def deleteUserReport(user_report_id):
-    if UserReport.collection.delete("user_report/" + user_report_id):
-        flush_cache()
-        return True
-    return False
 
 def getAllIncidents(params, user_role):
     """
