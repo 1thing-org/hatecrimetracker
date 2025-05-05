@@ -30,11 +30,6 @@ class BaseReport(mdl.Model):
     type = mdl.TextField()
     class Meta:
         abstract = True  # Mark this model as abstract
-        # If you want to use a different collection:
-        # Before running the app, set with: export FIRESTORE_COLLECTION=your_test_collection
-        # If running with run.sh, the collection name is set in the run.sh script
-        collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')  # Default to 'incident'
-
 
 class UserReport(BaseReport):
     attachments = mdl.ListField(required=False)
@@ -43,7 +38,8 @@ class UserReport(BaseReport):
     contact_name = mdl.TextField(required=False)
     email = mdl.TextField(required=False)
     phone = mdl.TextField(required=False)
-
+    class Meta:
+        collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')  # Default to 'incident'
 
 class Incident(BaseReport):
     url = mdl.TextField(required=False)
@@ -52,6 +48,8 @@ class Incident(BaseReport):
     title = mdl.TextField(required=False)
     title_translate = mdl.MapField(required=False)
     parent_doc = mdl.TextField(column_name="parent")
+    class Meta:
+        collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')  # Default to 'incident'
 
 
 
@@ -61,8 +59,10 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
     # TODO: implement the pagination based on Firestore (https://firebase.google.com/docs/firestore/query-data/query-cursors)
     try:
         # Validate type and self_report_status
+        self_report_status = "approved" if self_report_status == "" else self_report_status
         if self_report_status not in VALID_QUERY_SELF_REPORT_STATUSES:
             return {"error": f"Invalid self_report_status: {self_report_status}. Allowed values are {VALID_QUERY_SELF_REPORT_STATUSES}"}
+        type="both" if type == "" else type
         if type not in VALID_QUERY_INCIDENT_TYPES:
             return {"error": f"Invalid data type: {type}. Allowed values are {VALID_QUERY_INCIDENT_TYPES}"}
         start_row = int(start_row) if str(start_row).isdigit() and int(start_row) >= 0 else 0
@@ -349,15 +349,3 @@ def get_incident_by_id(report_id):
     except Exception as e:
         print(f"Error getting incident by ID: {str(e)}") 
         return {"error": "Failed to get incident", "details": str(e)}, 500
-
-# Log for checking the firesotre colection name in use
-def verify_collection():
-    collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')
-    print(f"Using collection: {collection_name}")
-    # Example query to verify
-    db = firestore.Client()
-    docs = db.collection(collection_name).limit(1).stream()
-    for doc in docs:
-        print(f"Document in collection: {doc.id}")
-
-verify_collection()
