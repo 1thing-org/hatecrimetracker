@@ -216,7 +216,8 @@ def getStats(start: datetime, end: datetime, state="", type="", self_report_stat
 def insertUserReport(user_report, to_flush_cache=True):
     if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
         return {"error": "Invalid self_report_status value"}, 400
-    # return user_report id
+    
+    # Create user report incident with required fields, returns the incident id
     new_user_report = Incident(
         incident_time=(
             dateparser.parse(user_report["incident_time"])
@@ -225,24 +226,24 @@ def insertUserReport(user_report, to_flush_cache=True):
         ),
         incident_location=user_report["incident_location"],
         abstract=user_report["abstract"],
-        attachments= user_report["attachments"] if "self_report_status" in user_report else []
+        attachments= user_report.get("attachments", [])  # Not required but it's an input from the frontend, it's an array of strings for GCS
     )
+    
+    # Set incident type
     new_user_report.type = "self_report"
-    new_user_report.self_report_status = user_report["self_report_status"] if "self_report_status" in user_report else "new"
-    new_user_report.id = user_report["id"] if "id" in user_report else None
-    new_user_report.abstract_translate = (
-        user_report["abstract_translate"]
-        if "abstract_translate" in user_report
-        else {}
-    )
-    new_user_report.status = (
-        str(user_report["status"]) if "status" in user_report else None
-    )
-    new_user_report.email = user_report["email"] if "email" in user_report else None
-    new_user_report.phone = user_report["phone"] if "phone" in user_report else None
-    new_user_report.publish_status = (
-        user_report["publish_status"] if "publish_status" in user_report else {}
-    )
+    
+    # Optional fields
+    new_user_report.id = user_report.get("id", None)
+    new_user_report.self_report_status = user_report.get("self_report_status", "new")
+    new_user_report.abstract_translate = user_report.get("abstract_translate", {})
+    new_user_report.approved_by = user_report.get("approved_by", None)
+    new_user_report.contact_name = user_report.get("contact_name", None)
+    new_user_report.email = user_report.get("email", None)
+    new_user_report.phone = user_report.get("phone", None)
+    new_user_report.publish_status = user_report.get("publish_status", {})
+    new_user_report.donation_link = user_report.get("donation_link", None)
+    new_user_report.police_tip_line = user_report.get("police_tip_line", None)
+    new_user_report.help_the_victim = user_report.get("help_the_victim", None)
 
     user_report_id = new_user_report.upsert().id
     if user_report_id:
@@ -280,17 +281,31 @@ def updateUserReport(user_report):
 
         # Update the document with the new details
         updates = {}
+        # User updates fields
         if user_report.get("contact_name"):
             updates['contact_name'] = user_report["contact_name"]
         if user_report.get("email"):
             updates['email'] = user_report["email"]
         if user_report.get("phone"):
             updates['phone'] = user_report["phone"]
-        if user_report.get("status"):
-            updates['status'] = user_report["status"]
+            
+        # Admin updates fields
+        if user_report.get("self_report_status"):
+            if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
+                return {"error": "Invalid self_report_status value"}, 400
+            updates['self_report_status'] = user_report["self_report_status"]
+        if user_report.get("approved_by"):
+            updates['approved_by'] = user_report["approved_by"]
+        if user_report.get("donation_link"):
+            updates['donation_link'] = user_report["donation_link"]
+        if user_report.get("police_tip_line"):
+            updates['police_tip_line'] = user_report["police_tip_line"]
+        if user_report.get("help_the_victim"):
+            updates['help_the_victim'] = user_report["help_the_victim"]
 
         if updates:
             user_report_ref.update(updates)
+            flush_cache()  # Clear cache after updating
 
         # Return the report_id in the response
         return {'report_id': user_report["report_id"]}, 200
