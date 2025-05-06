@@ -279,7 +279,7 @@ def register_token():
 @app.route("/user_reports", methods=["POST"])
 def create_user_report():
     req = request.get_json().get("user_report")
-    req["type"] = "user_report"  # Ensure the type is set to user_report
+    req["type"] = "self_report"  # Ensure the type is set to self_report
     
     if req is None or not req.get("abstract") or not req.get("incident_location")  or not req.get("incident_time"):
         raise ValueError("Missing user report abstract, location or time ")
@@ -292,7 +292,7 @@ def update_user_report():
     if not data or not data.get("report_id"):
         return {"error": "Missing report_id"}, 400
 
-    if data.get('status'):  # Only admins can update the status
+    if data.get('self_report_status'):  # Only admins can update the self_report_status
         _check_is_admin(request)
 
     # Call the updateUserReport function and get the response and status code
