@@ -15,7 +15,7 @@ VALID_QUERY_SELF_REPORT_STATUSES = VALID_SELF_REPORT_STATUSES | {"all"}
 VALID_INCIDENT_TYPES = {"news", "self_report"}
 VALID_QUERY_INCIDENT_TYPES = VALID_INCIDENT_TYPES | {"both"}
 
-class BaseReport(mdl.Model):
+class Incident(mdl.Model):
     created_on = mdl.DateTime(auto=True)
     publish_status = mdl.MapField(
         required=True, default={"twitter": None, "linkedin": None, "notification": None}
@@ -28,30 +28,25 @@ class BaseReport(mdl.Model):
     abstract = mdl.TextField(required=True)
     abstract_translate = mdl.MapField(required=False)
     type = mdl.TextField()
-    class Meta:
-        abstract = True  # Mark this model as abstract
-        # If you want to use a different collection:
-        # Before running the app, set with: export FIRESTORE_COLLECTION=your_test_collection
-        # If running with run.sh, the collection name is set in the run.sh script
-        collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')  # Default to 'incident'
+    parent_doc = mdl.TextField(column_name="parent")
 
 
-class UserReport(BaseReport):
+    #news incident data
+    url = mdl.TextField(required=False)
+    incident_source = mdl.TextField(required=False)
+    created_by = mdl.TextField(required=False)
+    title = mdl.TextField(required=False)
+    title_translate = mdl.MapField(required=False)
+    
+    # self-report incident data
     attachments = mdl.ListField(required=False)
     self_report_status = mdl.TextField(required=True, default="new")
     approved_by = mdl.TextField(required=False)
     contact_name = mdl.TextField(required=False)
     email = mdl.TextField(required=False)
     phone = mdl.TextField(required=False)
-
-
-class Incident(BaseReport):
-    url = mdl.TextField(required=False)
-    incident_source = mdl.TextField(required=False)
-    created_by = mdl.TextField(required=False)
-    title = mdl.TextField(required=False)
-    title_translate = mdl.MapField(required=False)
-    parent_doc = mdl.TextField(column_name="parent")
+    class Meta:
+        collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')  # Default to 'incident'
 
 
 
@@ -61,8 +56,10 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
     # TODO: implement the pagination based on Firestore (https://firebase.google.com/docs/firestore/query-data/query-cursors)
     try:
         # Validate type and self_report_status
+        self_report_status = "approved" if self_report_status == "" else self_report_status
         if self_report_status not in VALID_QUERY_SELF_REPORT_STATUSES:
             return {"error": f"Invalid self_report_status: {self_report_status}. Allowed values are {VALID_QUERY_SELF_REPORT_STATUSES}"}
+        type="both" if type == "" else type
         if type not in VALID_QUERY_INCIDENT_TYPES:
             return {"error": f"Invalid data type: {type}. Allowed values are {VALID_QUERY_INCIDENT_TYPES}"}
         start_row = int(start_row) if str(start_row).isdigit() and int(start_row) >= 0 else 0
@@ -220,7 +217,7 @@ def insertUserReport(user_report, to_flush_cache=True):
     if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
         return {"error": "Invalid self_report_status value"}, 400
     # return user_report id
-    new_user_report = UserReport(
+    new_user_report = Incident(
         incident_time=(
             dateparser.parse(user_report["incident_time"])
             if isinstance(user_report["incident_time"], str)
@@ -303,12 +300,6 @@ def updateUserReport(user_report):
         return {"error": "Failed to update user report", "details": str(e)}, 500
 
 
-def deleteUserReport(user_report_id):
-    if UserReport.collection.delete("user_report/" + user_report_id):
-        flush_cache()
-        return True
-    return False
-
 def getAllIncidents(params, user_role):
     """
     Fetches all incidents based on query parameters and user role.
@@ -349,15 +340,3 @@ def get_incident_by_id(report_id):
     except Exception as e:
         print(f"Error getting incident by ID: {str(e)}") 
         return {"error": "Failed to get incident", "details": str(e)}, 500
-
-# Log for checking the firesotre colection name in use
-def verify_collection():
-    collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')
-    print(f"Using collection: {collection_name}")
-    # Example query to verify
-    db = firestore.Client()
-    docs = db.collection(collection_name).limit(1).stream()
-    for doc in docs:
-        print(f"Document in collection: {doc.id}")
-
-verify_collection()
