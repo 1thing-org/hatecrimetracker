@@ -217,7 +217,7 @@ def insertUserReport(user_report, to_flush_cache=True):
     if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
         return {"error": "Invalid self_report_status value"}, 400
     
-    # Create user reportincident with required fields, returns the incident id
+    # Create user report incident with required fields, returns the incident id
     new_user_report = Incident(
         incident_time=(
             dateparser.parse(user_report["incident_time"])
