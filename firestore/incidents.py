@@ -281,17 +281,31 @@ def updateUserReport(user_report):
 
         # Update the document with the new details
         updates = {}
+        # User updates fields
         if user_report.get("contact_name"):
             updates['contact_name'] = user_report["contact_name"]
         if user_report.get("email"):
             updates['email'] = user_report["email"]
         if user_report.get("phone"):
             updates['phone'] = user_report["phone"]
-        if user_report.get("status"):
-            updates['status'] = user_report["status"]
+            
+        # Admin updates fields
+        if user_report.get("self_report_status"):
+            if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
+                return {"error": "Invalid self_report_status value"}, 400
+            updates['self_report_status'] = user_report["self_report_status"]
+        if user_report.get("approved_by"):
+            updates['approved_by'] = user_report["approved_by"]
+        if user_report.get("donation_link"):
+            updates['donation_link'] = user_report["donation_link"]
+        if user_report.get("police_tip_line"):
+            updates['police_tip_line'] = user_report["police_tip_line"]
+        if user_report.get("help_the_victim"):
+            updates['help_the_victim'] = user_report["help_the_victim"]
 
         if updates:
             user_report_ref.update(updates)
+            flush_cache()  # Clear cache after updating
 
         # Return the report_id in the response
         return {'report_id': user_report["report_id"]}, 200
