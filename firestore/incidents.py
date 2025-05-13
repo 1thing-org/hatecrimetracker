@@ -226,7 +226,7 @@ def insertUserReport(user_report, to_flush_cache=True):
         ),
         incident_location=user_report["incident_location"],
         abstract=user_report["abstract"],
-        attachments= user_report.get("attachments", [])  # Not required but it's an input from the frontend, it's an array of strings for GCS
+        attachments= user_report.get("attachments", None)  # Not required but it's an input from the frontend, it's an array of strings for GCS
     )
     
     # Set incident type
