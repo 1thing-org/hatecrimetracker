@@ -291,9 +291,7 @@ def updateUserReport(user_report):
             if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
                 return {"error": "Invalid self_report_status value"}, 400
             updates['self_report_status'] = user_report["self_report_status"]
-        if user_report.get("approved_by"):
-            updates['approved_by'] = user_report["approved_by"]
-        if user_report.get("donation_link"):
+        updates['approved_by'] = user_report["approved_by"]
 
         if updates:
             user_report_ref.update(updates)
