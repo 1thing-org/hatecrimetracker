@@ -241,9 +241,6 @@ def insertUserReport(user_report, to_flush_cache=True):
     new_user_report.email = user_report.get("email", None)
     new_user_report.phone = user_report.get("phone", None)
     new_user_report.publish_status = user_report.get("publish_status", {})
-    new_user_report.donation_link = user_report.get("donation_link", None)
-    new_user_report.police_tip_line = user_report.get("police_tip_line", None)
-    new_user_report.help_the_victim = user_report.get("help_the_victim", None)
 
     user_report_id = new_user_report.upsert().id
     if user_report_id:
@@ -297,11 +294,6 @@ def updateUserReport(user_report):
         if user_report.get("approved_by"):
             updates['approved_by'] = user_report["approved_by"]
         if user_report.get("donation_link"):
-            updates['donation_link'] = user_report["donation_link"]
-        if user_report.get("police_tip_line"):
-            updates['police_tip_line'] = user_report["police_tip_line"]
-        if user_report.get("help_the_victim"):
-            updates['help_the_victim'] = user_report["help_the_victim"]
 
         if updates:
             user_report_ref.update(updates)
