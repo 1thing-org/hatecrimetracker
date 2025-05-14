@@ -56,8 +56,8 @@ class Incident(BaseReport):
         collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')
 
 
-VALID_SELF_REPORT_STATUSES = {"all", "approved", "rejected", "new"}
-VALID_TYPE_STATUSES = {"news", "self_report", "both"}
+VALID_SELF_REPORT_STATUSES = {"", "all", "approved", "rejected", "new"}
+VALID_TYPE_STATUSES = {"", "news", "self_report", "both"}
 
 @cached(cache=INCIDENT_CACHE)
 def queryIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", page_size=10, last_doc=None):
@@ -100,10 +100,10 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
     incidents = []
     last_incident = None
     
-    if type == "both":
+    if type == "both" or type == "":
         # If self_report_status is specified and not "all",
         # we need to handle the news and self_report separately and add a filter to self_report
-        if self_report_status and self_report_status != "all":
+        if self_report_status and (self_report_status != "all" and self_report_status != ""):
             # For news incidents: type is null, empty or "news"
             news_query = query.filter("type", "in", [None, "", "news"])
             news_incidents = list(news_query.fetch())
