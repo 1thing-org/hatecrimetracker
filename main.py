@@ -85,7 +85,7 @@ def _getCommonArgs():
     type = request.args.get("type", "")
     self_report_status = request.args.get("self_report_status", "")
     start_row = request.args.get("start_row", "")
-    page_size = request.args.get("page_size", "")
+    page_size = request.args.get("page_size", "10")
     return dateparser.parse(start), dateparser.parse(end), state, type, self_report_status, start_row, page_size
 
 
@@ -114,9 +114,15 @@ def get_incidents():
     start, end, state, type, self_report_status, start_row, page_size = _getCommonArgs()
     skip_cache = request.args.get("skip_cache", "false")
     
+    try:
+        page_size = int(page_size) if str(page_size).isdigit() and int(page_size) > 0 else 10
+    except ValueError:
+        page_size = 10
+    
     # Only check admin for self-report type when status is not approved
     if skip_cache.lower() == "true" or (type == "self-report" and self_report_status != "approved"):
         _check_is_admin(request)
+    
     # Get incidents (this might return an error response instead of a list)
     incidents = getIncidents(start, end, state, type, self_report_status, start_row, page_size, skip_cache.lower() == "true")
     
@@ -132,9 +138,13 @@ def get_incidents():
     lang = _get_lang(request)
 
     # In the response, include the ID of the last document for pagination
-    last_doc_id = None
+    next_cursor = None
     if incidents and len(incidents) > 0:
-        last_doc_id = incidents[-1].get('id')  # Assuming 'id' is stored in the document
+        # Get the ID from the last incident for pagination
+        if isinstance(incidents[-1], dict):
+            next_cursor = incidents[-1].get('id')
+        elif hasattr(incidents[-1], 'id'):
+            next_cursor = incidents[-1].id
     
     translated_incidents = translate_incidents(incidents, lang)
     
@@ -146,7 +156,7 @@ def get_incidents():
         if isinstance(item, str):
             string_items_found = True
             print(f"Found string item: {item}")
-            # You could skip it or convert it to a dict if appropriate
+            # Skip string items
         else:
             cleaned_incidents.append(item)
     
@@ -154,11 +164,14 @@ def get_incidents():
         # Log this unexpected condition
         print("Warning: String items found in translated incidents")
     
+    clean_translated = clean_unused_translation(
+        translate_incidents(incidents, lang), lang
+    )
+    
     return {
-        "incidents": clean_unused_translation(
-            translate_incidents(incidents, lang), lang
-        )
-        # , "last_doc_id": last_doc_id
+        "incidents": clean_translated,
+        "next_cursor": next_cursor,
+        "has_more": len(incidents) >= page_size
     }
 
 

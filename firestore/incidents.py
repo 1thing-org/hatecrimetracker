@@ -15,6 +15,20 @@ VALID_QUERY_SELF_REPORT_STATUSES = VALID_SELF_REPORT_STATUSES | {"all"}
 VALID_INCIDENT_TYPES = {"news", "self_report"}
 VALID_QUERY_INCIDENT_TYPES = VALID_INCIDENT_TYPES | {"both"}
 
+def get_query_cache_key(*args, **kwargs):
+    """Custom cache key function that handles non-hashable types like dictionaries"""
+    # Extract last_doc from args (it should be the 7th argument in queryIncidents)
+    args_list = list(args)
+    
+    # If we have a cursor object (dict) in the args, replace it with a string marker
+    # This makes the cache key hashable
+    if len(args) >= 7 and isinstance(args[6], dict) and args[6].get('_is_cursor'):
+        # Replace the dict with the document ID string
+        args_list[6] = f"cursor:{args[6].get('id', 'unknown')}"
+    
+    # Return a hashable tuple
+    return tuple(args_list), frozenset(sorted(kwargs.items()))
+
 class Incident(mdl.Model):
     created_on = mdl.DateTime(auto=True)
     publish_status = mdl.MapField(
@@ -52,7 +66,7 @@ class Incident(mdl.Model):
 VALID_SELF_REPORT_STATUSES = {"", "all", "approved", "rejected", "new"}
 VALID_TYPE_STATUSES = {"", "news", "self_report", "both"}
 
-@cached(cache=INCIDENT_CACHE)
+@cached(cache=INCIDENT_CACHE, key=get_query_cache_key)
 def queryIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", page_size=10, last_doc=None):
     # Validate inputs
     if self_report_status not in VALID_SELF_REPORT_STATUSES:
@@ -70,64 +84,134 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
     # Set end time to end of day
     end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
     
-    # Base query with date range filter
-    query = Incident.collection.filter("incident_time", ">=", start).filter(
-        "incident_time", "<=", end_time
-    )
+    # Create a direct Firestore client for pagination
+    from google.cloud import firestore
+    db = firestore.Client()
+    collection_name = Incident.Meta.collection_name
     
-    # Add state filter if provided
-    if state:
-        query = query.filter("incident_location", "==", state)
+    # Check if we have a cursor-based pagination request
+    is_cursor_pagination = isinstance(last_doc, dict) and last_doc.get('_is_cursor')
     
-    # Order by incident_time in descending order
-    query = query.order("-incident_time")
+    # Handle cursor-based pagination
+    if is_cursor_pagination:
+        # Use native Firestore query for pagination
+        print(f"Using cursor-based pagination with document ID: {last_doc.get('id')}")
+        
+        # Create a direct reference to the document for cursor
+        cursor_doc_ref = db.collection(collection_name).document(last_doc.get('id'))
+        cursor_snapshot = cursor_doc_ref.get()
+        
+        if not cursor_snapshot.exists:
+            print(f"Warning: Cursor document {last_doc.get('id')} not found")
+            # Fall back to non-paginated query
+            is_cursor_pagination = False
     
-    # Apply cursor pagination if last_doc is provided and is a valid document reference
-    if last_doc and hasattr(last_doc, 'id'):
-        query = query.start_after(last_doc)
-    
-    # Apply page size limit
-    query = query.limit(page_size)
-    
-    # Execute query and get results
+    # Base query - we'll use FireO for the first query and native Firestore for pagination
     incidents = []
-    last_incident = None
     
-    if type == "both" or type == "":
-        # If self_report_status is specified and not "all",
-        # we need to handle the news and self_report separately and add a filter to self_report
-        if self_report_status and (self_report_status != "all" and self_report_status != ""):
-            # For news incidents: type is null, empty or "news"
-            news_query = query.filter("type", "in", [None, "", "news"])
-            news_incidents = list(news_query.fetch())
-            
-            # For self-reports: type is "self_report" AND status matches
-            self_report_query = query.filter("type", "==", "self_report").filter("self_report_status", "==", self_report_status)
-            self_report_incidents = list(self_report_query.fetch())
-            
-            incidents = sorted(news_incidents + self_report_incidents, key=lambda x: x.incident_time, reverse=True)[:page_size]
-        else:
-            # If no status filter, we can get all incidents
-            incidents = list(query.fetch())[:page_size]
+    if is_cursor_pagination:
+        # Use native Firestore query with cursor
+        query = db.collection(collection_name)
         
-    elif type == "self_report":
-        query = query.filter("type", "==", "self_report")
-        if self_report_status and self_report_status != "all":
-            query = query.filter("self_report_status", "==", self_report_status)
-        incidents = list(query.fetch())
+        # Apply filters
+        query = query.where("incident_time", ">=", start)
+        query = query.where("incident_time", "<=", end_time)
+        if state:
+            query = query.where("incident_location", "==", state)
         
-    elif type == "news":
-        # Fetch all incidents matching our base criteria
-        all_incidents = list(query.fetch())
-        # Filter for news incidents (type is None, empty, or "news")
-        incidents = [i for i in all_incidents if not hasattr(i, "type") or i.type in [None, "", "news"]]
+        # Order and apply cursor
+        query = query.order_by("incident_time", direction=firestore.Query.DESCENDING)
+        query = query.start_after(cursor_snapshot)
+        
+        # Apply pagination
+        query = query.limit(page_size * 2)  # Get extra to filter by type
+        
+        # Execute query
+        doc_snapshots = list(query.stream())
+        print(f"Retrieved {len(doc_snapshots)} documents after cursor")
+        
+        # Process results - the type filtering needs to be done in memory
+        results = []
+        for doc in doc_snapshots:
+            doc_dict = doc.to_dict()
+            doc_dict['id'] = doc.id
+            
+            # Apply type and status filters
+            include_doc = True
+            doc_type = doc_dict.get('type')
+            
+            if type == "self_report" and doc_type != "self_report":
+                include_doc = False
+            elif type == "news" and doc_type == "self_report":
+                include_doc = False
+            
+            # Apply self_report_status filter if applicable
+            if (include_doc and type != "news" and 
+                self_report_status and self_report_status != "all" and
+                doc_type == "self_report" and
+                doc_dict.get('self_report_status') != self_report_status):
+                include_doc = False
+            
+            if include_doc:
+                results.append(doc_dict)
+        
+        # Limit to page size
+        incidents = results[:page_size]
+    else:
+        # Use FireO for regular queries
+        base_query = Incident.collection.filter("incident_time", ">=", start).filter(
+            "incident_time", "<=", end_time
+        )
+        
+        # Add state filter if provided
+        if state:
+            base_query = base_query.filter("incident_location", "==", state)
+        
+        # Order by incident_time in descending order
+        base_query = base_query.order("-incident_time")
+        base_query = base_query.limit(page_size)
+        
+        # Apply type filters
+        if type == "both" or type == "":
+            # Handle both types with potential status filter
+            if self_report_status and (self_report_status != "all" and self_report_status != ""):
+                # Need separate queries for different types
+                news_query = base_query.filter("type", "in", [None, "", "news"])
+                news_incidents = list(news_query.fetch())
+                
+                self_report_query = base_query.filter("type", "==", "self_report").filter(
+                    "self_report_status", "==", self_report_status
+                )
+                self_report_incidents = list(self_report_query.fetch())
+                
+                # Combine and sort
+                combined = news_incidents + self_report_incidents
+                combined.sort(key=lambda x: x.incident_time, reverse=True)
+                incidents = [incident.to_dict() for incident in combined[:page_size]]
+            else:
+                # Simple query for all types
+                fetched = list(base_query.fetch())
+                incidents = [incident.to_dict() for incident in fetched]
+        
+        elif type == "self_report":
+            # Only self reports
+            query = base_query.filter("type", "==", "self_report")
+            if self_report_status and self_report_status != "all":
+                query = query.filter("self_report_status", "==", self_report_status)
+            fetched = list(query.fetch())
+            incidents = [incident.to_dict() for incident in fetched]
+            
+        elif type == "news":
+            # Only news incidents
+            query = base_query.filter("type", "in", [None, "", "news"])
+            fetched = list(query.fetch())
+            incidents = [incident.to_dict() for incident in fetched]
     
     # Get the last incident for pagination if we have results
-    if incidents:
-        last_incident = incidents[-1]
+    last_incident = incidents[-1] if incidents else None
     
     return {
-        "incidents": [incident.to_dict() for incident in incidents],
+        "incidents": incidents,
         "last_doc": last_incident
     }
 
@@ -142,22 +226,22 @@ def getIncidents(start: datetime, end: datetime, state="", type="", self_report_
     if skip_cache:
         INCIDENT_CACHE.clear()
     
-    # Convert start_row to a document reference if needed
+    # Convert start_row to a cursor object if provided
     last_doc = None
     if start_row and isinstance(start_row, str) and start_row != "":
-        # If start_row is a document ID, get the document reference
-        try:
-            last_doc = Incident.collection.get(start_row)
-        except:
-            # If document lookup fails, continue without pagination
-            pass
+        # Create a cursor object with just the ID
+        # We'll look up the actual document in queryIncidents
+        last_doc = {'id': start_row, '_is_cursor': True}
+        print(f"Using document ID {start_row} for pagination")
     
     result = queryIncidents(start, end, state, type, self_report_status, page_size, last_doc)
     
-    # Extract just the incidents list from the result
-    if isinstance(result, dict) and "incidents" in result:
-        return result["incidents"]
-    return result
+    # If we got an error response, return it directly
+    if isinstance(result, dict) and "error" in result:
+        return result
+        
+    # Otherwise, return the incidents list (for compatibility with existing code)
+    return result["incidents"]
 
 
 def insertIncident(incident, to_flush_cache=True):
