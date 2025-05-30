@@ -140,7 +140,7 @@ def insertIncident(incident, to_flush_cache=True):
         title=incident["title"],
     )
 
-    new_incident.id = incident["id"] if "id" in incident else None
+
     new_incident.abstract_translate = (
         incident["abstract_translate"] if "abstract_translate" in incident else {}
     )
@@ -233,7 +233,6 @@ def insertUserReport(user_report, to_flush_cache=True):
     new_user_report.type = "self_report"
     
     # Optional fields
-    new_user_report.id = user_report.get("id", None)
     new_user_report.self_report_status = user_report.get("self_report_status", "new")
     new_user_report.abstract_translate = user_report.get("abstract_translate", {})
     new_user_report.approved_by = user_report.get("approved_by", None)
