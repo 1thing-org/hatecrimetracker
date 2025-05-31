@@ -6,14 +6,14 @@ import os
 # Modify the values below according to your needs.
 
 # Source Project Configuration
-SOURCE_PROJECT_KEY_FILE = "./hate-crime-tracker-7d52738f7212.json" # 👈 Replace with actual path
+SOURCE_PROJECT_KEY_FILE = "./hate-crime-tracker-dev-c004beb9b795.json" # "./hate-crime-tracker-7d52738f7212.json" # 👈 Replace with actual path
 SOURCE_COLLECTION_NAME = "incident" # 👈 Replace with your source collection name
 
 # Target Configuration
 # Choose target type:
 # "CLOUD" for another Google Cloud Firebase project
 # "EMULATOR" for a local Firebase Emulator
-TARGET_TYPE = "CLOUD"  # 👈 Or "EMULATOR"
+TARGET_TYPE = "EMULATOR"  # 👈 Or "EMULATOR"
 
 TARGET_COLLECTION_NAME = "incident_copy" # 👈 Replace with your target collection name
 
@@ -26,13 +26,13 @@ TARGET_PROJECT_KEY_FILE = "./hate-crime-tracker-dev-c004beb9b795.json" # 👈 Re
 # Example: "localhost:8080"
 EMULATOR_HOST_OVERRIDE = "localhost:8080" # 👈 Set if FIRESTORE_EMULATOR_HOST env var isn't preferred/set
 # Project ID to use for the emulator (can be a dummy one)
-EMULATOR_PROJECT_ID = "my-emulator-project" # 👈 Replace if TARGET_TYPE is "EMULATOR"
+EMULATOR_PROJECT_ID = "hate-crime-tracker-dev" # 👈 Replace if TARGET_TYPE is "EMULATOR"
 # For emulator, the SDK needs a structurally valid service account JSON.
 # You can reuse the source key, or provide a path to any valid service account JSON.
 EMULATOR_DUMMY_KEY_FILE = TARGET_PROJECT_KEY_FILE # Often okay to reuse source or any valid key for structure
 
 # Batch size for writing documents
-BATCH_WRITE_SIZE = 5
+BATCH_WRITE_SIZE = 50
 
 
 # --- ⚙️ END OF CONFIGURATION ⚙️ ---
@@ -86,7 +86,7 @@ def copy_collection(source_db, target_db, source_collection_name, target_collect
         for doc in docs:
             doc_ref = target_coll_ref.document(doc.id) # Preserve document IDs
             batch.set(doc_ref, doc.to_dict())
-            print(f"Copied document ID: {doc.id} to target collection '{target_collection_name}'")
+            # print(f"Copied document ID: {doc.id} to target collection '{target_collection_name}'")
             # print(f"Document data: {doc.to_dict()}")
             count += 1
 
