@@ -111,7 +111,14 @@ def get_is_admin():
 
 @app.route("/incidents")
 def get_incidents():
-    start, end, state, type, self_report_status, start_row, page_size = _getCommonArgs()
+    start, end, state, type, self_report_status, cursor, page_size = _getCommonArgs()
+    
+    # Get direction from query params (default to forward)
+    direction = request.args.get("direction", "forward")
+    
+    # Handle cursor from different sources
+    cursor = request.args.get("cursor") or request.args.get("next_cursor") or request.args.get("prev_cursor")
+    
     skip_cache = request.args.get("skip_cache", "false")
     
     try:
@@ -123,55 +130,31 @@ def get_incidents():
     if skip_cache.lower() == "true" or (type == "self-report" and self_report_status != "approved"):
         _check_is_admin(request)
     
-    # Get incidents (this might return an error response instead of a list)
-    incidents = getIncidents(start, end, state, type, self_report_status, start_row, page_size, skip_cache.lower() == "true")
+    # Get incidents with pagination info
+    result = getIncidents(start, end, state, type, self_report_status, cursor, direction, page_size, skip_cache.lower() == "true")
     
-    # Check if incidents is an error response
-    if isinstance(incidents, dict) and "error" in incidents:
-        return jsonify(incidents), 400
-
+    # Check if it's an error response
+    if isinstance(result, dict) and "error" in result:
+        return jsonify(result), 400
+    
+    # Handle the response
+    incidents = result.get("incidents", [])
+    pagination = result.get("pagination", {})
+    
     # Handle potential Sentinel type in the created_on field
     for incident in incidents:
         if isinstance(incident, dict) and 'created_on' in incident and incident['created_on'] == SERVER_TIMESTAMP:
             incident['created_on'] = None
-
+    
     lang = _get_lang(request)
-
-    # In the response, include the ID of the last document for pagination
-    next_cursor = None
-    if incidents and len(incidents) > 0:
-        # Get the ID from the last incident for pagination
-        if isinstance(incidents[-1], dict):
-            next_cursor = incidents[-1].get('id')
-        elif hasattr(incidents[-1], 'id'):
-            next_cursor = incidents[-1].id
     
+    # Translate incidents
     translated_incidents = translate_incidents(incidents, lang)
-    
-    # Add safety check for string values
-    cleaned_incidents = []
-    string_items_found = False
-    
-    for item in translated_incidents:
-        if isinstance(item, str):
-            string_items_found = True
-            print(f"Found string item: {item}")
-            # Skip string items
-        else:
-            cleaned_incidents.append(item)
-    
-    if string_items_found:
-        # Log this unexpected condition
-        print("Warning: String items found in translated incidents")
-    
-    clean_translated = clean_unused_translation(
-        translate_incidents(incidents, lang), lang
-    )
+    clean_translated = clean_unused_translation(translated_incidents, lang)
     
     return {
         "incidents": clean_translated,
-        "next_cursor": next_cursor,
-        "has_more": len(incidents) >= page_size
+        "pagination": pagination,
     }
 
 
