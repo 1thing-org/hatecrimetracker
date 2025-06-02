@@ -78,18 +78,16 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
 
     if type == "both":
         all_incidents = list(query.fetch())
-        # Split into news and self_report incidents based on type
-        news_incidents = [i for i in all_incidents if i.type == "news"]
-        self_report_incidents = [i for i in all_incidents if i.type == "self_report"]
-        # For self-reports, only show approved ones unless explicitly requested
-        if not self_report_status:
-            self_report_incidents = [i for i in self_report_incidents if i.self_report_status == "approved"]
-        elif self_report_status != "approved":
-            # If requesting non-approved status, we need to check admin permissions in main.py
-            self_report_incidents = [i for i in self_report_incidents if i.self_report_status == self_report_status]
-        # Merge both queries
-        incidents = sorted(news_incidents + self_report_incidents, key=lambda x: x.incident_time, reverse=True)
-
+        self_report_status = "approved" if self_report_status == "" else self_report_status
+        for incident in all_incidents:
+            # for legacy incidents, which does not have type field, set type to "news"
+            incident.type = "news" if incident.type is None else incident.type
+        # Filter self-report incidents based on self_report_status
+        incidents = [
+                        incident for incident in all_incidents 
+                            if incident.type != "self_report" or incident.self_report_status == self_report_status
+        ]
+    
     else:
         if type == "self_report":
             query = query.filter("type", "==", "self_report")
