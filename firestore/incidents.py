@@ -232,7 +232,7 @@ def insertUserReport(user_report, to_flush_cache=True):
     # Optional fields
     new_user_report.self_report_status = "new"
     new_user_report.abstract_translate = user_report.get("abstract_translate", {})
-    new_user_report.approved_by = user_report.get("approved_by", None)
+    new_user_report.approved_by = None
     new_user_report.contact_name = user_report.get("contact_name", None)
     new_user_report.email = user_report.get("email", None)
     new_user_report.phone = user_report.get("phone", None)
