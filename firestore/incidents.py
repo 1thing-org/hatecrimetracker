@@ -236,7 +236,7 @@ def insertUserReport(user_report, to_flush_cache=True):
     new_user_report.contact_name = user_report.get("contact_name", None)
     new_user_report.email = user_report.get("email", None)
     new_user_report.phone = user_report.get("phone", None)
-    new_user_report.publish_status = user_report.get("publish_status", {})
+    new_user_report.publish_status = {}
 
     user_report_id = new_user_report.upsert().id
     if user_report_id:
