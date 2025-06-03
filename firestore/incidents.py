@@ -214,9 +214,6 @@ def getStats(start: datetime, end: datetime, state="", type="", self_report_stat
 
 
 def insertUserReport(user_report, to_flush_cache=True):
-    if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
-        return {"error": "Invalid self_report_status value"}, 400
-    
     # Create user report incident with required fields, returns the incident id
     new_user_report = Incident(
         incident_time=(
@@ -233,7 +230,7 @@ def insertUserReport(user_report, to_flush_cache=True):
     new_user_report.type = "self_report"
     
     # Optional fields
-    new_user_report.self_report_status = user_report.get("self_report_status", "new")
+    new_user_report.self_report_status = "new"
     new_user_report.abstract_translate = user_report.get("abstract_translate", {})
     new_user_report.approved_by = user_report.get("approved_by", None)
     new_user_report.contact_name = user_report.get("contact_name", None)
