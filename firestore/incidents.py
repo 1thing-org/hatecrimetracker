@@ -238,15 +238,14 @@ def insertUserReport(user_report, to_flush_cache=True):
     new_user_report.phone = user_report.get("phone", None)
     new_user_report.publish_status = {}
 
-    user_report_id = new_user_report.upsert().id
+    user_report_id = new_user_report.insert().id
     if user_report_id:
         if to_flush_cache:
             flush_cache()
         return user_report_id
-    else:
-        raise SystemError(
-            "Failed to upsert the user_report with id:" + new_user_report.id
-        )
+    raise SystemError(
+        "Failed to insert the user_report with id:" + new_user_report.id
+    )
 
 def updateUserReport(user_report):
     # Initialize Firestore client
