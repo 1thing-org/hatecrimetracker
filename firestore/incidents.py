@@ -15,6 +15,63 @@ VALID_QUERY_SELF_REPORT_STATUSES = VALID_SELF_REPORT_STATUSES | {"", "all"}
 VALID_INCIDENT_TYPES = {"news", "self_report"}
 VALID_QUERY_INCIDENT_TYPES = VALID_INCIDENT_TYPES | {"", "both"}
 
+def _should_include_incident(doc_dict, incident_type, self_report_status):
+    """Determine if an incident should be included based on filters"""
+    doc_type = doc_dict.get('type', 'news')  # Default to 'news' for legacy
+    
+    if incident_type == "both":
+        if doc_type == "self_report":
+            filter_status = "approved" if self_report_status == "" else self_report_status
+            return filter_status == "all" or doc_dict.get('self_report_status') == filter_status
+        return True  # Always include news when type="both"
+    
+    if incident_type == "self_report" and doc_type != "self_report":
+        return False
+    if incident_type == "news" and doc_type == "self_report":
+        return False
+    
+    if (incident_type != "news" and self_report_status and self_report_status != "all" and
+        doc_type == "self_report" and doc_dict.get('self_report_status') != self_report_status):
+        return False
+    
+    return True
+
+def _get_pagination_info(db, collection_name, first_result, last_result, start, end, state, incident_type, self_report_status):
+    """Determine pagination info more efficiently"""
+    has_next = has_prev = False
+    
+    # Check for next page
+    if last_result:
+        next_query = db.collection(collection_name)
+        next_query = next_query.where("incident_time", ">=", start)
+        next_query = next_query.where("incident_time", "<=", end)
+        if state: next_query = next_query.where("incident_location", "==", state)
+        next_query = next_query.order_by("incident_time", direction=firestore.Query.DESCENDING)
+        next_query = next_query.start_after(db.collection(collection_name).document(last_result['id']).get())
+        next_query = next_query.limit(1)
+        
+        for doc in next_query.stream():
+            if _should_include_incident(doc.to_dict(), incident_type, self_report_status):
+                has_next = True
+                break
+    
+    # Check for previous page
+    if first_result:
+        prev_query = db.collection(collection_name)
+        prev_query = prev_query.where("incident_time", ">=", start)
+        prev_query = prev_query.where("incident_time", "<=", end)
+        if state: prev_query = prev_query.where("incident_location", "==", state)
+        prev_query = prev_query.order_by("incident_time", direction=firestore.Query.DESCENDING)
+        prev_query = prev_query.end_before(db.collection(collection_name).document(first_result['id']).get())
+        prev_query = prev_query.limit(1)
+        
+        for doc in prev_query.stream():
+            if _should_include_incident(doc.to_dict(), incident_type, self_report_status):
+                has_prev = True
+                break
+    
+    return has_next, has_prev
+
 def get_query_cache_key(*args, **kwargs):
     """Custom cache key function that handles non-hashable types like dictionaries"""
     # Convert args to a list for modification
@@ -78,7 +135,6 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
     if type not in VALID_QUERY_INCIDENT_TYPES:
         return {"error": f"Invalid type: {type}. Allowed values are {VALID_QUERY_INCIDENT_TYPES}"}
     
-    # Ensure page_size is valid
     try:
         page_size = int(page_size) if str(page_size).isdigit() and int(page_size) > 0 else 10
     except ValueError:
@@ -87,120 +143,54 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
     # Set end time to end of day
     end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
     
-    # Create Firestore client
-    from google.cloud import firestore
     db = firestore.Client()
     collection_name = Incident.Meta.collection_name
     
-    # Build base query
+    # Base query
     query = db.collection(collection_name)
     query = query.where("incident_time", ">=", start)
     query = query.where("incident_time", "<=", end_time)
+    if state: query = query.where("incident_location", "==", state)
     
-    if state:
-        query = query.where("incident_location", "==", state)
-    
-    # For backward pagination, reverse the sort order and use start_after
-    if direction == "backward" and cursor and cursor.get('id'):
-        cursor_doc_ref = db.collection(collection_name).document(cursor['id'])
-        cursor_snapshot = cursor_doc_ref.get()
-        
-        if cursor_snapshot.exists:
-            query = query.order_by("incident_time", direction=firestore.Query.ASCENDING)
-            query = query.start_after(cursor_snapshot)
-            # Gets one extra document to check if there are more pages
-            query = query.limit(page_size + 1)
-            
-            # Execute and reverse results
-            doc_snapshots = list(query.stream())
-            doc_snapshots.reverse()  # Reverse to maintain descending order
-        else:
-            # Fall back to regular query
-            query = query.order_by("incident_time", direction=firestore.Query.DESCENDING)
-            query = query.limit(page_size + 1)
-            doc_snapshots = list(query.stream())
+    # Handle direction
+    if direction == "backward":
+        query = query.order_by("incident_time")
     else:
-        # Regular forward pagination or first page
         query = query.order_by("incident_time", direction=firestore.Query.DESCENDING)
-        
-        if cursor and cursor.get('id'):
-            cursor_doc_ref = db.collection(collection_name).document(cursor['id'])
-            cursor_snapshot = cursor_doc_ref.get()
-            if cursor_snapshot.exists:
-                query = query.start_after(cursor_snapshot)
-        
-        query = query.limit(page_size + 1)
-        doc_snapshots = list(query.stream())
     
-    # Process results and apply type filtering
+    # Handle cursor
+    if cursor and cursor.get('id'):
+        cursor_doc = db.collection(collection_name).document(cursor['id']).get()
+        if cursor_doc.exists:
+            query = query.start_after(cursor_doc)
+    
+    # Fetch one extra to check for more results
+    query = query.limit(page_size + 1)
+    
+    # Process results
     results = []
-    for doc in doc_snapshots:
+    for doc in query.stream():
         doc_dict = doc.to_dict()
         doc_dict['id'] = doc.id
-        
-        # Apply type and status filters
-        include_doc = True
-        doc_type = doc_dict.get('type')
-        
-        # Handle legacy incidents without type
-        if doc_type is None:
-            doc_dict['type'] = 'news'
-            doc_type = 'news'
-        
-        if type == "both":
-            # Set default status for self-reports
-            self_report_status = "approved" if self_report_status == "" else self_report_status
-            
-            # Filter self-report incidents based on self_report_status
-            if doc_type == "self_report" and doc_dict.get('self_report_status') != self_report_status:
-                include_doc = False
-        else:
-            # Normal type filtering
-            if type == "self_report" and doc_type != "self_report":
-                include_doc = False
-            elif type == "news" and doc_type == "self_report":
-                include_doc = False
-            
-            # Apply self_report_status filter
-            if (include_doc and type != "news" and 
-                self_report_status and self_report_status != "all" and
-                doc_type == "self_report" and
-                doc_dict.get('self_report_status') != self_report_status):
-                include_doc = False
-        
-        if include_doc:
+        if _should_include_incident(doc_dict, type, self_report_status):
             results.append(doc_dict)
     
-    # Determine pagination info
-    has_next = False
-    has_prev = False
+    # Handle backward direction
+    if direction == "backward":
+        results.reverse()
     
-    if direction == "backward" and not cursor:
-        # Special case: we're on the first page going backward
-        has_prev = False
-        has_next = len(results) > page_size
-    elif len(results) > page_size:
-        # We have more items than requested
-        if direction == "backward":
-            has_prev = True
-            has_next = True  # We came from a next page
-            results = results[1:]  # Remove the extra item
-        else:
-            has_next = True
-            has_prev = cursor is not None  # If we have a cursor, we came from somewhere
-            results = results[:page_size]  # Remove the extra item
-    else:
-        # We have exactly page_size or fewer items
-        if direction == "backward":
-            has_prev = False  # No more previous pages
-            has_next = cursor is not None
-        else:
-            has_next = False  # No more next pages
-            has_prev = cursor is not None
+    # Determine pagination
+    has_more = len(results) > page_size
+    results = results[:page_size]
     
-    # Get cursors for next/prev navigation
     first_doc = results[0] if results else None
     last_doc = results[-1] if results else None
+    
+    # Get pagination info
+    has_next, has_prev = _get_pagination_info(
+        db, collection_name, first_doc, last_doc, 
+        start, end_time, state, type, self_report_status
+    )
     
     return {
         "incidents": results,
@@ -291,41 +281,39 @@ def insertIncident(incident, to_flush_cache=True):
 @cached(cache=INCIDENT_STATS_CACHE)
 def getStats(start: datetime, end: datetime, state="", type="", self_report_status=""):
     stats = {}  # (date, state) : {"news": count, "self_report": count}
-    incidents = queryIncidents(start, end, state, type, self_report_status)
     
-    # Check if we got an error response
-    if isinstance(incidents, dict) and "error" in incidents:
-        return []
-        
-    for incident in incidents:
-        # Handle both string and datetime inputs
-        incident_time = incident["incident_time"]
-        if isinstance(incident_time, str):
-            incident_time = dateparser.parse(incident_time)
-        incident_date = incident_time.strftime("%Y-%m-%d")
-        key = (incident_date, incident["incident_location"])
-        
-        if key not in stats:
-            stats[key] = {"news": 0, "self_report": 0}
-        
-        # Count the incidents by type for frontend display
-        incident_type = incident.get("type", "news")  # Default to news if type not specified
-        if incident_type == "self_report":
-            stats[key]["self_report"] += 1
-        else:
-            stats[key]["news"] += 1
+    db = firestore.Client()
+    collection_name = Incident.Meta.collection_name
+    end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
+    
+    query = db.collection(collection_name)
+    query = query.where("incident_time", ">=", start)
+    query = query.where("incident_time", "<=", end_time)
+    if state: query = query.where("incident_location", "==", state)
+    
+    for doc in query.stream():
+        doc_dict = doc.to_dict()
+        if _should_include_incident(doc_dict, type, self_report_status):
+            incident_time = doc_dict["incident_time"]
+            if isinstance(incident_time, str):
+                incident_time = dateparser.parse(incident_time)
+            incident_date = incident_time.strftime("%Y-%m-%d")
+            key = (incident_date, doc_dict["incident_location"])
+            
+            if key not in stats:
+                stats[key] = {"news": 0, "self_report": 0}
+            
+            if doc_dict.get('type') == "self_report":
+                stats[key]["self_report"] += 1
+            else:
+                stats[key]["news"] += 1
 
-    ret = []
-    for key in stats:
-        (date, state) = key
-        ret.append({
-            "key": date,
-            "incident_location": state,
-            "news": stats[key]["news"],
-            "self_report": stats[key]["self_report"]
-        })
-
-    return ret
+    return [{
+        "key": date,
+        "incident_location": state,
+        "news": counts["news"],
+        "self_report": counts["self_report"]
+    } for (date, state), counts in stats.items()]
 
 
 def insertUserReport(user_report, to_flush_cache=True):
@@ -420,29 +408,58 @@ def getAllIncidents(params, user_role):
     Fetches all incidents based on query parameters and user role.
     
     Args:
-    - params (dict): Query parameters
-    - user_role (str): The role of the user ('admin' or 'viewer')
+        params (dict): Query parameters including:
+            - start: Start datetime (default: 30 days ago)
+            - end: End datetime (default: now)
+            - state: State filter (optional)
+            - type: Incident type filter (optional)
+            - self_report_status: Status filter (optional)
+            - page_size: Results per page (default: 10, max: 100)
+            - cursor: Pagination cursor (optional)
+            - direction: Pagination direction (forward/backward)
+        user_role (str): User role ('admin' or 'viewer')
     
     Returns:
-    - (dict, int): Response and HTTP status code
+        dict: Response with incidents and pagination info
+        int: HTTP status code
     """
-    # Validate query parameters
     validation_error = get_all_validation(params, user_role)
     if validation_error:
         return validation_error
     
-    # Your existing logic to fetch incidents...
-    incidents = []  # Replace with actual fetching logic
-
+    # Set defaults
+    start = params.get('start', datetime.now() - timedelta(days=30))
+    end = params.get('end', datetime.now())
+    state = params.get('state', '')
+    incident_type = params.get('type', 'both')
+    self_report_status = params.get('self_report_status', 'approved' if user_role != 'admin' else 'all')
+    page_size = min(int(params.get('page_size', 10)), 100)
+    cursor = params.get('cursor')
+    direction = params.get('direction', 'forward')
+    
+    result = queryIncidents(
+        start=start,
+        end=end,
+        state=state,
+        type=incident_type,
+        self_report_status=self_report_status,
+        page_size=page_size,
+        cursor=cursor,
+        direction=direction
+    )
+    
+    if isinstance(result, dict) and "error" in result:
+        return result, 400
+    
     return {
         "page_info": {
             "start_row": 0,
-            "page_size": 10,
-            "total_records": len(incidents),
-            "next_page_token": None
+            "page_size": len(result["incidents"]),
+            "total_records": -1,  # Consider adding count query if needed
+            "next_page_token": result["pagination"]["next_cursor"]["id"] if result["pagination"]["next_cursor"] else None
         },
-        "incidents": incidents
-    }
+        "incidents": result["incidents"]
+    }, 200
     
 def get_incident_by_id(report_id):
     try:
