@@ -142,17 +142,31 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
         include_doc = True
         doc_type = doc_dict.get('type')
         
-        if type == "self_report" and doc_type != "self_report":
-            include_doc = False
-        elif type == "news" and doc_type == "self_report":
-            include_doc = False
+        # Handle legacy incidents without type
+        if doc_type is None:
+            doc_dict['type'] = 'news'
+            doc_type = 'news'
         
-        # Apply self_report_status filter
-        if (include_doc and type != "news" and 
-            self_report_status and self_report_status != "all" and
-            doc_type == "self_report" and
-            doc_dict.get('self_report_status') != self_report_status):
-            include_doc = False
+        if type == "both":
+            # Set default status for self-reports
+            self_report_status = "approved" if self_report_status == "" else self_report_status
+            
+            # Filter self-report incidents based on self_report_status
+            if doc_type == "self_report" and doc_dict.get('self_report_status') != self_report_status:
+                include_doc = False
+        else:
+            # Normal type filtering
+            if type == "self_report" and doc_type != "self_report":
+                include_doc = False
+            elif type == "news" and doc_type == "self_report":
+                include_doc = False
+            
+            # Apply self_report_status filter
+            if (include_doc and type != "news" and 
+                self_report_status and self_report_status != "all" and
+                doc_type == "self_report" and
+                doc_dict.get('self_report_status') != self_report_status):
+                include_doc = False
         
         if include_doc:
             results.append(doc_dict)
