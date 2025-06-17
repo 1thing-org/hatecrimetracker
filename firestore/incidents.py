@@ -15,65 +15,7 @@ VALID_QUERY_SELF_REPORT_STATUSES = VALID_SELF_REPORT_STATUSES | {"", "all"}
 VALID_INCIDENT_TYPES = {"news", "self_report"}
 VALID_QUERY_INCIDENT_TYPES = VALID_INCIDENT_TYPES | {"", "both"}
 
-def _should_include_incident(doc_dict, incident_type, self_report_status):
-    """Determine if an incident should be included based on filters"""
-    doc_type = doc_dict.get('type', 'news')  # Default to 'news' for legacy
-    
-    if incident_type == "both":
-        if doc_type == "self_report":
-            filter_status = "approved" if self_report_status == "" else self_report_status
-            return filter_status == "all" or doc_dict.get('self_report_status') == filter_status
-        return True  # Always include news when type="both"
-    
-    if incident_type == "self_report" and doc_type != "self_report":
-        return False
-    if incident_type == "news" and doc_type == "self_report":
-        return False
-    
-    if (incident_type != "news" and self_report_status and self_report_status != "all" and
-        doc_type == "self_report" and doc_dict.get('self_report_status') != self_report_status):
-        return False
-    
-    return True
-
-def _get_pagination_info(db, collection_name, first_result, last_result, start, end, state, incident_type, self_report_status):
-    """Determine pagination info more efficiently"""
-    has_next = has_prev = False
-    
-    # Check for next page
-    if last_result:
-        next_query = db.collection(collection_name)
-        next_query = next_query.where("incident_time", ">=", start)
-        next_query = next_query.where("incident_time", "<=", end)
-        if state: next_query = next_query.where("incident_location", "==", state)
-        next_query = next_query.order_by("incident_time", direction=firestore.Query.DESCENDING)
-        next_query = next_query.start_after(db.collection(collection_name).document(last_result['id']).get())
-        next_query = next_query.limit(1)
-        
-        for doc in next_query.stream():
-            if _should_include_incident(doc.to_dict(), incident_type, self_report_status):
-                has_next = True
-                break
-    
-    # Check for previous page
-    if first_result:
-        prev_query = db.collection(collection_name)
-        prev_query = prev_query.where("incident_time", ">=", start)
-        prev_query = prev_query.where("incident_time", "<=", end)
-        if state: prev_query = prev_query.where("incident_location", "==", state)
-        prev_query = prev_query.order_by("incident_time", direction=firestore.Query.DESCENDING)
-        prev_query = prev_query.end_before(db.collection(collection_name).document(first_result['id']).get())
-        prev_query = prev_query.limit(1)
-        
-        for doc in prev_query.stream():
-            if _should_include_incident(doc.to_dict(), incident_type, self_report_status):
-                has_prev = True
-                break
-    
-    return has_next, has_prev
-
 def get_query_cache_key(*args, **kwargs):
-    """Custom cache key function that handles non-hashable types like dictionaries"""
     # Convert args to a list for modification
     args_list = list(args)
     
@@ -126,6 +68,106 @@ class Incident(mdl.Model):
     class Meta:
         collection_name = os.getenv('FIRESTORE_COLLECTION', 'incident')  # Default to 'incident'
 
+def _should_include_incident(doc_dict, incident_type, self_report_status):
+    """Determines whether a document should be included based on type and status filters.
+    
+    Applies filtering logic for different incident types, with special handling for:
+    - Mixed type filtering ("both")
+    - Self-report status verification
+    - Legacy document support (default type)
+
+    Args:
+        doc_dict: The Firestore document dictionary containing incident data
+        incident_type: The requested incident type filter. Possible values:
+                      "news", "self_report", "both", or "" (empty string)
+        self_report_status: Status filter for self-reported incidents. Possible values:
+                           "approved", "pending", "rejected", "all", or None/"" 
+
+    Returns:
+        bool: True if the document matches all filter criteria, False otherwise
+
+    Behavior Details:
+        - When incident_type is "both" or empty:
+            * Always includes news documents
+            * Applies status filtering to self-reports
+        - For specific types ("news"/"self_report"):
+            * Strict type matching required
+            * Additional status filtering for self-reports
+        - Empty self_report_status defaults to "approved"
+        - Missing document type defaults to "news" (legacy support)
+    """
+    doc_type = doc_dict.get('type', 'news')  # Default to 'news' for legacy
+    selfreport_filter_status = "approved" if self_report_status == "" else self_report_status
+    
+    if incident_type == "both" or incident_type == "":
+        if doc_type == "self_report":
+            return selfreport_filter_status == "all" or doc_dict.get('self_report_status') == selfreport_filter_status
+        return True  # Always include news when type="both"
+    
+    if incident_type != doc_type:
+        return False
+
+    if incident_type == 'self_report':
+        return selfreport_filter_status == "all" or doc_dict.get('self_report_status') == selfreport_filter_status
+
+    return True
+
+def _get_pagination_info(db, collection_name, first_result, last_result, start, end, state, incident_type, self_report_status):
+    """Determines pagination information by checking for adjacent documents.
+    
+    Checks whether there are more results before and after the current page by executing minimal queries 
+    against Firestore, applying all relevant filters. This is more efficient than fetching all results.
+
+    Args:
+        db: Firestore client instance for database operations
+        collection_name: Name of the collection to query in Firestore
+        first_result: The first document in the current pagination window (for prev check), or None if at start
+        last_result: The last document in the current pagination window (for next check), or None if at end
+        start: Unix timestamp (inclusive) for start of time filter range
+        end: Unix timestamp (inclusive) for end of time filter range
+        state: Optional U.S. state abbreviation or CANADA to filter by incident_location, or None for no state filter
+        incident_type: Incident type filter ('news', 'self_report', etc.)
+        self_report_status: Optional status filter for self-reported incidents, or None for no status filter
+
+    Returns:
+        A tuple of two booleans:
+        - has_next: True if documents exist after current page matching all filters
+        - has_prev: True if documents exist before current page matching all filters
+    """
+    has_next = has_prev = False
+    
+    # Check for next page - look ahead up to 100 documents to find a valid one
+    if last_result:
+        next_query = db.collection(collection_name)
+        if start: next_query = next_query.where("incident_time", ">=", start)
+        if end: next_query = next_query.where("incident_time", "<=", end)
+        if state: next_query = next_query.where("incident_location", "==", state)
+        next_query = next_query.order_by("incident_time", direction=firestore.Query.DESCENDING)
+        next_query = next_query.start_after(db.collection(collection_name).document(last_result['id']).get())
+        next_query = next_query.limit(100)  # Look ahead up to 100 documents
+        
+        for doc in next_query.stream():
+            if _should_include_incident(doc.to_dict(), incident_type, self_report_status):
+                has_next = True
+                break
+    
+    # Check for previous page - look back up to 100 documents to find a valid one
+    if first_result:
+        prev_query = db.collection(collection_name)
+        if start: prev_query = prev_query.where("incident_time", ">=", start)
+        if end: prev_query = prev_query.where("incident_time", "<=", end)
+        if state: prev_query = prev_query.where("incident_location", "==", state)
+        prev_query = prev_query.order_by("incident_time", direction=firestore.Query.DESCENDING)
+        prev_query = prev_query.end_before(db.collection(collection_name).document(first_result['id']).get())
+        prev_query = prev_query.limit(100)  # Look back up to 100 documents
+        
+        for doc in prev_query.stream():
+            if _should_include_incident(doc.to_dict(), incident_type, self_report_status):
+                has_prev = True
+                break
+    
+    return has_next, has_prev
+
 @cached(cache=INCIDENT_CACHE, key=get_query_cache_key)
 def queryIncidents(start: datetime, end: datetime, state="", type="", self_report_status="", page_size=10, cursor=None, direction="forward"):
     # Validate inputs
@@ -141,15 +183,15 @@ def queryIncidents(start: datetime, end: datetime, state="", type="", self_repor
         page_size = 10
     
     # Set end time to end of day
-    end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
+    if end: end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
     
     db = firestore.Client()
     collection_name = Incident.Meta.collection_name
     
     # Base query
     query = db.collection(collection_name)
-    query = query.where("incident_time", ">=", start)
-    query = query.where("incident_time", "<=", end_time)
+    if start: query = query.where("incident_time", ">=", start)
+    if end_time: query = query.where("incident_time", "<=", end_time)
     if state: query = query.where("incident_location", "==", state)
     
     # Handle direction
@@ -218,14 +260,8 @@ def getIncidents(start: datetime, end: datetime, state="", type="", self_report_
     # Convert cursor if it's a string
     if cursor and isinstance(cursor, str) and cursor != "":
         cursor = {'id': cursor}
-    
-    result = queryIncidents(start, end, state, type, self_report_status, page_size, cursor, direction)
-    
-    # If we got an error response, return it directly
-    if isinstance(result, dict) and "error" in result:
-        return result
         
-    return result
+    return queryIncidents(start, end, state, type, self_report_status, page_size, cursor, direction)
 
 
 def insertIncident(incident, to_flush_cache=True):
@@ -284,11 +320,11 @@ def getStats(start: datetime, end: datetime, state="", type="", self_report_stat
     
     db = firestore.Client()
     collection_name = Incident.Meta.collection_name
-    end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
+    if end: end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
     
     query = db.collection(collection_name)
-    query = query.where("incident_time", ">=", start)
-    query = query.where("incident_time", "<=", end_time)
+    if start: query = query.where("incident_time", ">=", start)
+    if end_time: query = query.where("incident_time", "<=", end_time)
     if state: query = query.where("incident_location", "==", state)
     
     for doc in query.stream():
@@ -428,11 +464,11 @@ def getAllIncidents(params, user_role):
         return validation_error
     
     # Set defaults
-    start = params.get('start', datetime.now() - timedelta(days=30))
+    start = params.get('start', datetime.now() - timedelta(years=1))
     end = params.get('end', datetime.now())
     state = params.get('state', '')
     incident_type = params.get('type', 'both')
-    self_report_status = params.get('self_report_status', 'approved' if user_role != 'admin' else 'all')
+    self_report_status = params.get('self_report_status', 'approved')
     page_size = min(int(params.get('page_size', 10)), 100)
     cursor = params.get('cursor')
     direction = params.get('direction', 'forward')
@@ -459,7 +495,7 @@ def getAllIncidents(params, user_role):
             "next_page_token": result["pagination"]["next_cursor"]["id"] if result["pagination"]["next_cursor"] else None
         },
         "incidents": result["incidents"]
-    }, 200
+    }
     
 def get_incident_by_id(report_id):
     try:
