@@ -230,7 +230,7 @@ def get_stats():
             aggregated[str_date]["self_report"] += stat["self_report"]
 
     # Convert aggregated to the format expected by frontend, since it's already an object, I kept the value for backward compatibility
-    stats = [{"key": k, "value": v["news"] + v["self_report"], "news": v["news"], "self_report": v["self_report"]} for k, v in aggregated.items()]
+    stats = [{"key": k, "value": v["news"] + v["self_report"], "news": v["news"], "self_report": v["self_report"]} for k, v in sorted(aggregated.items(), reverse=True)]
 
     # Create monthly breakdown (detailed objects) and monthly stats (simple numbers for backward compatibility)
     monthly_breakdown = monthly_stats  # Keep the detailed object structure
