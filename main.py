@@ -232,7 +232,11 @@ def get_stats():
     # Convert aggregated to the format expected by frontend, since it's already an object, I kept the value for backward compatibility
     stats = [{"key": k, "value": v["news"] + v["self_report"], "news": v["news"], "self_report": v["self_report"]} for k, v in aggregated.items()]
 
-    return {"stats": stats, "total": total, "monthly_stats": monthly_stats, "insight": insight}
+    # Create monthly breakdown (detailed objects) and monthly stats (simple numbers for backward compatibility)
+    monthly_breakdown = monthly_stats  # Keep the detailed object structure
+    monthly_stats = {k: v["news"] + v["self_report"] for k, v in monthly_breakdown.items()}  # Convert to simple numbers
+
+    return {"stats": stats, "total": total, "monthly_stats": monthly_stats, "monthly_breakdown": monthly_breakdown, "insight": insight}
 
 
 @app.route("/publish_incidents")
