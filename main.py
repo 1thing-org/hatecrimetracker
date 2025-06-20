@@ -179,7 +179,7 @@ def _aggregate_monthly_total(stats, state=None):
 @app.route("/stats")
 def get_stats():
     # return
-    # stats: [{"key": date, "news": count, "self_report": count}] this is daily count filtered by state if needed
+    # stats: [{"key": date, "value": count, "news": count, "self_report": count}] this is daily count filtered by state if needed
     # total: { "location": count } : total per state, not filtered by state
     # insight: { "location": {"news": count, "self_report": count} } : breakdown by type
     start_date, end_date, state, type, self_report_status, _, _ = _getCommonArgs()
@@ -229,8 +229,8 @@ def get_stats():
             aggregated[str_date]["news"] += stat["news"]
             aggregated[str_date]["self_report"] += stat["self_report"]
 
-    # Convert aggregated to the format expected by frontend
-    stats = [{"key": k, "news": v["news"], "self_report": v["self_report"]} for k, v in aggregated.items()]
+    # Convert aggregated to the format expected by frontend, since it's already an object, I kept the value for backward compatibility
+    stats = [{"key": k, "value": v["news"] + v["self_report"], "news": v["news"], "self_report": v["self_report"]} for k, v in aggregated.items()]
 
     return {"stats": stats, "total": total, "monthly_stats": monthly_stats, "insight": insight}
 
