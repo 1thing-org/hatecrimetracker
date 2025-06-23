@@ -179,7 +179,7 @@ def _aggregate_monthly_total(stats, state=None):
 @app.route("/stats")
 def get_stats():
     # return
-    # stats: [{"key": date, "news": count, "self_report": count}] this is daily count filtered by state if needed
+    # stats: [{"key": date, "value": count, "news": count, "self_report": count}] this is daily count filtered by state if needed
     # total: { "location": count } : total per state, not filtered by state
     # insight: { "location": {"news": count, "self_report": count} } : breakdown by type
     start_date, end_date, state, type, self_report_status, _, _ = _getCommonArgs()
@@ -229,10 +229,49 @@ def get_stats():
             aggregated[str_date]["news"] += stat["news"]
             aggregated[str_date]["self_report"] += stat["self_report"]
 
-    # Convert aggregated to the format expected by frontend
-    stats = [{"key": k, "news": v["news"], "self_report": v["self_report"]} for k, v in aggregated.items()]
+    # Convert aggregated to the format expected by production - just key and value for backward compatibility
+    stats = [{"key": k, "value": v["news"] + v["self_report"]} for k, v in sorted(aggregated.items(), reverse=True)]
 
-    return {"stats": stats, "total": total, "monthly_stats": monthly_stats, "insight": insight}
+    # Create monthly breakdown (detailed objects) and monthly stats (simple numbers for backward compatibility)
+    monthly_breakdown = monthly_stats  # Keep the detailed object structure
+    monthly_stats = {k: v["news"] + v["self_report"] for k, v in monthly_breakdown.items()}  # Convert to simple numbers
+
+    # NEW EXTENSIBLE FIELDS - {Key : structure}
+    # daily_statistics: key = date (e.g. "2023-01-17")
+    daily_statistics = {}
+    for date_key, counts in aggregated.items():
+        daily_statistics[date_key] = {
+            "news": counts["news"], 
+            "self_report": counts["self_report"]
+        }
+    
+    # monthly_statistics: key = month (e.g. "2022-05") 
+    monthly_statistics = {}
+    for month, breakdown in monthly_breakdown.items():
+        monthly_statistics[month] = {
+            "news": breakdown["news"],
+            "self_report": breakdown["self_report"]
+        }
+    
+    # insights: key = location (e.g. "CA")
+    insights = {}
+    for location, breakdown in insight.items():
+        insights[location] = {
+            "news": breakdown["news"],
+            "self_report": breakdown["self_report"]
+        }
+
+    return {
+        # EXISTING FIELDS - Keep for production backward compatibility
+        "stats": stats, 
+        "total": total, 
+        "monthly_stats": monthly_stats,
+        
+        # NEW EXTENSIBLE FIELDS - For new self-report feature
+        "daily_statistics": daily_statistics,
+        "monthly_statistics": monthly_statistics,
+        "insights": insights
+    }
 
 
 @app.route("/publish_incidents")
