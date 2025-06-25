@@ -78,14 +78,14 @@ def _get_user(request) -> User:
 
 def _getCommonArgs():
     start = request.args.get(
-        "start", (date.fromisoformat("2022-11-01")).strftime("%Y-%m-%d")
+        "start", (date.fromisoformat("2019-11-01")).strftime("%Y-%m-%d")
     )
     end = request.args.get("end", datetime.now().strftime("%Y-%m-%d"))
     state = request.args.get("state", "")
     type = request.args.get("type", "")
     self_report_status = request.args.get("self_report_status", "")
     start_row = request.args.get("start_row", "")
-    page_size = request.args.get("page_size", "")
+    page_size = request.args.get("page_size", "10")
     return dateparser.parse(start), dateparser.parse(end), state, type, self_report_status, start_row, page_size
 
 
@@ -110,29 +110,50 @@ def get_is_admin():
 
 @app.route("/incidents")
 def get_incidents():
-    start, end, state, type, self_report_status, start_row, page_size = _getCommonArgs()
+    start, end, state, type, self_report_status, cursor, page_size = _getCommonArgs()
+    
+    # Get direction from query params (default to forward)
+    direction = request.args.get("direction", "forward")
+    
+    # Handle cursor from different sources
+    cursor = request.args.get("cursor") or request.args.get("next_cursor") or request.args.get("prev_cursor")
+    
     skip_cache = request.args.get("skip_cache", "false")
+    
+    try:
+        page_size = int(page_size) if str(page_size).isdigit() and int(page_size) > 0 else 10
+    except ValueError:
+        page_size = 10
     
     # Only check admin for self-report type when status is not approved
     if skip_cache.lower() == "true" or (type == "self-report" and self_report_status != "approved"):
         _check_is_admin(request)
-    # Get incidents (this might return an error response instead of a list)
-    incidents = getIncidents(start, end, state, type, self_report_status, start_row, page_size, skip_cache.lower() == "true")
     
-    # Check if incidents is an error response
-    if isinstance(incidents, dict) and "error" in incidents:
-        return jsonify(incidents), 400
-
+    # Get incidents with pagination info
+    result = getIncidents(start, end, state, type, self_report_status, cursor, direction, page_size, skip_cache.lower() == "true")
+    
+    # Check if it's an error response
+    if isinstance(result, dict) and "error" in result:
+        return jsonify(result), 400
+    
+    # Handle the response
+    incidents = result.get("incidents", [])
+    pagination = result.get("pagination", {})
+    
     # Handle potential Sentinel type in the created_on field
     for incident in incidents:
         if isinstance(incident, dict) and 'created_on' in incident and incident['created_on'] == SERVER_TIMESTAMP:
             incident['created_on'] = None
-
+    
     lang = _get_lang(request)
+    
+    # Translate incidents
+    translated_incidents = translate_incidents(incidents, lang)
+    clean_translated = clean_unused_translation(translated_incidents, lang)
+    
     return {
-        "incidents": clean_unused_translation(
-            translate_incidents(incidents, lang), lang
-        )
+        "incidents": clean_translated,
+        "pagination": pagination,
     }
 
 
