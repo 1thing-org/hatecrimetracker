@@ -211,91 +211,86 @@ def getStats(start: datetime, end: datetime, state="", type="", self_report_stat
     return ret
 
 
-def insertUserReport(user_report, to_flush_cache=True):
-    # Create user report incident with required fields, returns the incident id
-    new_user_report = Incident(
-        incident_time=(
-            dateparser.parse(user_report["incident_time"])
-            if isinstance(user_report["incident_time"], str)
-            else user_report["incident_time"]
-        ),
-        incident_location=user_report["incident_location"],
-        abstract=user_report["abstract"],
-        attachments= user_report.get("attachments", None)  # Not required but it's an input from the frontend, it's an array of strings for GCS
-    )
-    
-    # Set incident type
-    new_user_report.type = "self_report"
-    
-    # Optional fields
-    new_user_report.self_report_status = "new"
-    new_user_report.abstract_translate = user_report.get("abstract_translate", {})
-    new_user_report.approved_by = None
-    new_user_report.contact_name = user_report.get("contact_name", None)
-    new_user_report.email = user_report.get("email", None)
-    new_user_report.phone = user_report.get("phone", None)
-    new_user_report.publish_status = {}
-
-    user_report_id = new_user_report.insert().id
-    if user_report_id:
-        if to_flush_cache:
-            flush_cache()
-        return user_report_id
-    raise SystemError(
-        "Failed to insert the user_report with id:" + new_user_report.id
-    )
-
-def updateUserReport(user_report):
-    # Initialize Firestore client
-    db = firestore.Client()
-
-    def get_user_report_by_report_id(report_id):
-        # Query for the document with the specified report_id
-        doc_ref = db.collection('incident').document(report_id)
-        doc = doc_ref.get()
-        # Iterate over the query results and return the first match
-        if doc.exists:
-            return doc.id, doc.to_dict()  # Return both the document ID and its data
-        # If no match found, return None
-        return None, None
-
+def upsertUserReport(user_report, to_flush_cache=True):
     try:
-        # Get the document ID and the user report data
-        doc_id, existing_report = get_user_report_by_report_id(user_report["report_id"])
-
-        if doc_id is None:
-            return {"error": "Report ID not found", "report_id": user_report["report_id"]}, 404  # Return an error if the report_id does not exist
-
-        # Reference to the specific document to update
-        user_report_ref = db.collection('incident').document(doc_id)
-
-        # Update the document with the new details
-        updates = {}
-        # User updates fields
-        if user_report.get("contact_name"):
-            updates['contact_name'] = user_report["contact_name"]
-        if user_report.get("email"):
-            updates['email'] = user_report["email"]
-        if user_report.get("phone"):
-            updates['phone'] = user_report["phone"]
+        report_id = user_report.get("report_id")
+        
+        if report_id:
+            # Update existing report
+            try:
+                existing_incident = Incident.collection.get(report_id)
+                if not existing_incident:
+                    return {"error": "Report ID not found", "report_id": report_id}, 404
+                
+                # Validate self_report_status if provided
+                if user_report.get("self_report_status"):
+                    if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
+                        return {"error": "Invalid self_report_status value"}, 400
+                    existing_incident.self_report_status = user_report["self_report_status"]
+                
+                # Update user contact fields if provided
+                if user_report.get("contact_name"):
+                    existing_incident.contact_name = user_report["contact_name"]
+                if user_report.get("email"):
+                    existing_incident.email = user_report["email"]
+                if user_report.get("phone"):
+                    existing_incident.phone = user_report["phone"]
+                
+                # Update admin fields if provided
+                if "approved_by" in user_report:
+                    existing_incident.approved_by = user_report["approved_by"]
+                
+                # Save the updated incident
+                existing_incident.upsert()
+                
+                if to_flush_cache:
+                    flush_cache()
+                
+                return {'report_id': report_id}, 200
+                
+            except Exception as e:
+                print(f"Error updating user report: {str(e)}")
+                return {"error": "Failed to update user report", "details": "Internal server error"}, 500
+        
+        else:
+            # Create new report
+            new_user_report = Incident(
+                incident_time=(
+                    dateparser.parse(user_report["incident_time"])
+                    if isinstance(user_report["incident_time"], str)
+                    else user_report["incident_time"]
+                ),
+                incident_location=user_report["incident_location"],
+                abstract=user_report["abstract"],
+                attachments=user_report.get("attachments", [])
+            )
             
-        # Admin updates fields
-        if user_report.get("self_report_status"):
-            if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
-                return {"error": "Invalid self_report_status value"}, 400
-            updates['self_report_status'] = user_report["self_report_status"]
-        updates['approved_by'] = user_report["approved_by"]
-
-        if updates:
-            user_report_ref.update(updates)
-            flush_cache()  # Clear cache after updating
-
-        # Return the report_id in the response
-        return {'report_id': user_report["report_id"]}, 200
-    
+            # Set incident type and default status
+            new_user_report.type = "self_report"
+            new_user_report.self_report_status = "new"
+            
+            # Set optional fields
+            new_user_report.abstract_translate = user_report.get("abstract_translate", {})
+            new_user_report.approved_by = None
+            new_user_report.contact_name = user_report.get("contact_name", None)
+            new_user_report.email = user_report.get("email", None)
+            new_user_report.phone = user_report.get("phone", None)
+            new_user_report.publish_status = {}
+            
+            user_report_id = new_user_report.insert().id
+            if user_report_id:
+                if to_flush_cache:
+                    flush_cache()
+                return user_report_id
+            
+            raise RuntimeError("Failed to insert the user_report")
+            
     except Exception as e:
-        print(f"Error updating user report: {str(e)}")  # Log the error
-        return {"error": "Failed to update user report", "details": str(e)}, 500
+        print(f"Error in upsertUserReport: {str(e)}")
+        if report_id:
+            return {"error": "Failed to process user report", "details": "Internal server error"}, 500
+        else:
+            raise RuntimeError(f"Failed to create user report: {str(e)}")
 
 
 def getAllIncidents(params, user_role):
