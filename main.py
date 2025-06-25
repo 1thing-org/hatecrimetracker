@@ -93,7 +93,6 @@ def _getCommonArgs():
 def root():
     start, end, state, type, self_report_status, start_row, page_size = _getCommonArgs()
     incidents = getIncidents(start, end, state, type, self_report_status, start_row, page_size)
-    print(incidents)
     return render_template(
         "index.html", incidents=incidents, current_user=_get_user(request)
     )
