@@ -26,7 +26,7 @@ from google.auth.transport import Response, requests
 
 import firestore.admins
 from common import User
-from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, insertUserReport, updateUserReport, get_incident_by_id
+from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, upsertUserReport, get_incident_by_id
 from firestore.tokens import add_token
 import incident_publisher
 from google.cloud.firestore_v1 import SERVER_TIMESTAMP
@@ -322,7 +322,7 @@ def create_user_report():
     
     if req is None or not req.get("abstract") or not req.get("incident_location")  or not req.get("incident_time"):
         raise ValueError("Missing user report abstract, location or time ")
-    id = insertUserReport(req)
+    id = upsertUserReport(req)
     return {"user_report_id": id}
 
 @app.route("/user_report_profile", methods=["POST"])
@@ -334,8 +334,8 @@ def update_user_report():
     if data.get('self_report_status'):  # Only admins can update the self_report_status
         _check_is_admin(request)
 
-    # Call the updateUserReport function and get the response and status code
-    response, code = updateUserReport(data)
+    # Call the upsertUserReport function and get the response and status code
+    response, code = upsertUserReport(data)
     return response, code
 
 # Admin-only endpoint to view user reported incident details that may including private contact information
