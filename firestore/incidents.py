@@ -268,21 +268,8 @@ def upsertUserReport(user_report, to_flush_cache=True):
                 if "approved_by" in user_report:
                     existing_incident.approved_by = user_report["approved_by"]
                 
-                print(f"DEBUG - About to update with contact_name: {existing_incident.contact_name}, email: {existing_incident.email}")
-                
-                # Use FireO ORM update() method for existing documents (correct pattern from tokens_v2.py)
+                # Use FireO ORM update() method for existing documents
                 existing_incident.update()
-                print("DEBUG - Update completed successfully")
-                
-                # Verify the update worked
-                db_verify = firestore.Client()
-                doc_verify = db_verify.collection('incident').document(report_id).get()
-                if doc_verify.exists:
-                    verify_data = doc_verify.to_dict()
-                    print(f"DEBUG - After update, contact_name in DB: {verify_data.get('contact_name')}")
-                    print(f"DEBUG - After update, email in DB: {verify_data.get('email')}")
-                else:
-                    print("DEBUG - Document not found after update!")
                 
                 if to_flush_cache:
                     flush_cache()
