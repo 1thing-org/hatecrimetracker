@@ -216,12 +216,40 @@ def upsertUserReport(user_report, to_flush_cache=True):
         report_id = user_report.get("report_id")
         
         if report_id:
-            # Update existing report
+            # Update existing report using FireO ORM upsert pattern (same as ADD but with ID)
             try:
-                existing_incident = Incident.collection.get(report_id)
-                if not existing_incident:
+                # First verify the document exists
+                db = firestore.Client()
+                doc_ref = db.collection('incident').document(report_id)
+                doc = doc_ref.get()
+                if not doc.exists:
                     return {"error": "Report ID not found", "report_id": report_id}, 404
                 
+                # Get existing data
+                existing_data = doc.to_dict()
+                
+                # Create Incident object manually setting all fields (like in ADD path)
+                existing_incident = Incident(
+                    incident_time=existing_data.get("incident_time"),
+                    incident_location=existing_data.get("incident_location"),
+                    abstract=existing_data.get("abstract"),
+                    attachments=existing_data.get("attachments", [])
+                )
+                
+                # Set the ID for upsert
+                existing_incident.id = report_id
+                
+                # Restore all existing fields
+                existing_incident.type = existing_data.get("type", "self_report")
+                existing_incident.self_report_status = existing_data.get("self_report_status", "new")
+                existing_incident.abstract_translate = existing_data.get("abstract_translate", {})
+                existing_incident.approved_by = existing_data.get("approved_by")
+                existing_incident.contact_name = existing_data.get("contact_name")
+                existing_incident.email = existing_data.get("email")
+                existing_incident.phone = existing_data.get("phone")
+                existing_incident.publish_status = existing_data.get("publish_status", {})
+                
+                # Now apply updates
                 # Validate self_report_status if provided
                 if user_report.get("self_report_status"):
                     if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
@@ -240,8 +268,21 @@ def upsertUserReport(user_report, to_flush_cache=True):
                 if "approved_by" in user_report:
                     existing_incident.approved_by = user_report["approved_by"]
                 
-                # Save the updated incident
-                existing_incident.upsert()
+                print(f"DEBUG - About to update with contact_name: {existing_incident.contact_name}, email: {existing_incident.email}")
+                
+                # Use FireO ORM update() method for existing documents (correct pattern from tokens_v2.py)
+                existing_incident.update()
+                print("DEBUG - Update completed successfully")
+                
+                # Verify the update worked
+                db_verify = firestore.Client()
+                doc_verify = db_verify.collection('incident').document(report_id).get()
+                if doc_verify.exists:
+                    verify_data = doc_verify.to_dict()
+                    print(f"DEBUG - After update, contact_name in DB: {verify_data.get('contact_name')}")
+                    print(f"DEBUG - After update, email in DB: {verify_data.get('email')}")
+                else:
+                    print("DEBUG - Document not found after update!")
                 
                 if to_flush_cache:
                     flush_cache()
