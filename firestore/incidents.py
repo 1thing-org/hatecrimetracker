@@ -216,60 +216,31 @@ def upsertUserReport(user_report, to_flush_cache=True):
         report_id = user_report.get("report_id")
         
         if report_id:
-            # Update existing report using FireO ORM upsert pattern (same as ADD but with ID)
+            # Update existing report using FireO ORM - only update specific fields
             try:
-                # First verify the document exists
-                db = firestore.Client()
-                doc_ref = db.collection('incident').document(report_id)
-                doc = doc_ref.get()
-                if not doc.exists:
-                    return {"error": "Report ID not found", "report_id": report_id}, 404
-                
-                # Get existing data
-                existing_data = doc.to_dict()
-                
-                # Create Incident object manually setting all fields (like in ADD path)
-                existing_incident = Incident(
-                    incident_time=existing_data.get("incident_time"),
-                    incident_location=existing_data.get("incident_location"),
-                    abstract=existing_data.get("abstract"),
-                    attachments=existing_data.get("attachments", [])
-                )
-                
-                # Set the ID for upsert
-                existing_incident.id = report_id
-                
-                # Restore all existing fields
-                existing_incident.type = existing_data.get("type", "self_report")
-                existing_incident.self_report_status = existing_data.get("self_report_status", "new")
-                existing_incident.abstract_translate = existing_data.get("abstract_translate", {})
-                existing_incident.approved_by = existing_data.get("approved_by")
-                existing_incident.contact_name = existing_data.get("contact_name")
-                existing_incident.email = existing_data.get("email")
-                existing_incident.phone = existing_data.get("phone")
-                existing_incident.publish_status = existing_data.get("publish_status", {})
-                
-                # Now apply updates
                 # Validate self_report_status if provided
                 if user_report.get("self_report_status"):
                     if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
                         return {"error": "Invalid self_report_status value"}, 400
-                    existing_incident.self_report_status = user_report["self_report_status"]
                 
-                # Update user contact fields if provided
+                # Create minimal FireO ORM object with just the fields to update
+                update_incident = Incident()
+                update_incident.id = report_id
+                
+                # Only set the fields that need to be updated
                 if user_report.get("contact_name"):
-                    existing_incident.contact_name = user_report["contact_name"]
+                    update_incident.contact_name = user_report["contact_name"]
                 if user_report.get("email"):
-                    existing_incident.email = user_report["email"]
+                    update_incident.email = user_report["email"]
                 if user_report.get("phone"):
-                    existing_incident.phone = user_report["phone"]
-                
-                # Update admin fields if provided
+                    update_incident.phone = user_report["phone"]
+                if user_report.get("self_report_status"):
+                    update_incident.self_report_status = user_report["self_report_status"]
                 if "approved_by" in user_report:
-                    existing_incident.approved_by = user_report["approved_by"]
+                    update_incident.approved_by = user_report["approved_by"]
                 
-                # Use FireO ORM update() method for existing documents
-                existing_incident.update()
+                # Update using FireO ORM - this should only update the fields we set
+                update_incident.update()
                 
                 if to_flush_cache:
                     flush_cache()
