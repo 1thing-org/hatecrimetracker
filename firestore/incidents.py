@@ -216,18 +216,27 @@ def upsertUserReport(user_report, to_flush_cache=True):
         report_id = user_report.get("report_id")
         
         if report_id:
-            # Update existing report using FireO ORM - only update specific fields
+            # Update existing report using FireO ORM with key parameter for partial updates
             try:
                 # Validate self_report_status if provided
                 if user_report.get("self_report_status"):
                     if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
                         return {"error": "Invalid self_report_status value"}, 400
                 
-                # Create minimal FireO ORM object with just the fields to update
-                update_incident = Incident()
-                update_incident.id = report_id
+                # Get existing incident_time to preserve it (DateTime field needs special handling)
+                db = firestore.Client()
+                doc_ref = db.collection('incident').document(report_id)
+                doc = doc_ref.get(field_paths=["incident_time"])
+                if not doc.exists:
+                    return {"error": "Report ID not found", "report_id": report_id}, 404
                 
-                # Only set the fields that need to be updated
+                # Create FireO ORM object with fields to update + preserve incident_time
+                update_incident = Incident()
+                
+                # Preserve the existing incident_time to prevent it from becoming null
+                update_incident.incident_time = doc.get("incident_time")
+                
+                # Set the fields that need to be updated
                 if user_report.get("contact_name"):
                     update_incident.contact_name = user_report["contact_name"]
                 if user_report.get("email"):
@@ -239,8 +248,8 @@ def upsertUserReport(user_report, to_flush_cache=True):
                 if "approved_by" in user_report:
                     update_incident.approved_by = user_report["approved_by"]
                 
-                # Update using FireO ORM - this should only update the fields we set
-                update_incident.update()
+                # Update using FireO ORM - pass key directly for partial update
+                update_incident.update(report_id)
                 
                 if to_flush_cache:
                     flush_cache()
