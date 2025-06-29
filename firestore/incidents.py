@@ -18,7 +18,7 @@ VALID_QUERY_INCIDENT_TYPES = VALID_INCIDENT_TYPES | {"", "both"}
 def get_query_cache_key(*args, **kwargs):
     # Convert args to a list for modification
     args_list = list(args)
-    
+    print(args_list)
     # Check if we have a cursor parameter (index 6)
     if len(args_list) > 6 and isinstance(args_list[6], dict):
         cursor = args_list[6]
@@ -317,13 +317,28 @@ def insertIncident(incident, to_flush_cache=True):
 @cached(cache=INCIDENT_STATS_CACHE)
 def getStats(start: datetime, end: datetime, state="", type="", self_report_status=""):
     stats = {}  # (date, state) : {"news": count, "self_report": count}
-    incidents = queryIncidents(start, end, state, type, self_report_status)
+    # getStats needs to get all incidents at once, so it needs to pagimate through
+    # all results using cursors until all incidents are fetched
+    current_cursor = None
+    has_next = True
+    all_incidents = []
+    while has_next:
+        # The page size may need to change when incidents getting more
+        result = queryIncidents(start, end, state, type, self_report_status, 1000, current_cursor)
+        # Check if we got an error response
+        if isinstance(result, dict) and "error" in result:
+            return []
+        # Extract incidents from the response
+        incidents = result["incidents"]
+        all_incidents.extend(incidents)
+        has_next = result["pagination"]["has_next"]
+        if has_next:
+            next_cursor = result["pagination"]["next_cursor"]["id"]
+            current_cursor = {
+                'id': next_cursor
+            }
 
-    # Check if we got an error response
-    if isinstance(incidents, dict) and "error" in incidents:
-        return []
-
-    for incident in incidents:
+    for incident in all_incidents:
         # Handle both string and datetime inputs
         incident_time = incident["incident_time"]
         if isinstance(incident_time, str):
