@@ -18,7 +18,6 @@ VALID_QUERY_INCIDENT_TYPES = VALID_INCIDENT_TYPES | {"", "both"}
 def get_query_cache_key(*args, **kwargs):
     # Convert args to a list for modification
     args_list = list(args)
-    print(args_list)
     # Check if we have a cursor parameter (index 6)
     if len(args_list) > 6 and isinstance(args_list[6], dict):
         cursor = args_list[6]
@@ -323,8 +322,8 @@ def getStats(start: datetime, end: datetime, state="", type="", self_report_stat
     has_next = True
     all_incidents = []
     while has_next:
-        # The page size may need to change when incidents getting more
-        result = queryIncidents(start, end, state, type, self_report_status, 1000, current_cursor)
+        # The page size setting are open to discussion
+        result = queryIncidents(start, end, state, type, self_report_status, 1200, current_cursor)
         # Check if we got an error response
         if isinstance(result, dict) and "error" in result:
             return []
