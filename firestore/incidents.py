@@ -210,88 +210,77 @@ def getStats(start: datetime, end: datetime, state="", type="", self_report_stat
 
     return ret
 
-
+# Unified upsert function for both create new report and update existing report, determined by id
 def upsertUserReport(user_report, to_flush_cache=True):
     try:
+        print("UPSERTING USER REPORT:", user_report)
         report_id = user_report.get("report_id")
         
         if report_id:
-            # Update existing report using FireO ORM with key parameter for partial updates
             try:
-                # Validate self_report_status if provided
-                if user_report.get("self_report_status"):
-                    if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
-                        return {"error": "Invalid self_report_status value"}, 400
-                
-                # Get existing incident_time to preserve it (DateTime field needs special handling)
-                db = firestore.Client()
-                doc_ref = db.collection('incident').document(report_id)
-                doc = doc_ref.get(field_paths=["incident_time"])
-                if not doc.exists:
+                existing_report = Incident.collection.get(f"incident/{report_id}") # incident/report_id: format for retreieve an obejct from the collection
+                if not existing_report:
                     return {"error": "Report ID not found", "report_id": report_id}, 404
                 
-                # Create FireO ORM object with fields to update + preserve incident_time
-                update_incident = Incident()
-                
-                # Preserve the existing incident_time to prevent it from becoming null
-                update_incident.incident_time = doc.get("incident_time")
-                
-                # Set the fields that need to be updated
-                if user_report.get("contact_name"):
-                    update_incident.contact_name = user_report["contact_name"]
-                if user_report.get("email"):
-                    update_incident.email = user_report["email"]
-                if user_report.get("phone"):
-                    update_incident.phone = user_report["phone"]
-                if user_report.get("self_report_status"):
-                    update_incident.self_report_status = user_report["self_report_status"]
-                if "approved_by" in user_report:
-                    update_incident.approved_by = user_report["approved_by"]
-                
-                # Update using FireO ORM - pass key directly for partial update
-                update_incident.update(report_id)
-                
-                if to_flush_cache:
-                    flush_cache()
-                
-                return {'report_id': report_id}, 200
+                # Convert FireO ORM obejct to dict and merge with new fields (new fields overrides)
+                existing_fields = existing_report.to_dict()
+                existing_fields.update(user_report)
+                user_report = existing_fields
                 
             except Exception as e:
-                print(f"Error updating user report: {str(e)}")
-                return {"error": "Failed to update user report", "details": "Internal server error"}, 500
+                print(f"Error fetching existing report: {str(e)}")
+                return {"error": "Failed to fetch existing report", "details": "Internal server error"}, 500
         
+        if "self_report_status" in user_report and user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
+            return {"error": "Invalid self_report_status value"}, 400
+        
+        incident_time = (
+            dateparser.parse(user_report["incident_time"])
+            if isinstance(user_report.get("incident_time"), str)
+            else user_report.get("incident_time")
+        )
+        
+        # Pass in user input fields
+        new_user_report = Incident(
+            incident_time=incident_time,
+            incident_location=user_report.get("incident_location"),
+            abstract=user_report.get("abstract"),
+            attachments=user_report.get("attachments", None),
+        )
+        
+        # Set ID for update, or None for insert
+        new_user_report.id = report_id
+        # Set self_report_status
+        new_user_report.self_report_status = user_report.get("self_report_status", "new")
+        # Set optional user contact fields
+        new_user_report.contact_name = user_report.get("contact_name", None)
+        new_user_report.email = user_report.get("email", None)
+        new_user_report.phone = user_report.get("phone", None)
+        # Set required publish_status
+        new_user_report.publish_status = user_report.get("publish_status", {})
+        
+        # Set optional fields
+        new_user_report.type = user_report.get("type", "self_report")
+        new_user_report.abstract_translate = user_report.get("abstract_translate", None)
+        
+        # Set administrative fields
+        new_user_report.approved_by = user_report.get("approved_by", None)
+        
+        # Set community support fields
+        new_user_report.donation_link = user_report.get("donation_link", None)
+        new_user_report.police_tip_line = user_report.get("police_tip_line", None)
+        new_user_report.help_the_victim = user_report.get("help_the_victim", None)
+        
+        result_id = new_user_report.upsert().id
+        if result_id:
+            if to_flush_cache:
+                flush_cache()
+            if report_id:
+                return {"report_id": result_id}, 200
+            else:
+                return result_id
         else:
-            # Create new report
-            new_user_report = Incident(
-                incident_time=(
-                    dateparser.parse(user_report["incident_time"])
-                    if isinstance(user_report["incident_time"], str)
-                    else user_report["incident_time"]
-                ),
-                incident_location=user_report["incident_location"],
-                abstract=user_report["abstract"],
-                attachments=user_report.get("attachments", [])
-            )
-            
-            # Set incident type and default status
-            new_user_report.type = "self_report"
-            new_user_report.self_report_status = "new"
-            
-            # Set optional fields
-            new_user_report.abstract_translate = user_report.get("abstract_translate", {})
-            new_user_report.approved_by = None
-            new_user_report.contact_name = user_report.get("contact_name", None)
-            new_user_report.email = user_report.get("email", None)
-            new_user_report.phone = user_report.get("phone", None)
-            new_user_report.publish_status = {}
-            
-            user_report_id = new_user_report.upsert().id
-            if user_report_id:
-                if to_flush_cache:
-                    flush_cache()
-                return user_report_id
-            
-            raise RuntimeError("Failed to insert the user_report")
+            raise SystemError("Failed to upsert the user report with id:" + str(new_user_report.id))
             
     except Exception as e:
         print(f"Error in upsertUserReport: {str(e)}")
