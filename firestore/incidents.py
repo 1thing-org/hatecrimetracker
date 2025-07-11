@@ -317,41 +317,39 @@ def insertIncident(incident, to_flush_cache=True):
 @cached(cache=INCIDENT_STATS_CACHE)
 def getStats(start: datetime, end: datetime, state="", type="", self_report_status=""):
     stats = {}  # (date, state) : {"news": count, "self_report": count}
-    incidents = queryIncidents(start, end, state, type, self_report_status)
+    
+    db = firestore.Client()
+    collection_name = Incident.Meta.collection_name
+    if end: end_time = datetime(end.year, end.month, end.day, 23, 59, 59)
+    
+    query = db.collection(collection_name)
+    if start: query = query.where("incident_time", ">=", start)
+    if end_time: query = query.where("incident_time", "<=", end_time)
+    if state: query = query.where("incident_location", "==", state)
+    
+    for doc in query.stream():
+        doc_dict = doc.to_dict()
+        if _should_include_incident(doc_dict, type, self_report_status):
+            incident_time = doc_dict["incident_time"]
+            if isinstance(incident_time, str):
+                incident_time = dateparser.parse(incident_time)
+            incident_date = incident_time.strftime("%Y-%m-%d")
+            key = (incident_date, doc_dict["incident_location"])
+            
+            if key not in stats:
+                stats[key] = {"news": 0, "self_report": 0}
+            
+            if doc_dict.get('type') == "self_report":
+                stats[key]["self_report"] += 1
+            else:
+                stats[key]["news"] += 1
 
-    # Check if we got an error response
-    if isinstance(incidents, dict) and "error" in incidents:
-        return []
-
-    for incident in incidents:
-        # Handle both string and datetime inputs
-        incident_time = incident["incident_time"]
-        if isinstance(incident_time, str):
-            incident_time = dateparser.parse(incident_time)
-        incident_date = incident_time.strftime("%Y-%m-%d")
-        key = (incident_date, incident["incident_location"])
-
-        if key not in stats:
-            stats[key] = {"news": 0, "self_report": 0}
-
-        # Count the incidents by type for frontend display
-        incident_type = incident.get("type", "news")  # Default to news if type not specified
-        if incident_type == "self_report":
-            stats[key]["self_report"] += 1
-        else:
-            stats[key]["news"] += 1
-
-    ret = []
-    for key in stats:
-        (date, state) = key
-        ret.append({
-            "key": date,
-            "incident_location": state,
-            "news": stats[key]["news"],
-            "self_report": stats[key]["self_report"]
-        })
-
-    return ret
+    return [{
+        "key": date,
+        "incident_location": state,
+        "news": counts["news"],
+        "self_report": counts["self_report"]
+    } for (date, state), counts in stats.items()]
 
 
 def insertUserReport(user_report, to_flush_cache=True):
