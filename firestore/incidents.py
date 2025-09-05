@@ -393,7 +393,7 @@ def insertUserReport(user_report, to_flush_cache=True):
     new_user_report.phone = user_report.get("phone", None)
     new_user_report.publish_status = {}
 
-    user_report_id = new_user_report.insert().id
+    user_report_id = new_user_report.upsert().id
     if user_report_id:
         if to_flush_cache:
             flush_cache()
