@@ -1,11 +1,31 @@
 from firestore.incidents import (insertIncident)
 from google.cloud import translate
+import google.auth
+
+def get_current_project_id_auth():
+    """
+    Returns the Project ID inferred from the environment using google-auth.
+    This works across App Engine, Cloud Functions, and Cloud Run.
+    """
+    try:
+        # This function looks up the default credentials and project ID
+        # based on the environment where the code is executing.
+        credentials, project_id = google.auth.default()
+        
+        return project_id
+    except Exception as e:
+        # This usually occurs if running locally without proper authentication 
+        # (e.g., no GOOGLE_APPLICATION_CREDENTIALS set).
+        print(f"Error determining Project ID: {e}")
+        return None
 
 translate_api_client = translate.TranslationServiceClient()
 LOCATION = "global"
-PROJECT_ID='hate-crime-tracker'
+PROJECT_ID= get_current_project_id_auth()  #'hate-crime-tracker'
 PARENT = f"projects/{PROJECT_ID}/locations/{LOCATION}"
 BATCH_SIZE=50
+
+print("Current project id:", PROJECT_ID)
 
 def translate_batch(batch, target_lang):
     if len(batch) == 0:
