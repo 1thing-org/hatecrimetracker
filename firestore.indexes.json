@@ -1,0 +1,71 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "incident",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "created_by",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "incident_time",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "incident",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "incident_location",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "incident_time",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "tracker_incident",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "incident_location",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "incident_time",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "tracker_incidents",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "created_by",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "incident_time",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "visit",
+      "queryScope": "COLLECTION_RECURSIVE",
+      "fields": [
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
