@@ -263,50 +263,100 @@ def getIncidents(start: datetime, end: datetime, state="", type="", self_report_
     return queryIncidents(start, end, state, type, self_report_status, page_size, cursor, direction)
 
 
-def insertIncident(incident, to_flush_cache=True):
-    # return incident id
-    print("INSERTING:", incident)
-    new_incident = Incident(
-        incident_time=(
-            dateparser.parse(incident["incident_time"])
-            if isinstance(incident["incident_time"], str)
-            else incident["incident_time"]
-        ),
-        incident_location=incident["incident_location"],
-        abstract=incident["abstract"],
-        url=incident["url"],
-        incident_source=incident["incident_source"],
-        created_by=incident["created_by"],
-        title=incident["title"],
-    )
+def upsert_incident(incident_data: dict, to_flush_cache=True):
+    """
+    Creates or updates an incident. If 'id' is in incident_data, it updates.
+    Otherwise, it creates a new incident.
+    Handles both 'news' and 'self_report' types.
+    """
+    incident_id = incident_data.get("id")
+    incident_type = incident_data.get("type", "news")
+
+    # # Check required fields from the model definition for all operations
+    # required_fields = []
+    # for field_name, field_obj in Incident.Meta.fields.items():
+    #     # FireO's `required` flag
+    #     if getattr(field_obj, 'required', False):
+    #         # Skip fields with default values
+    #         if getattr(field_obj, 'default', None) is None:
+    #             # For new incidents, field must be present. For updates, if present, it cannot be null.
+    #             if not incident_id and field_name not in incident_data:
+    #                  required_fields.append(field_name)
+    #             elif field_name in incident_data and incident_data[field_name] is None:
+    #                  raise ValueError(f"Required field '{field_name}' cannot be set to null.")
+    # if required_fields:
+    #     raise ValueError(f"Missing required fields for new incident: {', '.join(required_fields)}")
+
+    # Conditional validation for 'news' type
+    if incident_type == 'news':
+        news_required_fields = ['url', 'incident_source', 'created_by', 'title']
+        missing_news_fields = [field for field in news_required_fields if not incident_id and field not in incident_data]
+        if missing_news_fields:
+            raise ValueError(f"Missing required fields for new 'news' incident: {', '.join(missing_news_fields)}")
+
+    is_update = incident_id is not None
+
+    if is_update:
+        incident = Incident.collection.get(f"incident/{incident_id}")
+        if not incident:
+            raise ValueError(f"Incident with id {incident_id} not found.")
+    else: # Create
+        incident = Incident()
+        # Set defaults for creation
+        incident.type = incident_type
+        if incident.type == "self_report":
+            incident.self_report_status = "new"
+        
+    # Common required fields
+    incident.incident_time = dateparser.parse(incident_data["incident_time"]) if isinstance(incident_data["incident_time"], str) else incident_data["incident_time"]
+    incident.incident_location = incident_data["incident_location"]
+    incident.abstract = incident_data["abstract"]
+
+    # Common optional fields
+    if 'abstract_translate' in incident_data:
+        incident.abstract_translate = incident_data["abstract_translate"]
+    if 'publish_status' in incident_data:
+        incident.publish_status = incident_data["publish_status"]
+    if 'donation_link' in incident_data:
+        incident.donation_link = incident_data["donation_link"]
+    if 'police_tip_line' in incident_data:
+        incident.police_tip_line = incident_data["police_tip_line"]
+    if 'help_the_victim' in incident_data:
+        incident.help_the_victim = incident_data["help_the_victim"]
+
+    # News-specific fields
+    if incident_type == 'news':
+        incident.url = incident_data.get("url")
+        incident.incident_source = incident_data.get("incident_source")
+        incident.created_by = incident_data.get("created_by")
+        incident.title = incident_data.get("title")
+        incident.title_translate = incident_data.get("title_translate")
+
+    # Self-report-specific fields
+    if 'attachments' in incident_data:
+        incident.attachments = incident_data["attachments"]
+    if 'self_report_status' in incident_data:
+        if incident_data["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
+            raise ValueError(f"Invalid self_report_status: {incident_data['self_report_status']}")
+        incident.self_report_status = incident_data["self_report_status"]
+    if 'approved_by' in incident_data:
+        incident.approved_by = incident_data["approved_by"]
+    if 'contact_name' in incident_data:
+        incident.contact_name = incident_data["contact_name"]
+    if 'email' in incident_data:
+        incident.email = incident_data["email"]
+    if 'phone' in incident_data:
+        incident.phone = incident_data["phone"]
 
 
-    new_incident.abstract_translate = (
-        incident["abstract_translate"] if "abstract_translate" in incident else {}
-    )
-    new_incident.title_translate = (
-        incident["title_translate"] if "title_translate" in incident else {}
-    )
-    new_incident.publish_status = (
-        incident["publish_status"] if "publish_status" in incident else {}
-    )
-    new_incident.donation_link = (
-        incident["donation_link"] if "donation_link" in incident else None
-    )
-    new_incident.police_tip_line = (
-        incident["police_tip_line"] if "police_tip_line" in incident else None
-    )
-    new_incident.help_the_victim = (
-        incident["help_the_victim"] if "help_the_victim" in incident else None
-    )
+    result_id = incident.upsert().id
 
-    incident_id = new_incident.upsert().id
-    if incident_id:
+    if result_id:
         if to_flush_cache:
             flush_cache()
-        return incident_id
+        return result_id
     else:
-        raise SystemError("Failed to upsert the incident with id:" + new_incident.id)
+        raise SystemError(f"Failed to upsert incident.")
 
 
 # Query incidents within the given dates and state
@@ -367,93 +417,35 @@ def getStats(start: datetime, end: datetime, state="", type="", self_report_stat
 
     return ret
 
-
-def insertUserReport(user_report, to_flush_cache=True):
-    # Create user report incident with required fields, returns the incident id
-    new_user_report = Incident(
-        incident_time=(
-            dateparser.parse(user_report["incident_time"])
-            if isinstance(user_report["incident_time"], str)
-            else user_report["incident_time"]
-        ),
-        incident_location=user_report["incident_location"],
-        abstract=user_report["abstract"],
-        attachments= user_report.get("attachments", None)  # Not required but it's an input from the frontend, it's an array of strings for GCS
-    )
+def update_user_report_contact(incident_id: str, contact_data: dict):
+    """
+    Updates the contact information (name, email, phone) for a specific self-report incident.
     
-    # Set incident type
-    new_user_report.type = "self_report"
+    Args:
+        incident_id (str): The ID of the incident to update.
+        contact_data (dict): A dictionary containing the contact fields to update.
     
-    # Optional fields
-    new_user_report.self_report_status = "new"
-    new_user_report.abstract_translate = user_report.get("abstract_translate", {})
-    new_user_report.approved_by = None
-    new_user_report.contact_name = user_report.get("contact_name", None)
-    new_user_report.email = user_report.get("email", None)
-    new_user_report.phone = user_report.get("phone", None)
-    new_user_report.publish_status = {}
+    Returns:
+        str: The ID of the updated incident.
+        
+    Raises:
+        ValueError: If the incident is not found or is not a 'self-report'.
+    """
+    incident = Incident.collection.get(f"incident/{incident_id}")
 
-    user_report_id = new_user_report.upsert().id
-    if user_report_id:
-        if to_flush_cache:
-            flush_cache()
-        return user_report_id
-    raise SystemError(
-        "Failed to insert the user_report with id:" + new_user_report.id
-    )
+    if not incident:
+        raise ValueError(f"Incident with id {incident_id} not found.")
 
-def updateUserReport(user_report):
-    # Initialize Firestore client
-    db = firestore.Client()
+    if incident.type != 'self_report':
+        raise ValueError("Contact information can only be updated for self-report incidents.")
 
-    def get_user_report_by_report_id(report_id):
-        # Query for the document with the specified report_id
-        doc_ref = db.collection('incident').document(report_id)
-        doc = doc_ref.get()
-        # Iterate over the query results and return the first match
-        if doc.exists:
-            return doc.id, doc.to_dict()  # Return both the document ID and its data
-        # If no match found, return None
-        return None, None
-
-    try:
-        # Get the document ID and the user report data
-        doc_id, existing_report = get_user_report_by_report_id(user_report["report_id"])
-
-        if doc_id is None:
-            return {"error": "Report ID not found", "report_id": user_report["report_id"]}, 404  # Return an error if the report_id does not exist
-
-        # Reference to the specific document to update
-        user_report_ref = db.collection('incident').document(doc_id)
-
-        # Update the document with the new details
-        updates = {}
-        # User updates fields
-        if user_report.get("contact_name"):
-            updates['contact_name'] = user_report["contact_name"]
-        if user_report.get("email"):
-            updates['email'] = user_report["email"]
-        if user_report.get("phone"):
-            updates['phone'] = user_report["phone"]
-            
-        # Admin updates fields
-        if user_report.get("self_report_status"):
-            if user_report["self_report_status"] not in VALID_SELF_REPORT_STATUSES:
-                return {"error": "Invalid self_report_status value"}, 400
-            updates['self_report_status'] = user_report["self_report_status"]
-        updates['approved_by'] = user_report["approved_by"]
-
-        if updates:
-            user_report_ref.update(updates)
-            flush_cache()  # Clear cache after updating
-
-        # Return the report_id in the response
-        return {'report_id': user_report["report_id"]}, 200
+    incident.contact_name = contact_data.get("contact_name", incident.contact_name)
+    incident.email = contact_data.get("email", incident.email)
+    incident.phone = contact_data.get("phone", incident.phone)
     
-    except Exception as e:
-        print(f"Error updating user report: {str(e)}")  # Log the error
-        return {"error": "Failed to update user report", "details": str(e)}, 500
-
+    incident.update()
+    flush_cache()
+    return incident.id
 
 def getAllIncidents(params, user_role):
     """
