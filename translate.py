@@ -1,4 +1,4 @@
-from firestore.incidents import (insertIncident)
+from firestore.incidents import (upsert_incident)
 from google.cloud import translate
 import google.auth
 
@@ -32,7 +32,8 @@ def translate_batch(batch, target_lang):
         return
     translated_batch = []
     for incident in batch:
-        translated_batch.append(incident['title'])
+        if "title" in incident:
+            translated_batch.append(incident['title']) #append title for translation if it exists
         translated_batch.append(incident['abstract'])
     response = translate_api_client.translate_text(
             parent = PARENT,
@@ -45,23 +46,27 @@ def translate_batch(batch, target_lang):
         raise SystemError('Translation result count {0} does not match original {1}'
             .format(len(response.translations), len(translated_batch)))
 
+    idxResult = 0
     for i in range(len(batch)):
+        if "title" in incident: #title may not exist
+            if batch[i].get('title_translate') is None:
+                batch[i]['title_translate'] = {}
+            batch[i]['title_translate'].update({
+                target_lang: response.translations[idxResult].translated_text
+            })
+            idxResult+=1   
+        
         if batch[i].get('abstract_translate') is None:
             batch[i]['abstract_translate'] = {}
-        if batch[i].get('title_translate') is None:
-            batch[i]['title_translate'] = {}
-
-        batch[i]['title_translate'].update({
-            target_lang: response.translations[i*2].translated_text
-        })
         batch[i]['abstract_translate'].update({
-            target_lang: response.translations[i*2+1].translated_text
+            target_lang: response.translations[idxResult].translated_text
         })
+        idxResult+=1
     return batch
 
 def save_batch(batch):
     for incident in batch:
-        insertIncident(incident)
+        upsert_incident(incident)
 
 #translate and save batch of incidents if the given language does not exist
 # do not translate en or en_US
@@ -92,9 +97,10 @@ def clean_unused_translation(orig_incidents, target_lang):
             incident['title_translate'] = {}
             incident['abstract_translate'] = {}
         else:
-            incident['title_translate'] = {
-                target_lang : incident['title_translate'].get(target_lang, "")
-            }
+            if "title_translate" in incident:
+                incident['title_translate'] = {
+                    target_lang : incident['title_translate'].get(target_lang, "")
+                }
             incident['abstract_translate'] = {
                 target_lang : incident['abstract_translate'].get(target_lang, "")
             }

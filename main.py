@@ -26,7 +26,7 @@ from google.auth.transport import Response, requests
 
 import firestore.admins
 from common import User
-from firestore.incidents import deleteIncident, getIncidents, getStats, insertIncident, insertUserReport, updateUserReport, get_incident_by_id
+from firestore.incidents import deleteIncident, getIncidents, getStats, get_incident_by_id, update_user_report_contact
 from firestore.tokens import add_token
 import incident_publisher
 from google.cloud.firestore_v1 import SERVER_TIMESTAMP
@@ -165,21 +165,54 @@ def delete_incident(id):
 
 
 @app.route("/incidents", methods=["POST"])
-def create_incident():
+def upsert_incident():
     try:
-        # _check_is_admin(request)
-        req = request.get_json().get("incident")
-        if req is None or not req.get("abstract") or not req.get("abstract_translate") or not req.get("incident_source"):
-            return jsonify({"error": "Invalid request data or internal server error."}), 400
-        id = insertIncident(req)
+        incident_data = request.get_json()
+        if not incident_data:
+            return jsonify({"error": "Invalid JSON payload."}), 400
+
+        incident_type = incident_data.get("type")
+        if incident_type not in ['news', 'self_report']:
+            return jsonify({"error": "Incident 'type' must be 'news' or 'self_report'."}), 400
+
+        # Admins are required to create 'news' incidents or update any existing incident
+        if incident_type == 'news' or incident_data.get("id"):
+            _check_is_admin(request)
+
+        incident_id = firestore.incidents.upsert_incident(incident_data=incident_data)
         return jsonify({
             "message": "Incident reported successfully.",
-            "user_report_id": str(id)
+            "incident_id": str(incident_id)
         }), 201
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except PermissionError as e:
+        return jsonify({"error": str(e)}), 403
     except Exception as e:
-        # log the exception e if needed
-        return jsonify({"error": "Invalid request data or internal server error."}), 500
+        print(f"Error in upsert_incident: {e}")
+        return jsonify({"error": "An internal server error occurred."}), 500
 
+@app.route("/incidents/<id>/contact", methods=["POST"])
+def update_incident_contact(id):
+    """
+    Updates contact information for a self-reported incident.
+    """
+    try:
+        contact_data = request.get_json()
+        if not contact_data:
+            return jsonify({"error": "Invalid JSON payload."}), 400
+
+        updated_id = update_user_report_contact(id, contact_data)
+        
+        return jsonify({
+            "message": "Contact information updated successfully.",
+            "incident_id": updated_id
+        }), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404 # Not found or bad request
+    except Exception as e:
+        print(f"Error in update_incident_contact: {e}")
+        return jsonify({"error": "An internal server error occurred."}), 500
 
 def _aggregate_monthly_total(stats, state=None):
     monthly_total = {}
@@ -309,20 +342,6 @@ def publish_incidents():
     return {"success": True, "result": result}
 
 
-# @app.route('/loaddata')
-# def load_data():
-#     #loadData("data.json")
-#     traverse_file("data.json")
-#     return "success"
-
-# @app.route('/loadcsv')
-# def load_csv():
-#     #Load incidents from loaddata_result.csv
-#     #loadData("data.json")
-#     load_from_csv("loadtata_result.csv")
-#     return "success"
-
-
 @app.route("/token", methods=["PUT"])
 def register_token():
     deviceId = request.get_json().get("deviceId", None)
@@ -334,30 +353,6 @@ def register_token():
 
     res = add_token(deviceId, token)
     return {"success": True}
-
-
-@app.route("/user_reports", methods=["POST"])
-def create_user_report():
-    req = request.get_json().get("user_report")
-    req["type"] = "self_report"  # Ensure the type is set to self_report
-    
-    if req is None or not req.get("abstract") or not req.get("incident_location")  or not req.get("incident_time"):
-        raise ValueError("Missing user report abstract, location or time ")
-    id = insertUserReport(req)
-    return {"user_report_id": id}
-
-@app.route("/user_report_profile", methods=["POST"])
-def update_user_report():
-    data = request.get_json(force=True).get("user_report")
-    if not data or not data.get("report_id"):
-        return {"error": "Missing report_id"}, 400
-
-    if data.get('self_report_status'):  # Only admins can update the self_report_status
-        _check_is_admin(request)
-
-    # Call the updateUserReport function and get the response and status code
-    response, code = updateUserReport(data)
-    return response, code
 
 # Admin-only endpoint to view user reported incident details that may including private contact information
 @app.route('/incidents/<id>', methods=['GET'])
