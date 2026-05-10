@@ -85,7 +85,12 @@ def _getCommonArgs():
     type = request.args.get("type", "")
     self_report_status = request.args.get("self_report_status", "")
     start_row = request.args.get("start_row", "")
-    page_size = request.args.get("page_size", "10")
+    # Default page_size matches what the web admin already sends explicitly.
+    # The previous default of "10" silently truncated reads from clients that
+    # don't send page_size (notably the old main-branch mobile app), making
+    # `/incidents` look broken for them. The actual returned count is still
+    # bounded by the date range and filters, so this isn't an unbounded read.
+    page_size = request.args.get("page_size", "100000")
     return dateparser.parse(start), dateparser.parse(end), state, type, self_report_status, start_row, page_size
 
 
