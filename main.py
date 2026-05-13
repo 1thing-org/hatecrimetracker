@@ -242,6 +242,20 @@ def get_stats():
     # total: { "location": count } : total per state, not filtered by state
     # insight: { "location": {"news": count, "self_report": count} } : breakdown by type
     start_date, end_date, state, type, self_report_status, _, _ = _getCommonArgs()
+    # If the caller didn't supply a `start`, _getCommonArgs falls back to the
+    # project-wide default of 2019-11-01, which forces /stats to aggregate
+    # ~7 years of incidents on every cold call. For /stats specifically that
+    # is almost never what a viewer wants, so default to "one year before
+    # end_date" by simply decrementing the year. /incidents and other
+    # endpoints keep the wider default since callers (admin tools,
+    # exporters) rely on it.
+    if "start" not in request.args:
+        try:
+            start_date = end_date.replace(year=end_date.year - 1)
+        except ValueError:
+            # end_date is Feb 29 on a leap year — the previous year has no
+            # Feb 29, so step back to Feb 28.
+            start_date = end_date.replace(year=end_date.year - 1, day=28)
     str_start = start_date.strftime("%Y-%m-%d")
     str_end = end_date.strftime("%Y-%m-%d")
 
