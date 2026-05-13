@@ -116,7 +116,20 @@ def get_is_admin():
 @app.route("/incidents")
 def get_incidents():
     start, end, state, type, self_report_status, cursor, page_size = _getCommonArgs()
-    
+
+    # Mirror the /stats override: if the caller didn't supply `start`, fall
+    # back to "one year before end" instead of the project-wide
+    # 2019-11-01 default. Reading ~7 years of incidents on every cold call
+    # is wasteful — every active caller (web Home, admin tabs, mobile redux)
+    # already passes an explicit start date. Anything that genuinely wants
+    # everything since launch can pass `start=2019-11-01` explicitly.
+    if "start" not in request.args:
+        try:
+            start = end.replace(year=end.year - 1)
+        except ValueError:
+            # end is Feb 29 on a leap year — prior year has no Feb 29.
+            start = end.replace(year=end.year - 1, day=28)
+
     # Get direction from query params (default to forward)
     direction = request.args.get("direction", "forward")
     
@@ -242,13 +255,12 @@ def get_stats():
     # total: { "location": count } : total per state, not filtered by state
     # insight: { "location": {"news": count, "self_report": count} } : breakdown by type
     start_date, end_date, state, type, self_report_status, _, _ = _getCommonArgs()
-    # If the caller didn't supply a `start`, _getCommonArgs falls back to the
-    # project-wide default of 2019-11-01, which forces /stats to aggregate
-    # ~7 years of incidents on every cold call. For /stats specifically that
-    # is almost never what a viewer wants, so default to "one year before
-    # end_date" by simply decrementing the year. /incidents and other
-    # endpoints keep the wider default since callers (admin tools,
-    # exporters) rely on it.
+    # If the caller didn't supply a `start`, _getCommonArgs falls back to
+    # the project-wide default of 2019-11-01, which would force /stats to
+    # aggregate ~7 years of incidents on every cold call. Default to "one
+    # year before end_date" instead by simply decrementing the year. The
+    # same override is applied in /incidents — callers that genuinely want
+    # everything since launch can pass `start=2019-11-01` explicitly.
     if "start" not in request.args:
         try:
             start_date = end_date.replace(year=end_date.year - 1)
