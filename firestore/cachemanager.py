@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 import firebase_admin
 from cachetools import TTLCache, cached
@@ -6,6 +7,26 @@ from firebase_admin import db
 ADMIN_CACHE = TTLCache(maxsize=128, ttl=3600 * 24)
 INCIDENT_CACHE = TTLCache(maxsize=1024, ttl=3600 * 24)
 INCIDENT_STATS_CACHE = TTLCache(maxsize=1024, ttl=3600 * 24)
+
+
+# Realtime DB used as a cross-instance cache-bust signal. The dev and prod
+# Firebase projects each have their own RTDB instance, so the URL must
+# match the project we're talking to. GAE sets GOOGLE_CLOUD_PROJECT
+# automatically, so we use it as the primary signal; an explicit
+# FIREBASE_DATABASE_URL env var wins in case a deploy needs to override
+# it without redeploying code.
+PROD_DATABASE_URL = "https://hate-crime-tracker-default-rtdb.firebaseio.com/"
+DEV_DATABASE_URL = "https://hate-crime-tracker-dev-default-rtdb.firebaseio.com/"
+
+
+def _resolve_database_url() -> str:
+    explicit = os.getenv("FIREBASE_DATABASE_URL")
+    if explicit:
+        return explicit
+    project = os.getenv("GOOGLE_CLOUD_PROJECT", "")
+    if project.endswith("-dev") or os.getenv("FIRESTORE_EMULATOR_HOST"):
+        return DEV_DATABASE_URL
+    return PROD_DATABASE_URL
 
 last_cache_update_date = ""
 
@@ -34,7 +55,7 @@ def __listener(event):
 # Make sure to create a realtime db with the following URL and a json path called as /cache_update
 my_app_name = "tracker"
 options = {
-    "databaseURL": "https://hate-crime-tracker-dev-default-rtdb.firebaseio.com/",
+    "databaseURL": _resolve_database_url(),
     "storageBucket": "hate-crime-tracker.appspot.com",
 }
 filebase_app = firebase_admin.initialize_app(options=options, name=my_app_name)
