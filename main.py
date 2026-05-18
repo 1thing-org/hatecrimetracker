@@ -116,7 +116,20 @@ def get_is_admin():
 @app.route("/incidents")
 def get_incidents():
     start, end, state, type, self_report_status, cursor, page_size = _getCommonArgs()
-    
+
+    # Mirror the /stats override: if the caller didn't supply `start`, fall
+    # back to "one year before end" instead of the project-wide
+    # 2019-11-01 default. Reading ~7 years of incidents on every cold call
+    # is wasteful — every active caller (web Home, admin tabs, mobile redux)
+    # already passes an explicit start date. Anything that genuinely wants
+    # everything since launch can pass `start=2019-11-01` explicitly.
+    if "start" not in request.args:
+        try:
+            start = end.replace(year=end.year - 1)
+        except ValueError:
+            # end is Feb 29 on a leap year — prior year has no Feb 29.
+            start = end.replace(year=end.year - 1, day=28)
+
     # Get direction from query params (default to forward)
     direction = request.args.get("direction", "forward")
     
