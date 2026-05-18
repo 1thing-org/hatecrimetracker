@@ -1,4 +1,3 @@
-import json
 import os
 from datetime import datetime
 import firebase_admin
@@ -12,40 +11,19 @@ INCIDENT_STATS_CACHE = TTLCache(maxsize=1024, ttl=3600 * 24)
 
 # Realtime DB used as a cross-instance cache-bust signal. The dev and prod
 # Firebase projects each have their own RTDB instance, so the URL must
-# match the project we're authenticated to or the listen() call returns
-# 401 Unauthorized. Resolution order:
-#   1. Explicit FIREBASE_DATABASE_URL env var.
-#   2. GOOGLE_CLOUD_PROJECT env var (GAE sets it automatically).
-#   3. project_id field of the GOOGLE_APPLICATION_CREDENTIALS JSON file
-#      (the run_local.sh / run_dev.sh path: dev key file, no project
-#      env var). This is the local-dev signal.
-#   4. FIRESTORE_EMULATOR_HOST set ⇒ dev.
-# Falls back to prod when no signal is found, which is the right default
-# for production deploys.
+# match the project we're talking to. GAE sets GOOGLE_CLOUD_PROJECT
+# automatically, so we use it as the primary signal; an explicit
+# FIREBASE_DATABASE_URL env var wins in case a deploy needs to override
+# it without redeploying code.
 PROD_DATABASE_URL = "https://hate-crime-tracker-default-rtdb.firebaseio.com/"
 DEV_DATABASE_URL = "https://hate-crime-tracker-dev-default-rtdb.firebaseio.com/"
-
-
-def _project_id_from_credentials_file() -> str:
-    path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-    if not path or not os.path.isfile(path):
-        return ""
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f).get("project_id", "") or ""
-    except (OSError, ValueError):
-        return ""
 
 
 def _resolve_database_url() -> str:
     explicit = os.getenv("FIREBASE_DATABASE_URL")
     if explicit:
         return explicit
-    project = (
-        os.getenv("GOOGLE_CLOUD_PROJECT")
-        or _project_id_from_credentials_file()
-        or ""
-    )
+    project = os.getenv("GOOGLE_CLOUD_PROJECT", "")
     if project.endswith("-dev") or os.getenv("FIRESTORE_EMULATOR_HOST"):
         return DEV_DATABASE_URL
     return PROD_DATABASE_URL
