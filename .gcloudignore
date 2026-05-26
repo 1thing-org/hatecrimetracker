@@ -13,8 +13,13 @@
 .git
 .gitignore
 env/
+env310/
+scripts/
+ignore/
 
 # Python pycache:
 __pycache__/
 # Ignored by the build system
 /setup.cfg
+
+hate-crime-tracker-*.json
