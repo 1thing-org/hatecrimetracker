@@ -442,8 +442,8 @@ def update_user_report_contact(incident_id: str, contact_data: dict):
     incident.contact_name = contact_data.get("contact_name", incident.contact_name)
     incident.email = contact_data.get("email", incident.email)
     incident.phone = contact_data.get("phone", incident.phone)
-    
-    incident.update()
+    incident.upsert()
+
     flush_cache()
     return incident.id
 
