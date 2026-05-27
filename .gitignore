@@ -2,8 +2,11 @@
 appengine-generated/
 env/
 env310/
+<<<<<<< feature/self-report
 ignore/
 scripts/
+=======
+>>>>>>> feature/self-report
 *.pyc
 hate-crime-tracker-7d52738f7212.json
 firestore-debug.log
